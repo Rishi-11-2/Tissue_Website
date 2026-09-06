@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="A simple tissue sales ledger for tracking orders, manufacturer dues, fuel costs, and profit."
+      content="A simple tissue sales ledger for tracking orders, manufacturer payments, fuel costs, and profit."
     />
     <title>Tissue Ledger</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,7 +46,7 @@
             <p class="eyebrow">Sales &amp; cost tracker</p>
             <h1 id="page-title">Know every roll,<br /><em>every rupee.</em></h1>
           </div>
-          <p class="intro-copy">Record each tissue sale, track what is due to your manufacturer, and see your actual profit at a glance.</p>
+          <p class="intro-copy">Record each tissue sale, track payments to your manufacturer, and see your actual profit at a glance.</p>
         </section>
 
         <section class="sync-panel" id="sync-panel" aria-labelledby="sync-title">
@@ -58,7 +58,18 @@
           <form class="sign-in-form" id="sign-in-form" novalidate>
             <label class="sr-only" for="sign-in-email">Email address</label>
             <input id="sign-in-email" type="email" autocomplete="email" placeholder="you@example.com" />
-            <button class="button button-primary" id="sign-in-button" type="submit">Send sign-in link</button>
+            <button class="button button-primary" id="sign-in-button" type="submit">Send code</button>
+          </form>
+          <form class="otp-form hidden" id="otp-form" novalidate>
+            <label for="otp-code">Enter the 6-digit code sent to <span id="otp-email-label"></span></label>
+            <div class="otp-controls">
+              <input id="otp-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" aria-describedby="otp-help" />
+              <button class="button button-primary" id="verify-otp-button" type="submit">Verify code</button>
+            </div>
+            <div class="otp-options">
+              <span id="otp-help">You can read the email on another device and type the code here.</span>
+              <button class="link-button" id="use-different-email" type="button">Use a different email</button>
+            </div>
           </form>
           <div class="sync-actions hidden" id="signed-in-actions">
             <button class="button button-secondary" id="sync-now-button" type="button">Sync now</button>
@@ -81,7 +92,7 @@
           <article class="summary-card due-card">
             <div class="card-label"><span class="card-icon due-icon">⌁</span> Due to manufacturer</div>
             <strong id="manufacturer-due">₹0</strong>
-            <span>Outstanding balance recorded</span>
+            <span>Stock cost less payments made</span>
           </article>
           <article class="summary-card margin-card">
             <div class="card-label"><span class="card-icon margin-icon">%</span> Profit margin</div>
@@ -135,15 +146,6 @@
               </div>
 
               <div class="form-row">
-                <label for="manufacturer-due-input">Manufacturer due</label>
-                <div class="field-with-prefix">
-                  <span>₹</span>
-                  <input id="manufacturer-due-input" name="manufacturerDue" type="number" inputmode="decimal" min="0" step="0.01" value="0" />
-                </div>
-                <small>Amount owed for this order</small>
-              </div>
-
-              <div class="form-row">
                 <label for="notes">Note <span class="optional">optional</span></label>
                 <textarea id="notes" name="notes" maxlength="240" placeholder="Customer, area, or anything useful..."></textarea>
               </div>
@@ -194,7 +196,6 @@
                     <th>Qty.</th>
                     <th>Sales</th>
                     <th>Stock cost</th>
-                    <th>Due</th>
                     <th>Net amount</th>
                     <th><span class="sr-only">Actions</span></th>
                   </tr>
@@ -207,7 +208,72 @@
                 <p>Your sales history will appear here after you add your first order.</p>
               </div>
             </div>
-            <p class="history-note">The due total adds the unpaid amount from every recorded order. Use the free cloud sync above to keep the same history on all of your phones.</p>
+            <p class="history-note">The due balance is calculated from total stock cost less the manufacturer payments below. Use free cloud sync to keep the same history on all of your phones.</p>
+          </section>
+        </section>
+
+        <section class="manufacturer-workspace" aria-label="Manufacturer payment ledger">
+          <aside class="entry-panel manufacturer-entry-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Separate payment ledger</p>
+                <h2 id="manufacturer-form-title">Add manufacturer payment</h2>
+              </div>
+              <span class="panel-number">03</span>
+            </div>
+
+            <form id="manufacturer-payment-form" novalidate>
+              <input id="manufacturer-payment-id" type="hidden" />
+              <div class="form-row">
+                <label for="manufacturer-payment-date">Payment date <span aria-hidden="true">*</span></label>
+                <input id="manufacturer-payment-date" name="manufacturerPaymentDate" type="date" required />
+              </div>
+              <div class="form-row">
+                <label for="manufacturer-payment-amount">Amount paid <span aria-hidden="true">*</span></label>
+                <div class="field-with-prefix">
+                  <span>₹</span>
+                  <input id="manufacturer-payment-amount" name="manufacturerPaymentAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required />
+                </div>
+                <small>Recorded as a settlement of stock cost, not an extra expense</small>
+              </div>
+              <div class="form-row">
+                <label for="manufacturer-payment-notes">Note <span class="optional">optional</span></label>
+                <textarea id="manufacturer-payment-notes" name="manufacturerPaymentNotes" maxlength="240" placeholder="Receipt number, invoice, or anything useful..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button class="button button-primary" id="save-manufacturer-payment-button" type="submit">Save payment</button>
+                <button class="button button-ghost hidden" id="cancel-manufacturer-payment-edit" type="button">Cancel</button>
+              </div>
+              <p id="manufacturer-payment-form-message" class="form-message" role="status"></p>
+            </form>
+          </aside>
+
+          <section class="history-panel manufacturer-history-panel">
+            <div class="panel-heading history-heading">
+              <div>
+                <p class="eyebrow">Payment history</p>
+                <h2>Manufacturer payments</h2>
+              </div>
+              <div class="expense-total"><span>Total paid</span><strong id="total-manufacturer-paid">₹0</strong></div>
+            </div>
+            <div class="table-wrap manufacturer-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Note</th>
+                    <th>Amount paid</th>
+                    <th><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody id="manufacturer-payments-body"></tbody>
+              </table>
+              <div id="manufacturer-payments-empty-state" class="empty-state">
+                <span class="empty-icon" aria-hidden="true">□</span>
+                <h3>No manufacturer payments saved yet</h3>
+                <p>Add each payment here. The amount due will update automatically.</p>
+              </div>
+            </div>
           </section>
         </section>
 
@@ -218,7 +284,7 @@
                 <p class="eyebrow">Separate expense ledger</p>
                 <h2 id="petrol-form-title">Add petrol cost</h2>
               </div>
-              <span class="panel-number">03</span>
+              <span class="panel-number">04</span>
             </div>
 
             <form id="petrol-form" novalidate>
@@ -278,7 +344,7 @@
 
       <footer>
         <span>Tissue Ledger</span>
-        <span>Private by design · No account required</span>
+        <span>Private by design · Secure email sign-in</span>
       </footer>
     </div>
 
