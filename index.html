@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A simple tissue sales ledger for tracking orders, manufacturer dues, fuel costs, and profit."
+    />
+    <title>Tissue Ledger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="Tissue Ledger home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <path d="M12 15.5C12 11.91 14.91 9 18.5 9H35v16.5C35 29.09 32.09 32 28.5 32H12V15.5Z" fill="currentColor" opacity=".9"/>
+              <path d="M16 20.5C16 17.46 18.46 15 21.5 15H38v16.5C38 34.54 35.54 37 32.5 37H16V20.5Z" fill="currentColor" opacity=".42"/>
+              <path d="M10 31.5h21" stroke="white" stroke-width="2.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span>Tissue Ledger</span>
+        </a>
+        <div class="header-actions">
+          <button class="sync-status" id="account-button" type="button" title="Set up or refresh cloud sync">
+            <span class="status-dot"></span><span id="sync-status-label">Cloud sync setup</span>
+          </button>
+          <button class="button button-secondary" id="export-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+            Export Excel
+          </button>
+        </div>
+      </header>
+
+      <main id="top">
+        <section class="intro" aria-labelledby="page-title">
+          <div>
+            <p class="eyebrow">Sales &amp; cost tracker</p>
+            <h1 id="page-title">Know every roll,<br /><em>every rupee.</em></h1>
+          </div>
+          <p class="intro-copy">Record each tissue sale, track what is due to your manufacturer, and see your actual profit at a glance.</p>
+        </section>
+
+        <section class="sync-panel" id="sync-panel" aria-labelledby="sync-title">
+          <div class="sync-copy">
+            <p class="eyebrow">Free cloud sync</p>
+            <h2 id="sync-title">Connect your ledger across every phone.</h2>
+            <p id="sync-description">A secure cloud connection will let you use the same ledger on each mobile with one email sign-in.</p>
+          </div>
+          <form class="sign-in-form" id="sign-in-form" novalidate>
+            <label class="sr-only" for="sign-in-email">Email address</label>
+            <input id="sign-in-email" type="email" autocomplete="email" placeholder="you@example.com" />
+            <button class="button button-primary" id="sign-in-button" type="submit">Send sign-in link</button>
+          </form>
+          <div class="sync-actions hidden" id="signed-in-actions">
+            <button class="button button-secondary" id="sync-now-button" type="button">Sync now</button>
+            <button class="button button-ghost" id="sign-out-button" type="button">Sign out</button>
+          </div>
+          <p class="sync-message" id="sync-message" role="status"></p>
+        </section>
+
+        <section class="summary-grid" aria-label="Business summary">
+          <article class="summary-card revenue-card">
+            <div class="card-label"><span class="card-icon sale-icon">↗</span> Total sales</div>
+            <strong id="total-sales">₹0</strong>
+            <span id="sales-count">No orders yet</span>
+          </article>
+          <article class="summary-card profit-card">
+            <div class="card-label"><span class="card-icon profit-icon">◒</span> Net profit</div>
+            <strong id="net-profit">₹0</strong>
+            <span>Sales − stock cost − petrol</span>
+          </article>
+          <article class="summary-card due-card">
+            <div class="card-label"><span class="card-icon due-icon">⌁</span> Due to manufacturer</div>
+            <strong id="manufacturer-due">₹0</strong>
+            <span>Outstanding balance recorded</span>
+          </article>
+          <article class="summary-card margin-card">
+            <div class="card-label"><span class="card-icon margin-icon">%</span> Profit margin</div>
+            <strong id="profit-margin">0%</strong>
+            <span>Net profit / total sales</span>
+          </article>
+        </section>
+
+        <section class="workspace" aria-label="Order entry and order history">
+          <aside class="entry-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">New entry</p>
+                <h2 id="form-title">Add an order</h2>
+              </div>
+              <span class="panel-number">01</span>
+            </div>
+
+            <form id="order-form" novalidate>
+              <input id="order-id" type="hidden" />
+              <div class="form-row">
+                <label for="order-date">Sale date <span aria-hidden="true">*</span></label>
+                <input id="order-date" name="orderDate" type="date" required />
+              </div>
+
+              <div class="form-row">
+                <label for="quantity">Quantity sold <span aria-hidden="true">*</span></label>
+                <div class="field-with-suffix">
+                  <input id="quantity" name="quantity" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="e.g. 60" required />
+                  <span>units</span>
+                </div>
+              </div>
+
+              <div class="split-fields">
+                <div class="form-row">
+                  <label for="buying-price">Buying price <span aria-hidden="true">*</span></label>
+                  <div class="field-with-prefix">
+                    <span>₹</span>
+                    <input id="buying-price" name="buyingPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required />
+                  </div>
+                  <small>per unit</small>
+                </div>
+                <div class="form-row">
+                  <label for="selling-price">Selling price <span aria-hidden="true">*</span></label>
+                  <div class="field-with-prefix">
+                    <span>₹</span>
+                    <input id="selling-price" name="sellingPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required />
+                  </div>
+                  <small>per unit</small>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label for="manufacturer-due-input">Manufacturer due</label>
+                <div class="field-with-prefix">
+                  <span>₹</span>
+                  <input id="manufacturer-due-input" name="manufacturerDue" type="number" inputmode="decimal" min="0" step="0.01" value="0" />
+                </div>
+                <small>Amount owed for this order</small>
+              </div>
+
+              <div class="form-row">
+                <label for="notes">Note <span class="optional">optional</span></label>
+                <textarea id="notes" name="notes" maxlength="240" placeholder="Customer, area, or anything useful..."></textarea>
+              </div>
+
+              <section class="live-calculation" aria-live="polite" aria-label="Order calculation preview">
+                <div><span>Sale value</span><strong id="preview-sales">₹0</strong></div>
+                <div><span>Stock cost</span><strong id="preview-stock-cost">₹0</strong></div>
+                <div class="preview-total"><span>Net amount</span><strong id="preview-net">₹0</strong></div>
+              </section>
+              <p class="helper-text">Net amount is sale value minus stock cost. Petrol is recorded separately below and is included in the total profit.</p>
+
+              <div class="form-actions">
+                <button class="button button-primary" id="save-button" type="submit">Save order</button>
+                <button class="button button-ghost hidden" id="cancel-edit" type="button">Cancel</button>
+              </div>
+              <p id="form-message" class="form-message" role="status"></p>
+            </form>
+          </aside>
+
+          <section class="history-panel">
+            <div class="panel-heading history-heading">
+              <div>
+                <p class="eyebrow">Your records</p>
+                <h2>Order history</h2>
+              </div>
+              <span class="panel-number">02</span>
+            </div>
+
+            <div class="history-tools">
+              <label class="search-field" for="search-orders">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+                <span class="sr-only">Search orders</span>
+                <input id="search-orders" type="search" placeholder="Search notes or date" />
+              </label>
+              <select id="sort-orders" aria-label="Sort orders">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="profit-high">Highest profit</option>
+                <option value="profit-low">Lowest profit</option>
+              </select>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Qty.</th>
+                    <th>Sales</th>
+                    <th>Stock cost</th>
+                    <th>Due</th>
+                    <th>Net amount</th>
+                    <th><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody id="orders-body"></tbody>
+              </table>
+              <div id="empty-state" class="empty-state">
+                <span class="empty-icon" aria-hidden="true">□</span>
+                <h3>No orders saved yet</h3>
+                <p>Your sales history will appear here after you add your first order.</p>
+              </div>
+            </div>
+            <p class="history-note">The due total adds the unpaid amount from every recorded order. Use the free cloud sync above to keep the same history on all of your phones.</p>
+          </section>
+        </section>
+
+        <section class="fuel-workspace" aria-label="Petrol expense ledger">
+          <aside class="entry-panel petrol-entry-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Separate expense ledger</p>
+                <h2 id="petrol-form-title">Add petrol cost</h2>
+              </div>
+              <span class="panel-number">03</span>
+            </div>
+
+            <form id="petrol-form" novalidate>
+              <input id="petrol-id" type="hidden" />
+              <div class="form-row">
+                <label for="petrol-date">Expense date <span aria-hidden="true">*</span></label>
+                <input id="petrol-date" name="petrolDate" type="date" required />
+              </div>
+              <div class="form-row">
+                <label for="petrol-amount">Petrol cost <span aria-hidden="true">*</span></label>
+                <div class="field-with-prefix">
+                  <span>₹</span>
+                  <input id="petrol-amount" name="petrolAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required />
+                </div>
+              </div>
+              <div class="form-row">
+                <label for="petrol-notes">Note <span class="optional">optional</span></label>
+                <textarea id="petrol-notes" name="petrolNotes" maxlength="240" placeholder="Route, receipt number, or anything useful..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button class="button button-primary" id="save-petrol-button" type="submit">Save petrol cost</button>
+                <button class="button button-ghost hidden" id="cancel-petrol-edit" type="button">Cancel</button>
+              </div>
+              <p id="petrol-form-message" class="form-message" role="status"></p>
+            </form>
+          </aside>
+
+          <section class="history-panel petrol-history-panel">
+            <div class="panel-heading history-heading">
+              <div>
+                <p class="eyebrow">Fuel history</p>
+                <h2>Petrol costs</h2>
+              </div>
+              <div class="expense-total"><span>Total petrol</span><strong id="total-petrol">₹0</strong></div>
+            </div>
+            <div class="table-wrap petrol-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Note</th>
+                    <th>Cost</th>
+                    <th><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody id="petrol-body"></tbody>
+              </table>
+              <div id="petrol-empty-state" class="empty-state">
+                <span class="empty-icon" aria-hidden="true">□</span>
+                <h3>No petrol costs saved yet</h3>
+                <p>Add each fuel expense here. It will reduce your total net profit automatically.</p>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer>
+        <span>Tissue Ledger</span>
+        <span>Private by design · No account required</span>
+      </footer>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
