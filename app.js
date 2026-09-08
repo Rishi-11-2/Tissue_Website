@@ -153,7 +153,7 @@ function updateSyncUi() {
     elements.syncStatusLabel.textContent = "Sign in to sync";
     dot.classList.add("pending");
     elements.syncTitle.textContent = "Sign in to sync every phone.";
-    elements.syncDescription.textContent = "Use the same email address on each mobile. We will send a secure six-digit code—read it anywhere and enter it on this phone.";
+    elements.syncDescription.textContent = "Use the same email address on each mobile. We will send a secure sign-in code—read it anywhere and enter it on this phone.";
     elements.signInForm.classList.toggle("hidden", Boolean(pendingEmail));
     elements.otpForm.classList.toggle("hidden", !pendingEmail);
     if (pendingEmail) elements.otpEmailLabel.textContent = pendingEmail;
@@ -621,7 +621,7 @@ async function handleSignIn(event) {
   }
   const email = elements.signInEmail.value.trim();
   if (!/^\S+@\S+\.\S+$/.test(email)) {
-    setSyncMessage("Enter a valid email address to receive a six-digit code.", true);
+    setSyncMessage("Enter a valid email address to receive a sign-in code.", true);
     elements.signInEmail.focus();
     return;
   }
@@ -637,7 +637,7 @@ async function sendOtpCode(email, { isResend = false } = {}) {
     pendingEmail = email;
     elements.otpCode.value = "";
     updateSyncUi();
-    setSyncMessage(isResend ? "A new six-digit code was sent. Use the newest code; the earlier one no longer works." : "A six-digit code was sent. You can open that email on any device and enter the code on this phone.");
+    setSyncMessage(isResend ? "A new sign-in code was sent. Use the newest code; the earlier one no longer works." : "A sign-in code was sent. You can open that email on any device and enter the code on this phone.");
     elements.otpCode.focus();
   } catch (error) {
     setSyncMessage(error.message || "Could not send the sign-in code.", true);
