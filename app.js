@@ -650,8 +650,8 @@ async function handleVerifyOtp(event) {
   event.preventDefault();
   if (!supabase || !pendingEmail) return;
   const token = elements.otpCode.value.replace(/\s+/g, "");
-  if (!/^\d{6}$/.test(token)) {
-    setSyncMessage("Enter the six digits from the email.", true);
+  if (!/^\d{6,10}$/.test(token)) {
+    setSyncMessage("Enter the code from the email.", true);
     elements.otpCode.focus();
     return;
   }
