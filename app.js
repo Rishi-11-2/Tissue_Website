@@ -21,7 +21,7 @@ const elements = {
   totalSales: document.querySelector("#total-sales"), salesCount: document.querySelector("#sales-count"), netProfit: document.querySelector("#net-profit"), manufacturerDueTotal: document.querySelector("#manufacturer-due"), profitMargin: document.querySelector("#profit-margin"), exportButton: document.querySelector("#export-button"), toast: document.querySelector("#toast"),
   petrolForm: document.querySelector("#petrol-form"), petrolFormTitle: document.querySelector("#petrol-form-title"), petrolId: document.querySelector("#petrol-id"), petrolDate: document.querySelector("#petrol-date"), petrolAmount: document.querySelector("#petrol-amount"), petrolNotes: document.querySelector("#petrol-notes"), savePetrolButton: document.querySelector("#save-petrol-button"), cancelPetrolEdit: document.querySelector("#cancel-petrol-edit"), petrolFormMessage: document.querySelector("#petrol-form-message"), petrolBody: document.querySelector("#petrol-body"), petrolEmptyState: document.querySelector("#petrol-empty-state"), totalPetrol: document.querySelector("#total-petrol"),
   manufacturerPaymentForm: document.querySelector("#manufacturer-payment-form"), manufacturerFormTitle: document.querySelector("#manufacturer-form-title"), manufacturerPaymentId: document.querySelector("#manufacturer-payment-id"), manufacturerPaymentDate: document.querySelector("#manufacturer-payment-date"), manufacturerPaymentAmount: document.querySelector("#manufacturer-payment-amount"), manufacturerPaymentNotes: document.querySelector("#manufacturer-payment-notes"), saveManufacturerPaymentButton: document.querySelector("#save-manufacturer-payment-button"), cancelManufacturerPaymentEdit: document.querySelector("#cancel-manufacturer-payment-edit"), manufacturerPaymentFormMessage: document.querySelector("#manufacturer-payment-form-message"), manufacturerPaymentsBody: document.querySelector("#manufacturer-payments-body"), manufacturerPaymentsEmptyState: document.querySelector("#manufacturer-payments-empty-state"), totalManufacturerPaid: document.querySelector("#total-manufacturer-paid"),
-  accountButton: document.querySelector("#account-button"), syncStatusLabel: document.querySelector("#sync-status-label"), syncPanel: document.querySelector("#sync-panel"), syncTitle: document.querySelector("#sync-title"), syncDescription: document.querySelector("#sync-description"), signInForm: document.querySelector("#sign-in-form"), signInEmail: document.querySelector("#sign-in-email"), signInButton: document.querySelector("#sign-in-button"), signedInActions: document.querySelector("#signed-in-actions"), syncNowButton: document.querySelector("#sync-now-button"), signOutButton: document.querySelector("#sign-out-button"), syncMessage: document.querySelector("#sync-message"),
+  accountButton: document.querySelector("#account-button"), syncStatusLabel: document.querySelector("#sync-status-label"), syncPanel: document.querySelector("#sync-panel"), syncTitle: document.querySelector("#sync-title"), syncDescription: document.querySelector("#sync-description"), signInForm: document.querySelector("#sign-in-form"), signInEmail: document.querySelector("#sign-in-email"), signInButton: document.querySelector("#sign-in-button"), otpForm: document.querySelector("#otp-form"), otpCode: document.querySelector("#otp-code"), otpEmailLabel: document.querySelector("#otp-email-label"), verifyOtpButton: document.querySelector("#verify-otp-button"), resendOtpCode: document.querySelector("#resend-otp-code"), useDifferentEmail: document.querySelector("#use-different-email"), signedInActions: document.querySelector("#signed-in-actions"), syncNowButton: document.querySelector("#sync-now-button"), signOutButton: document.querySelector("#sign-out-button"), syncMessage: document.querySelector("#sync-message"),
 };
 
 let orders = [];
@@ -30,6 +30,7 @@ let manufacturerPayments = [];
 let supabase = null;
 let currentUser = null;
 let isSyncing = false;
+let pendingEmail = "";
 let toastTimer;
 
 function todayISO() {
@@ -69,7 +70,7 @@ function openDatabase() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onerror = () => reject(request.error);
-    request.onupgradeneeded = (event) => {
+    request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(ORDER_STORE)) {
         const store = db.createObjectStore(ORDER_STORE, { keyPath: "id" });
@@ -146,19 +147,23 @@ function updateSyncUi() {
     elements.syncTitle.textContent = "Connect your ledger across every phone.";
     elements.syncDescription.textContent = "This site is ready for free cloud sync. Add the Supabase project values in supabase-config.js, then deploy it once.";
     elements.signInForm.classList.add("hidden");
+    elements.otpForm.classList.add("hidden");
     elements.signedInActions.classList.add("hidden");
   } else if (!currentUser) {
     elements.syncStatusLabel.textContent = "Sign in to sync";
     dot.classList.add("pending");
     elements.syncTitle.textContent = "Sign in to sync every phone.";
-    elements.syncDescription.textContent = "Use the same email address on each mobile. We will send a secure sign-in link to this device.";
-    elements.signInForm.classList.remove("hidden");
+    elements.syncDescription.textContent = "Use the same email address on each mobile. We will send a secure six-digit code—read it anywhere and enter it on this phone.";
+    elements.signInForm.classList.toggle("hidden", Boolean(pendingEmail));
+    elements.otpForm.classList.toggle("hidden", !pendingEmail);
+    if (pendingEmail) elements.otpEmailLabel.textContent = pendingEmail;
     elements.signedInActions.classList.add("hidden");
   } else {
     elements.syncStatusLabel.textContent = "Cloud sync active";
     elements.syncTitle.textContent = "Your ledger is syncing securely.";
     elements.syncDescription.textContent = `Signed in as ${currentUser.email || "your account"}. Open this site on another phone and sign in with the same email.`;
     elements.signInForm.classList.add("hidden");
+    elements.otpForm.classList.add("hidden");
     elements.signedInActions.classList.remove("hidden");
   }
 }
@@ -462,7 +467,7 @@ async function handleOrderAction(event) {
   const { orderAction: action, id } = button.dataset;
   if (action === "edit") return beginEditingOrder(id);
   const order = orders.find((item) => item.id === id);
-  if (!order || !window.confirm(`Delete the order from ${displayDate(order.orderDate)}? This cannot be undone.`)) return;
+  if (!order || !globalThis.confirm(`Delete the order from ${displayDate(order.orderDate)}? This cannot be undone.`)) return;
   try {
     await deleteRecord("order", order);
     orders = orders.filter((item) => item.id !== id);
@@ -480,7 +485,7 @@ async function handlePetrolAction(event) {
   const { petrolAction: action, id } = button.dataset;
   if (action === "edit") return beginEditingPetrol(id);
   const expense = petrolExpenses.find((item) => item.id === id);
-  if (!expense || !window.confirm(`Delete the petrol cost from ${displayDate(expense.expenseDate)}? This cannot be undone.`)) return;
+  if (!expense || !globalThis.confirm(`Delete the petrol cost from ${displayDate(expense.expenseDate)}? This cannot be undone.`)) return;
   try {
     await deleteRecord("petrol", expense);
     petrolExpenses = petrolExpenses.filter((item) => item.id !== id);
@@ -498,7 +503,7 @@ async function handleManufacturerPaymentAction(event) {
   const { manufacturerAction: action, id } = button.dataset;
   if (action === "edit") return beginEditingManufacturerPayment(id);
   const payment = manufacturerPayments.find((item) => item.id === id);
-  if (!payment || !window.confirm(`Delete the manufacturer payment from ${displayDate(payment.paymentDate)}? This cannot be undone.`)) return;
+  if (!payment || !globalThis.confirm(`Delete the manufacturer payment from ${displayDate(payment.paymentDate)}? This cannot be undone.`)) return;
   try {
     await deleteRecord("manufacturerPayment", payment);
     manufacturerPayments = manufacturerPayments.filter((item) => item.id !== id);
@@ -514,7 +519,7 @@ function showToast(message) {
   clearTimeout(toastTimer);
   elements.toast.textContent = message;
   elements.toast.classList.add("show");
-  toastTimer = window.setTimeout(() => elements.toast.classList.remove("show"), 3500);
+  toastTimer = globalThis.setTimeout(() => elements.toast.classList.remove("show"), 3500);
 }
 
 async function syncPendingRecords(kind, ownerId) {
@@ -591,7 +596,7 @@ async function initializeCloudSync() {
     supabase.auth.onAuthStateChange((_event, session) => {
       currentUser = session?.user || null;
       updateSyncUi();
-      window.setTimeout(async () => {
+      globalThis.setTimeout(async () => {
         if (currentUser) await syncFromCloud();
         else {
           orders = [];
@@ -616,23 +621,69 @@ async function handleSignIn(event) {
   }
   const email = elements.signInEmail.value.trim();
   if (!/^\S+@\S+\.\S+$/.test(email)) {
-    setSyncMessage("Enter a valid email address to receive a sign-in link.", true);
+    setSyncMessage("Enter a valid email address to receive a six-digit code.", true);
     elements.signInEmail.focus();
     return;
   }
-  elements.signInButton.disabled = true;
+  await sendOtpCode(email);
+}
+
+async function sendOtpCode(email, { isResend = false } = {}) {
+  const button = isResend ? elements.resendOtpCode : elements.signInButton;
+  button.disabled = true;
   try {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}${window.location.pathname}` },
-    });
+    const { error } = await supabase.auth.signInWithOtp({ email });
     if (error) throw error;
-    setSyncMessage("A secure sign-in link was sent. Open it in this browser to finish signing in.");
+    pendingEmail = email;
+    elements.otpCode.value = "";
+    updateSyncUi();
+    setSyncMessage(isResend ? "A new six-digit code was sent. Use the newest code; the earlier one no longer works." : "A six-digit code was sent. You can open that email on any device and enter the code on this phone.");
+    elements.otpCode.focus();
   } catch (error) {
-    setSyncMessage(error.message || "Could not send the sign-in link.", true);
+    setSyncMessage(error.message || "Could not send the sign-in code.", true);
   } finally {
-    elements.signInButton.disabled = false;
+    button.disabled = false;
   }
+}
+
+async function handleVerifyOtp(event) {
+  event.preventDefault();
+  if (!supabase || !pendingEmail) return;
+  const token = elements.otpCode.value.replace(/\s+/g, "");
+  if (!/^\d{6}$/.test(token)) {
+    setSyncMessage("Enter the six digits from the email.", true);
+    elements.otpCode.focus();
+    return;
+  }
+  elements.verifyOtpButton.disabled = true;
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({ email: pendingEmail, token, type: "email" });
+    if (error) throw error;
+    currentUser = data.session?.user || data.user || null;
+    if (!currentUser) throw new Error("The code was accepted, but no sign-in session was returned. Please request a new code.");
+    pendingEmail = "";
+    updateSyncUi();
+    setSyncMessage("Signed in. Your ledger will now sync securely across your phones.");
+    await syncFromCloud({ showResult: true });
+  } catch (error) {
+    setSyncMessage(error.message || "That code could not be verified. Request a new one and try again.", true);
+    elements.otpCode.focus();
+  } finally {
+    elements.verifyOtpButton.disabled = false;
+  }
+}
+
+async function handleResendOtp() {
+  if (!supabase || !pendingEmail) return;
+  await sendOtpCode(pendingEmail, { isResend: true });
+}
+
+function useDifferentEmail() {
+  pendingEmail = "";
+  elements.otpCode.value = "";
+  updateSyncUi();
+  setSyncMessage("");
+  elements.signInEmail.focus();
 }
 
 async function handleSignOut() {
@@ -643,6 +694,7 @@ async function handleSignOut() {
     return;
   }
   currentUser = null;
+  pendingEmail = "";
   orders = [];
   petrolExpenses = [];
   manufacturerPayments = [];
@@ -724,6 +776,9 @@ async function initialize() {
   elements.manufacturerPaymentsBody.addEventListener("click", handleManufacturerPaymentAction);
   elements.exportButton.addEventListener("click", exportExcel);
   elements.signInForm.addEventListener("submit", handleSignIn);
+  elements.otpForm.addEventListener("submit", handleVerifyOtp);
+  elements.resendOtpCode.addEventListener("click", handleResendOtp);
+  elements.useDifferentEmail.addEventListener("click", useDifferentEmail);
   elements.syncNowButton.addEventListener("click", () => syncFromCloud({ showResult: true }));
   elements.signOutButton.addEventListener("click", handleSignOut);
   elements.accountButton.addEventListener("click", () => {

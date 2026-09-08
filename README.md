@@ -11,7 +11,7 @@ A small sales ledger for a tissue business. It records sales, buying and selling
 - Calculates the outstanding manufacturer due as total stock cost less manufacturer payments. Payments settle stock cost and do not reduce profit twice.
 - Lets the user edit, search, sort, and delete orders, manufacturer payments, and petrol expenses.
 - Downloads a real Excel `.xlsx` workbook with **Summary**, **Order History**, **Manufacturer Payments**, and **Petrol Expenses** sheets.
-- Signs in with a password-free email magic link. Use the same email on every mobile to see one shared ledger.
+- Signs in with a password-free six-digit email code. Use the same email on every mobile to see one shared ledger.
 
 ## One-time cloud sync setup
 
@@ -27,26 +27,26 @@ The site already contains the Supabase client and secure database policies. The 
    export const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_...";
    ```
 
-5. In Supabase **Authentication → Email Templates**, open the **Magic Link** template and restore its default body, or use the following. The link must use `{{ .ConfirmationURL }}`.
+5. In Supabase **Authentication → Email Templates**, open the **Magic Link** template and replace its entire body with the following. It must include `{{ .Token }}` and must not include `{{ .ConfirmationURL }}`—that is what makes Supabase send a six-digit code instead of a link.
 
    ```html
-   <h2>Sign in to Tissue Ledger</h2>
-   <p>Use this secure link to sign in:</p>
-   <p><a href="{{ .ConfirmationURL }}">Sign in to Tissue Ledger</a></p>
-   <p>If you did not request this link, you can ignore this email.</p>
+   <h2>Your Tissue Ledger sign-in code</h2>
+   <p>Enter this code in the app:</p>
+   <h1 style="letter-spacing: 0.2em;">{{ .Token }}</h1>
+   <p>This code expires shortly. If you did not request it, you can ignore this email.</p>
    ```
 
-6. In **Authentication → URL Configuration**, set the **Site URL** to your GitHub Pages address and add that exact address to **Redirect URLs**. Deploy the updated files to GitHub Pages. On any phone, enter the ledger email and choose **Email sign-in link**, then open the link in the same browser on that phone. New and changed records sync when saved, when the site opens, when it returns to the foreground, or when **Sync now** is pressed.
+6. Deploy the updated files to GitHub Pages. On any phone, enter the ledger email and choose **Send code**. Read the email on any device—another phone or a computer is fine—then type the six digits into the ledger on the phone you are signing in to. New and changed records sync when saved, when the site opens, when it returns to the foreground, or when **Sync now** is pressed.
 
-The public publishable key in a GitHub Pages app is expected to be visible. The SQL policies limit reads and writes to the signed-in user identified by `auth.uid()`; they protect the ledger records even though the browser key is public. Supabase sends a magic link when the template includes `{{ .ConfirmationURL }}`. See Supabase's [Row Level Security guide](https://supabase.com/docs/guides/database/postgres/row-level-security) and [magic-link documentation](https://supabase.com/docs/reference/javascript/auth-signinwithotp) for the underlying security model.
+The public publishable key in a GitHub Pages app is expected to be visible. The SQL policies limit reads and writes to the signed-in user identified by `auth.uid()`; they protect the ledger records even though the browser key is public. Supabase sends an email OTP when the template includes `{{ .Token }}`, and the app verifies the code directly. See Supabase's [Row Level Security guide](https://supabase.com/docs/guides/database/postgres/row-level-security) and [email OTP documentation](https://supabase.com/docs/reference/javascript/auth-signinwithotp) for the underlying security model.
 
 ## Cost and login choices
 
-The database, GitHub Pages site, email magic-link login, and cross-device sync can all remain on Supabase's **Free** plan for a small personal business. Its free plan includes 500 MB of database space and 50,000 monthly active users. A free project pauses after one week without activity, then wakes when it is used again.
+The database, GitHub Pages site, email-code login, and cross-device sync can all remain on Supabase's **Free** plan for a small personal business. Its free plan includes 500 MB of database space and 50,000 monthly active users. A free project pauses after one week without activity, then wakes when it is used again.
 
 Supabase's built-in email sender is best-effort and currently allows only **2 auth emails per hour**. This is enough for occasional sign-ins, but it may be inconvenient while setting up several phones. If that limit is a problem, add an SMTP service with a free monthly tier in Supabase **Authentication → SMTP Settings**; the website code does not need to change.
 
-The app intentionally does not offer SMS / phone-number OTP. Every real SMS is delivered by an SMS provider, which creates a per-message cost and Supabase's advanced phone authentication is not part of the Free plan. A magic link must be opened in the browser that requested it, so use the email account on that phone when signing in.
+The app intentionally does not offer SMS / phone-number OTP. Every real SMS is delivered by an SMS provider, which creates a per-message cost and Supabase's advanced phone authentication is not part of the Free plan. Email OTP is the no-cost option: the target phone does not need the email account, only the six-digit code from a device that can open the inbox.
 
 ## Run locally
 

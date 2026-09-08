@@ -58,7 +58,18 @@
           <form class="sign-in-form" id="sign-in-form" novalidate>
             <label class="sr-only" for="sign-in-email">Email address</label>
             <input id="sign-in-email" type="email" autocomplete="email" placeholder="you@example.com" />
-            <button class="button button-primary" id="sign-in-button" type="submit">Email sign-in link</button>
+            <button class="button button-primary" id="sign-in-button" type="submit">Send code</button>
+          </form>
+          <form class="otp-form hidden" id="otp-form" novalidate>
+            <label for="otp-code">Enter the 6-digit code sent to <span id="otp-email-label"></span></label>
+            <div class="otp-controls">
+              <input id="otp-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000" aria-describedby="otp-help" />
+              <button class="button button-primary" id="verify-otp-button" type="submit">Verify code</button>
+            </div>
+            <div class="otp-options">
+              <span id="otp-help">You can read the email on another device and type the code here.</span>
+              <span class="otp-buttons"><button class="link-button" id="resend-otp-code" type="button">Resend code</button><button class="link-button" id="use-different-email" type="button">Use a different email</button></span>
+            </div>
           </form>
           <div class="sync-actions hidden" id="signed-in-actions">
             <button class="button button-secondary" id="sync-now-button" type="button">Sync now</button>
