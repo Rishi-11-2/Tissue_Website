@@ -249,9 +249,12 @@ function isVisibleToCurrentLedger(record) {
   return !record.userId || record.userId === currentUser.id;
 }
 
+const SEED_VERSION_KEY = "tissue_ledger_seed_version";
+const CURRENT_SEED_VERSION = "2026-10-31-v272";
+
 /**
- * Loads records from IndexedDB. If local database is empty and user not signed in,
- * safely populates with the master ledger (265 orders, 12 petrol, 15 mfg payments)
+ * Loads records from IndexedDB. If local database is empty or has older seed,
+ * safely populates with the master ledger (272 orders, 14 petrol, 19 mfg payments)
  * so there is NEVER any data loss!
  */
 async function loadLocalLedger() {
@@ -261,12 +264,29 @@ async function loadLocalLedger() {
     getAllLocal(MANUFACTURER_PAYMENT_STORE),
   ]);
 
-  if (storedOrders.length > 0 || storedPetrol.length > 0 || storedManufacturerPayments.length > 0) {
+  const localSeedVersion = localStorage.getItem(SEED_VERSION_KEY);
+
+  // If local store has older data (less than 272 orders) or previous seed version, upgrade to the latest 272 master records
+  if ((!currentUser && localSeedVersion !== CURRENT_SEED_VERSION) || (storedOrders.length === 0 && !currentUser)) {
+    await clearLocalStore(ORDER_STORE);
+    await clearLocalStore(PETROL_STORE);
+    await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
+
+    await Promise.all([
+      ...SEED_ORDERS.map((o) => saveLocal(ORDER_STORE, o)),
+      ...SEED_PETROL.map((p) => saveLocal(PETROL_STORE, p)),
+      ...SEED_MANUFACTURER_PAYMENTS.map((m) => saveLocal(MANUFACTURER_PAYMENT_STORE, m)),
+    ]);
+
+    localStorage.setItem(SEED_VERSION_KEY, CURRENT_SEED_VERSION);
+    orders = [...SEED_ORDERS];
+    petrolExpenses = [...SEED_PETROL];
+    manufacturerPayments = [...SEED_MANUFACTURER_PAYMENTS];
+  } else if (storedOrders.length > 0 || storedPetrol.length > 0 || storedManufacturerPayments.length > 0) {
     orders = storedOrders.filter(isVisibleToCurrentLedger);
     petrolExpenses = storedPetrol.filter(isVisibleToCurrentLedger);
     manufacturerPayments = storedManufacturerPayments.filter(isVisibleToCurrentLedger);
   } else if (!currentUser) {
-    // Populate master dataset into IndexedDB so it persists permanently
     await Promise.all([
       ...SEED_ORDERS.map((o) => saveLocal(ORDER_STORE, o)),
       ...SEED_PETROL.map((p) => saveLocal(PETROL_STORE, p)),
@@ -433,9 +453,8 @@ function renderCustomersView() {
   // Filter
   const filtered = groups.filter((g) => {
     if (!query) return true;
-    const variantsText = g.variantsList.join(" ").toLowerCase();
-    const itemsText = g.itemsList.join(" ").toLowerCase();
-    return g.customer.toLowerCase().includes(query) || variantsText.includes(query) || itemsText.includes(query);
+    const itemsText = (g.itemsList || []).join(" ").toLowerCase();
+    return g.customer.toLowerCase().includes(query) || itemsText.includes(query);
   });
 
   // Sort
@@ -453,18 +472,6 @@ function renderCustomersView() {
       const isExpanded = expandedCustomerCards.has(group.customer);
       const avatarStyle = getAvatarColor(group.customer);
       const initials = getInitials(group.customer);
-
-      const variantsHtml = group.variantsList.length > 1
-        ? `<div class="customer-variants">
-            <span class="variant-label">Variants:</span>
-            ${group.variantsList.map((v) => `<span class="variant-chip" title="Variant recorded in ledger">${escapeHtml(v)}</span>`).join("")}
-           </div>`
-        : group.itemsList.length > 0
-        ? `<div class="customer-variants">
-            <span class="variant-label">Items:</span>
-            ${group.itemsList.map((item) => `<span class="item-chip">${escapeHtml(item)}</span>`).join("")}
-           </div>`
-        : "";
 
       // Mini-table of transactions inside this customer
       const drawerRows = group.orders
@@ -508,8 +515,6 @@ function renderCustomersView() {
               </button>
             </div>
           </div>
-
-          ${variantsHtml}
 
           <div class="customer-stats-grid">
             <div class="customer-stat-box">
@@ -1489,7 +1494,7 @@ async function handleReloadSeedData() {
   updateCustomerDatalist();
   render();
   closeDataToolsModal();
-  showToast("Official 265 ledger orders reloaded!");
+  showToast("Official 272 ledger orders reloaded!");
 }
 
 function openDataToolsModal() {

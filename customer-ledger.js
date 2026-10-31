@@ -1,5 +1,6 @@
 // Customer grouping and name normalization engine for Tissue Ledger
-// Intelligently merges variant spellings, locations, and item descriptions into clean customer profiles.
+// Intelligently normalizes customer names, extracts item/variant notes,
+// and ensures duplicate customer cards are never created for existing or new clients.
 
 export function capitalize(str) {
   if (!str) return "";
@@ -10,23 +11,178 @@ export function toTitleCase(str) {
   if (!str) return "";
   return str
     .toLowerCase()
+    .trim()
     .split(/\s+/)
     .map((word) => {
       if (word === "&" || word === "and") return "&";
       if (word === "of" || word === "in" || word === "at") return word;
+      if (word === "ii" || word === "iii") return word.toUpperCase();
+      if (word === "co" || word === "co.") return "Co";
       return word.charAt(0).toUpperCase() + word.slice(1);
     })
-    .join(" ")
-    .replace(/\b(Co)\b/gi, "Co")
-    .replace(/\b(Ii)\b/gi, "II");
+    .join(" ");
 }
 
 /**
- * Normalizes a note string into a canonical customer name and extracted item/variant detail.
+ * Universal extractor for item/product notes appended to customer notes.
+ * Extracts items like (spoon), (fork), napkin, straw, etc.
+ * @param {string} raw
+ * @returns {{ cleanedCustomer: string, extractedItem: string }}
+ */
+function extractItemNote(raw) {
+  let text = (raw || "").trim();
+  let item = "";
+
+  // 1. Check parenthesized item note: e.g. "Sufi Palace ( fork)", "Shiraj (straw)"
+  const parenMatch = text.match(/\(([^)]+)\)/);
+  if (parenMatch) {
+    const inside = parenMatch[1].trim();
+    // Only treat as item if it's not a known branch/area location
+    if (!/diamond\s*city|park\s*street|ballygunge|kestopur|kankurgachi|kakurgachi|bangur|theatre\s*road|ultadanga/i.test(inside)) {
+      item = capitalize(inside);
+      text = text.replace(/\([^)]+\)/g, "").trim();
+    }
+  }
+
+  // 2. Check suffix item terms: e.g. "Sufi Palace spoon", "Chef maxilogist napkin"
+  const suffixPattern = /\b(spoon|spoons|fork|forks|straw|straws|napkin|napkins|tissue roll|toilet tissue|tissue|roll|rolls|cup|cups)\b$/i;
+  const suffixMatch = text.match(suffixPattern);
+  if (suffixMatch) {
+    if (!item) item = capitalize(suffixMatch[1].trim());
+    text = text.replace(suffixPattern, "").trim();
+  }
+
+  // Clean trailing punctuation / dashes
+  text = text.replace(/[\s\-_–—]+$/, "").trim();
+  return { cleanedCustomer: text, extractedItem: item };
+}
+
+/**
+ * Known canonical mappings for existing ledger businesses with specific branch or spelling rules.
+ */
+const CANONICAL_MAPPINGS = [
+  // Aami Bengali branches
+  { test: /^(?:aami|ami)\s+(?:bangla|bengali).*diamond\s*city/i, canonical: "Aami Bengali (Diamond City)" },
+  { test: /^(?:aami|ami)\s+(?:bangla|bengali).*park\s*street/i, canonical: "Aami Bengali (Park Street)" },
+  { test: /^(?:aami|ami)\s+(?:bangla|bengali)$/i, canonical: "Aami Bengali" },
+
+  // Karla
+  { test: /^karla$/i, canonical: "Karla" },
+
+  // Aanand Restaurant / Anand
+  { test: /^a*nand(\s+restaurant)?$/i, canonical: "Aanand Restaurant" },
+
+  // Gupta Brothers Ballygunge
+  { test: /^gupta\s+brother(s)?(\s*\(?ballygunge\)?)?$/i, canonical: "Gupta Brothers (Ballygunge)" },
+
+  // Gupta Veg Kestopur
+  { test: /^gupta\s+veg(\s*\(?kestopur\)?)?$/i, canonical: "Gupta Veg (Kestopur)" },
+
+  // Sufi Palace
+  { test: /^sufi\s+palace$/i, canonical: "Sufi Palace" },
+
+  // Shiraj Restaurant / Siraj
+  { test: /^(?:shiraj|siraj)(\s+restaurant)?$/i, canonical: "Shiraj Restaurant" },
+
+  // Chef Maxilogist / Mexilogist
+  { test: /^(?:chef\s+)?m[ae]xilogist$/i, canonical: "Chef Maxilogist" },
+
+  // Sanjeev Drolia (Bangur)
+  { test: /^sanjeev\s+drolia(\s+bangur)?$/i, canonical: "Sanjeev Drolia (Bangur)" },
+
+  // Rajasthan Guest House vs Rajasthan Bhojnalaya
+  { test: /^rajasthan\s+guest\s*house$/i, canonical: "Rajasthan Guest House" },
+  { test: /^rajasthan\s+bhojnalaya$/i, canonical: "Rajasthan Bhojnalaya" },
+
+  // New Nasta vs Nasta Kankurgachi
+  { test: /^nasta\s+ka[n]?kurgachi$/i, canonical: "Nasta (Kankurgachi)" },
+  { test: /^(?:new\s+nasta|nasta)$/i, canonical: "New Nasta" },
+
+  // Zuca
+  { test: /^zuca$/i, canonical: "Zuca" },
+
+  // Peturam Restaurant Ultadanga
+  { test: /^peturam(\s+restaurant)?(\s+ultadanga)?$/i, canonical: "Peturam Restaurant (Ultadanga)" },
+
+  // Sandwich Bastalla
+  { test: /^sandwich\s+bastalla$/i, canonical: "Sandwich Bastalla" },
+
+  // Zuddu Theatre Road
+  { test: /^zuddu(\s+theatre\s*road)?$/i, canonical: "Zuddu (Theatre Road)" },
+
+  // Choudhary and Company
+  { test: /^choudhary(\s+(?:and|&)\s*co(?:mpany)?)?$/i, canonical: "Choudhary & Co" },
+
+  // Agarwala Pav Bhaji
+  { test: /^agarwala(\s+pav\s*bhaji)?$/i, canonical: "Agarwala Pav Bhaji" },
+
+  // Honey Dhaba
+  { test: /^honey\s+dhaba$/i, canonical: "Honey Dhaba" },
+
+  // Mintu Shaw
+  { test: /^mintu\s+shaw$/i, canonical: "Mintu Shaw" },
+
+  // Kaka Tea
+  { test: /^kaka\s+tea$/i, canonical: "Kaka Tea" },
+
+  // Urban Masala
+  { test: /^urban\s+masala$/i, canonical: "Urban Masala" },
+
+  // Veg Dhaba
+  { test: /^veg\s+dhaba$/i, canonical: "Veg Dhaba" },
+
+  // Mark Hotel
+  { test: /^mark\s+hotel$/i, canonical: "Mark Hotel" },
+
+  // Hotel Saad
+  { test: /^hotel\s+saad$/i, canonical: "Hotel Saad" },
+
+  // Jamuna Banquet
+  { test: /^jamuna\s+banquet$/i, canonical: "Jamuna Banquet" },
+
+  // Bika
+  { test: /^bika$/i, canonical: "Bika" },
+
+  // Khana Khazana
+  { test: /^khana\s+khazana$/i, canonical: "Khana Khazana" },
+
+  // Maya Ram
+  { test: /^maya\s*ram$/i, canonical: "Maya Ram" },
+
+  // God Father
+  { test: /^god\s*father$/i, canonical: "God Father" },
+
+  // Machua
+  { test: /^machua$/i, canonical: "Machua" },
+
+  // Pepper
+  { test: /^pepper$/i, canonical: "Pepper" },
+
+  // Plush 28
+  { test: /^plush\s*28$/i, canonical: "Plush 28" },
+
+  // Cafe Florista
+  { test: /^cafe\s+florista$/i, canonical: "Cafe Florista" },
+
+  // Gopala Restaurant
+  { test: /^gopala(\s+restaurant)?$/i, canonical: "Gopala Restaurant" },
+
+  // Ganesh Maharaj
+  { test: /^ganesh\s+maharaj$/i, canonical: "Ganesh Maharaj" },
+
+  // Bhai Bhai
+  { test: /^bhai\s+bhai$/i, canonical: "Bhai Bhai" },
+];
+
+/**
+ * Normalizes an order note string into a canonical customer name and extracted item/variant detail.
+ * Ensures case variations, extra spaces, and item suffixes never create duplicate customer cards.
+ *
  * @param {string} rawNote - Raw note from order
+ * @param {Array<string>} [knownCustomerNames] - Optional list of existing canonical customer names
  * @returns {{ customer: string, item: string, raw: string, isDirect: boolean }}
  */
-export function normalizeCustomer(rawNote) {
+export function normalizeCustomer(rawNote, knownCustomerNames = []) {
   const raw = (rawNote || "").trim();
   if (!raw) {
     return {
@@ -37,121 +193,50 @@ export function normalizeCustomer(rawNote) {
     };
   }
 
-  // 1. Aami Bengali / Aami Bangla variants
-  if (/^(?:aami|ami)\s+(?:bangla|bengali)/i.test(raw)) {
-    if (/diamond\s*city/i.test(raw)) {
-      return { customer: "Aami Bengali (Diamond City)", item: "", raw, isDirect: false };
+  // 1. Separate item suffixes or parenthesized item notes
+  const { cleanedCustomer, extractedItem } = extractItemNote(raw);
+  const candidate = cleanedCustomer || raw;
+
+  // 2. Match against known canonical mapping rules
+  for (const rule of CANONICAL_MAPPINGS) {
+    if (rule.test.test(candidate)) {
+      return {
+        customer: rule.canonical,
+        item: extractedItem,
+        raw,
+        isDirect: false,
+      };
     }
-    if (/park\s*street/i.test(raw)) {
-      return { customer: "Aami Bengali (Park Street)", item: "", raw, isDirect: false };
+  }
+
+  // 3. Match case-insensitively against any existing canonical customer names in the ledger
+  if (Array.isArray(knownCustomerNames) && knownCustomerNames.length > 0) {
+    const candidateLower = candidate.toLowerCase();
+    const existingMatch = knownCustomerNames.find(
+      (name) => name.toLowerCase() === candidateLower || name.toLowerCase().replace(/[^a-z0-9]/g, "") === candidateLower.replace(/[^a-z0-9]/g, "")
+    );
+    if (existingMatch) {
+      return {
+        customer: existingMatch,
+        item: extractedItem,
+        raw,
+        isDirect: false,
+      };
     }
-    return { customer: "Aami Bengali", item: "", raw, isDirect: false };
   }
 
-  // 2. Karla / KarlA
-  if (/^karla$/i.test(raw)) {
-    return { customer: "Karla", item: "", raw, isDirect: false };
-  }
+  // 4. Default for any new customer: clean title-casing
+  // Retains branch parenthesis like "(Park Street)" or "(Diamond City)" if present
+  let formatted = toTitleCase(candidate);
+  // Restore common capitalized patterns in parentheses
+  formatted = formatted.replace(/\(([^)]+)\)/g, (_, inner) => `(${toTitleCase(inner)})`);
 
-  // 3. Aanand / Anand / Aanand restaurant
-  if (/^a*nand(\s+restaurant)?$/i.test(raw)) {
-    return { customer: "Aanand Restaurant", item: "", raw, isDirect: false };
-  }
-
-  // 4. Gupta Brothers Ballygunge / Gupta brother / Gupta brother (Ballygunge)
-  if (/gupta\s+brother/i.test(raw)) {
-    return { customer: "Gupta Brothers (Ballygunge)", item: "", raw, isDirect: false };
-  }
-
-  // 5. Gupta Veg Kestopur
-  if (/gupta\s+veg/i.test(raw)) {
-    return { customer: "Gupta Veg (Kestopur)", item: "", raw, isDirect: false };
-  }
-
-  // 6. Sufi Palace / Sufi palace / spoon / fork
-  if (/sufi\s+palace/i.test(raw)) {
-    const itemMatch = raw.match(/(?:spoon|fork)/i);
-    const item = itemMatch ? capitalize(itemMatch[0]) : "";
-    return { customer: "Sufi Palace", item, raw, isDirect: false };
-  }
-
-  // 7. Shiraj Restaurant / Siraj / straw / fork / spoon
-  if (/^(?:shiraj|siraj)/i.test(raw)) {
-    let item = "";
-    const parenMatch = raw.match(/\(([^)]+)\)/);
-    if (parenMatch) {
-      item = capitalize(parenMatch[1].trim());
-    } else {
-      const itemMatch = raw.match(/(?:straw|fork|spoon)/i);
-      if (itemMatch) item = capitalize(itemMatch[0]);
-    }
-    return { customer: "Shiraj Restaurant", item, raw, isDirect: false };
-  }
-
-  // 8. Chef Maxilogist / Mexilogist / napkin / tissue roll
-  if (/(?:chef\s+)?maxilogist|mexilogist/i.test(raw)) {
-    let item = "";
-    if (/napkin/i.test(raw)) item = "Napkin";
-    else if (/tissue\s*roll/i.test(raw)) item = "Tissue Roll";
-    return { customer: "Chef Maxilogist", item, raw, isDirect: false };
-  }
-
-  // 9. Sanjeev Drolia / Sanjeev drolia bangur
-  if (/sanjeev\s+drolia/i.test(raw)) {
-    return { customer: "Sanjeev Drolia (Bangur)", item: "", raw, isDirect: false };
-  }
-
-  // 10. Rajasthan Guest House vs Rajasthan Bhojnalaya
-  if (/rajasthan\s+guest\s*house/i.test(raw)) {
-    return { customer: "Rajasthan Guest House", item: "", raw, isDirect: false };
-  }
-  if (/rajasthan\s+bhojnalaya/i.test(raw)) {
-    return { customer: "Rajasthan Bhojnalaya", item: "", raw, isDirect: false };
-  }
-
-  // 11. New Nasta / Nasta / Nasta kakurgachi
-  if (/nasta\s+kakurgachi/i.test(raw)) {
-    return { customer: "Nasta (Kankurgachi)", item: "", raw, isDirect: false };
-  }
-  if (/^(?:new\s+nasta|nasta)$/i.test(raw)) {
-    return { customer: "New Nasta", item: "", raw, isDirect: false };
-  }
-
-  // 12. Zuca( toilet tissue)
-  if (/zuca/i.test(raw)) {
-    return { customer: "Zuca", item: "Toilet Tissue", raw, isDirect: false };
-  }
-
-  // 13. Peturam restaurant Ultadanga
-  if (/peturam/i.test(raw)) {
-    return { customer: "Peturam Restaurant (Ultadanga)", item: "", raw, isDirect: false };
-  }
-
-  // 14. Sandwich bastalla
-  if (/sandwich\s+bastalla/i.test(raw)) {
-    return { customer: "Sandwich Bastalla", item: "", raw, isDirect: false };
-  }
-
-  // 15. Zuddu theatre road
-  if (/zuddu/i.test(raw)) {
-    return { customer: "Zuddu (Theatre Road)", item: "", raw, isDirect: false };
-  }
-
-  // 16. Choudhary and company
-  if (/choudhary/i.test(raw)) {
-    return { customer: "Choudhary & Co", item: "", raw, isDirect: false };
-  }
-
-  // 17. Agarwala pav bhaji
-  if (/agarwala/i.test(raw)) {
-    return { customer: "Agarwala Pav Bhaji", item: "", raw, isDirect: false };
-  }
-
-  // Fallback: extract any item in parenthesis and clean customer name
-  const parenMatch = raw.match(/\(([^)]+)\)/);
-  const item = parenMatch ? capitalize(parenMatch[1].trim()) : "";
-  const cleaned = raw.replace(/\([^)]+\)/g, "").trim();
-  return { customer: toTitleCase(cleaned), item, raw, isDirect: false };
+  return {
+    customer: formatted,
+    item: extractedItem,
+    raw,
+    isDirect: false,
+  };
 }
 
 /**
@@ -170,14 +255,17 @@ export function calculateOrderFigures(order) {
 
 /**
  * Groups orders by canonical customer name.
+ * Automatically normalizes customer names across the entire dataset.
+ *
  * @param {Array} orders - List of order objects
  * @returns {Array} List of customer summary objects
  */
 export function groupOrdersByCustomer(orders) {
   const customerMap = new Map();
+  const knownNames = [];
 
   for (const order of orders) {
-    const { customer, item, isDirect } = normalizeCustomer(order.notes);
+    const { customer, item, isDirect } = normalizeCustomer(order.notes, knownNames);
     const figures = calculateOrderFigures(order);
 
     if (!customerMap.has(customer)) {
@@ -190,12 +278,14 @@ export function groupOrdersByCustomer(orders) {
         totalStockCost: 0,
         totalNet: 0,
         margin: 0,
-        variants: new Set(),
         items: new Set(),
         orders: [],
         lastOrderDate: order.orderDate,
         firstOrderDate: order.orderDate,
       });
+      if (!isDirect && !knownNames.includes(customer)) {
+        knownNames.push(customer);
+      }
     }
 
     const group = customerMap.get(customer);
@@ -204,7 +294,6 @@ export function groupOrdersByCustomer(orders) {
     group.totalSales += figures.sales;
     group.totalStockCost += figures.stockCost;
     group.totalNet += figures.net;
-    if (order.notes) group.variants.add(order.notes.trim());
     if (item) group.items.add(item);
     group.orders.push({ ...order, ...figures, customerName: customer, itemDetail: item });
 
@@ -217,7 +306,6 @@ export function groupOrdersByCustomer(orders) {
   for (const group of customerMap.values()) {
     group.margin = group.totalSales > 0 ? (group.totalNet / group.totalSales) * 100 : 0;
     group.avgOrderValue = group.ordersCount > 0 ? group.totalSales / group.ordersCount : 0;
-    group.variantsList = Array.from(group.variants);
     group.itemsList = Array.from(group.items);
     // Sort transactions inside each customer newest first
     group.orders.sort((a, b) => b.orderDate.localeCompare(a.orderDate) || (b.createdAt || "").localeCompare(a.createdAt || ""));
