@@ -1,17 +1,19 @@
 # Tissue Ledger
 
-A small sales ledger for a tissue business. It records sales, buying and selling prices, dated manufacturer payments, petrol expenses, and net profit or loss. The website runs free on GitHub Pages and can securely sync its ledger to every phone through Supabase's free tier.
+A modern, aesthetic sales and operations ledger for a tissue business. It records customer sales, buying and selling prices, dated manufacturer payments, petrol expenses, and live profit metrics. The application features an intelligent customer-grouped ledger that merges name variants, provides segmented views, supports one-click JSON backup & restore to guarantee zero data loss, runs free on GitHub Pages, and seamlessly syncs to all devices via Supabase.
 
 ## What it does
 
-- Saves orders with quantity, buying price, selling price, and a note.
-- Records dated payments to the manufacturer in a separate payment ledger.
-- Stores petrol in a completely separate dated expense ledger.
-- Calculates **net profit = sales − stock cost − all petrol expenses**.
-- Calculates the outstanding manufacturer due as total stock cost less manufacturer payments. Payments settle stock cost and do not reduce profit twice.
-- Lets the user edit, search, sort, and delete orders, manufacturer payments, and petrol expenses.
-- Downloads a real Excel `.xlsx` workbook with **Summary**, **Order History**, **Manufacturer Payments**, and **Petrol Expenses** sheets.
-- Signs in with a password-free six-digit email code. Use the same email on every mobile to see one shared ledger.
+- **Customer-Centric Ledger**: Automatically groups all transactions by client with customer summary cards, avatar badges, total spend, order count, and expandable transaction drawers.
+- **Smart Name Variant Normalization**: Automatically identifies and groups spelling variations, branch locations, and product-tagged notes (e.g., merging "Aami bangla diamond city" & "Aami bengali diamond city", "Sufi Palace fork", "Karla" & "KarlA", etc.) while preserving the original note on each transaction.
+- **Segmented Views**: Switch between **By Customer**, **All Transactions**, **Manufacturer Ledger**, and **Petrol Expenses** with dedicated counters and filtering.
+- **Zero-Loss Data Tools**: Built-in modal to export full ledger backups as JSON, import/restore previous backups, or load seed data, alongside the existing multi-sheet Excel `.xlsx` download (**Summary**, **Order History**, **Manufacturer Payments**, and **Petrol Expenses**).
+- **Accurate Financial Formulas**:
+  - `Net Profit = Total Sales − Stock Cost − Total Petrol Expenses`.
+  - `Manufacturer Due = Total Stock Cost − Total Manufacturer Payments`.
+  - Payments settle stock cost and never deduct profit twice.
+- **Full CRUD Management**: Search, sort, add, edit, and delete orders, petrol expenses, and manufacturer payments directly within customer drawers or global tables.
+- **Cross-Device Cloud Sync**: Works completely offline via IndexedDB with automatic background synchronization to Supabase whenever signed in via password-free 6-digit email OTP.
 
 ## One-time cloud sync setup
 

@@ -1,5 +1,13 @@
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js";
+import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js";
+import {
+  normalizeCustomer,
+  groupOrdersByCustomer,
+  calculateOrderFigures,
+  getAvatarColor,
+  getInitials,
+} from "./customer-ledger.js";
 
 const DB_NAME = "tissue-ledger-db";
 const DB_VERSION = 3;
@@ -9,21 +17,141 @@ const MANUFACTURER_PAYMENT_STORE = "manufacturer-payments";
 const CURRENCY = "INR";
 const cloudConfigured = Boolean(SUPABASE_URL?.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY?.trim());
 
-const formatCurrency = new Intl.NumberFormat("en-IN", { style: "currency", currency: CURRENCY, minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const formatCurrency = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: CURRENCY,
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
 const formatNumber = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 });
 const dateFormatter = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
+// DOM Elements
 const elements = {
-  form: document.querySelector("#order-form"), formTitle: document.querySelector("#form-title"), orderId: document.querySelector("#order-id"),
-  orderDate: document.querySelector("#order-date"), quantity: document.querySelector("#quantity"), buyingPrice: document.querySelector("#buying-price"), sellingPrice: document.querySelector("#selling-price"), notes: document.querySelector("#notes"),
-  previewSales: document.querySelector("#preview-sales"), previewStockCost: document.querySelector("#preview-stock-cost"), previewNet: document.querySelector("#preview-net"), saveButton: document.querySelector("#save-button"), cancelEdit: document.querySelector("#cancel-edit"), formMessage: document.querySelector("#form-message"),
-  ordersBody: document.querySelector("#orders-body"), emptyState: document.querySelector("#empty-state"), search: document.querySelector("#search-orders"), sort: document.querySelector("#sort-orders"),
-  totalSales: document.querySelector("#total-sales"), salesCount: document.querySelector("#sales-count"), netProfit: document.querySelector("#net-profit"), manufacturerDueTotal: document.querySelector("#manufacturer-due"), profitMargin: document.querySelector("#profit-margin"), exportButton: document.querySelector("#export-button"), toast: document.querySelector("#toast"),
-  petrolForm: document.querySelector("#petrol-form"), petrolFormTitle: document.querySelector("#petrol-form-title"), petrolId: document.querySelector("#petrol-id"), petrolDate: document.querySelector("#petrol-date"), petrolAmount: document.querySelector("#petrol-amount"), petrolNotes: document.querySelector("#petrol-notes"), savePetrolButton: document.querySelector("#save-petrol-button"), cancelPetrolEdit: document.querySelector("#cancel-petrol-edit"), petrolFormMessage: document.querySelector("#petrol-form-message"), petrolBody: document.querySelector("#petrol-body"), petrolEmptyState: document.querySelector("#petrol-empty-state"), totalPetrol: document.querySelector("#total-petrol"),
-  manufacturerPaymentForm: document.querySelector("#manufacturer-payment-form"), manufacturerFormTitle: document.querySelector("#manufacturer-form-title"), manufacturerPaymentId: document.querySelector("#manufacturer-payment-id"), manufacturerPaymentDate: document.querySelector("#manufacturer-payment-date"), manufacturerPaymentAmount: document.querySelector("#manufacturer-payment-amount"), manufacturerPaymentNotes: document.querySelector("#manufacturer-payment-notes"), saveManufacturerPaymentButton: document.querySelector("#save-manufacturer-payment-button"), cancelManufacturerPaymentEdit: document.querySelector("#cancel-manufacturer-payment-edit"), manufacturerPaymentFormMessage: document.querySelector("#manufacturer-payment-form-message"), manufacturerPaymentsBody: document.querySelector("#manufacturer-payments-body"), manufacturerPaymentsEmptyState: document.querySelector("#manufacturer-payments-empty-state"), totalManufacturerPaid: document.querySelector("#total-manufacturer-paid"),
-  accountButton: document.querySelector("#account-button"), syncStatusLabel: document.querySelector("#sync-status-label"), syncPanel: document.querySelector("#sync-panel"), syncTitle: document.querySelector("#sync-title"), syncDescription: document.querySelector("#sync-description"), signInForm: document.querySelector("#sign-in-form"), signInEmail: document.querySelector("#sign-in-email"), signInButton: document.querySelector("#sign-in-button"), otpForm: document.querySelector("#otp-form"), otpCode: document.querySelector("#otp-code"), otpEmailLabel: document.querySelector("#otp-email-label"), verifyOtpButton: document.querySelector("#verify-otp-button"), resendOtpCode: document.querySelector("#resend-otp-code"), useDifferentEmail: document.querySelector("#use-different-email"), signedInActions: document.querySelector("#signed-in-actions"), syncNowButton: document.querySelector("#sync-now-button"), signOutButton: document.querySelector("#sign-out-button"), syncMessage: document.querySelector("#sync-message"),
+  // Order Form
+  form: document.querySelector("#order-form"),
+  formTitle: document.querySelector("#form-title"),
+  orderId: document.querySelector("#order-id"),
+  orderDate: document.querySelector("#order-date"),
+  customerInput: document.querySelector("#customer-input"),
+  customerDatalist: document.querySelector("#customer-datalist"),
+  quantity: document.querySelector("#quantity"),
+  buyingPrice: document.querySelector("#buying-price"),
+  sellingPrice: document.querySelector("#selling-price"),
+  notes: document.querySelector("#notes"),
+  previewSales: document.querySelector("#preview-sales"),
+  previewStockCost: document.querySelector("#preview-stock-cost"),
+  previewNet: document.querySelector("#preview-net"),
+  saveButton: document.querySelector("#save-button"),
+  cancelEdit: document.querySelector("#cancel-edit"),
+  formMessage: document.querySelector("#form-message"),
+
+  // Orders Ledger
+  ordersBody: document.querySelector("#orders-body"),
+  emptyState: document.querySelector("#empty-state"),
+  search: document.querySelector("#search-orders"),
+  sort: document.querySelector("#sort-orders"),
+  filterOrderCustomer: document.querySelector("#filter-order-customer"),
+
+  // Summary Cards
+  totalSales: document.querySelector("#total-sales"),
+  salesCount: document.querySelector("#sales-count"),
+  netProfit: document.querySelector("#net-profit"),
+  manufacturerDueTotal: document.querySelector("#manufacturer-due"),
+  profitMargin: document.querySelector("#profit-margin"),
+  avgOrderBadge: document.querySelector("#avg-order-badge"),
+  petrolDeductedBadge: document.querySelector("#petrol-deducted-badge"),
+  dueStatusBadge: document.querySelector("#due-status-badge"),
+  mfgPaidSummaryBadge: document.querySelector("#mfg-paid-summary-badge"),
+  petrolCountBadge: document.querySelector("#petrol-count-badge"),
+  exportButton: document.querySelector("#export-button"),
+  toast: document.querySelector("#toast"),
+
+  // Petrol Form & Table
+  petrolForm: document.querySelector("#petrol-form"),
+  petrolFormTitle: document.querySelector("#petrol-form-title"),
+  petrolId: document.querySelector("#petrol-id"),
+  petrolDate: document.querySelector("#petrol-date"),
+  petrolAmount: document.querySelector("#petrol-amount"),
+  petrolNotes: document.querySelector("#petrol-notes"),
+  savePetrolButton: document.querySelector("#save-petrol-button"),
+  cancelPetrolEdit: document.querySelector("#cancel-petrol-edit"),
+  petrolFormMessage: document.querySelector("#petrol-form-message"),
+  petrolBody: document.querySelector("#petrol-body"),
+  petrolEmptyState: document.querySelector("#petrol-empty-state"),
+  totalPetrol: document.querySelector("#total-petrol"),
+  totalPetrolPanel: document.querySelector("#total-petrol-panel"),
+
+  // Manufacturer Payment Form & Table
+  manufacturerPaymentForm: document.querySelector("#manufacturer-payment-form"),
+  manufacturerFormTitle: document.querySelector("#manufacturer-form-title"),
+  manufacturerPaymentId: document.querySelector("#manufacturer-payment-id"),
+  manufacturerPaymentDate: document.querySelector("#manufacturer-payment-date"),
+  manufacturerPaymentAmount: document.querySelector("#manufacturer-payment-amount"),
+  manufacturerPaymentNotes: document.querySelector("#manufacturer-payment-notes"),
+  saveManufacturerPaymentButton: document.querySelector("#save-manufacturer-payment-button"),
+  cancelManufacturerPaymentEdit: document.querySelector("#cancel-manufacturer-payment-edit"),
+  manufacturerPaymentFormMessage: document.querySelector("#manufacturer-payment-form-message"),
+  manufacturerPaymentsBody: document.querySelector("#manufacturer-payments-body"),
+  manufacturerPaymentsEmptyState: document.querySelector("#manufacturer-payments-empty-state"),
+  totalManufacturerPaid: document.querySelector("#total-manufacturer-paid"),
+
+  // Cloud Sync
+  accountButton: document.querySelector("#account-button"),
+  syncStatusLabel: document.querySelector("#sync-status-label"),
+  syncPanel: document.querySelector("#sync-panel"),
+  syncTitle: document.querySelector("#sync-title"),
+  syncDescription: document.querySelector("#sync-description"),
+  signInForm: document.querySelector("#sign-in-form"),
+  signInEmail: document.querySelector("#sign-in-email"),
+  signInButton: document.querySelector("#sign-in-button"),
+  otpForm: document.querySelector("#otp-form"),
+  otpCode: document.querySelector("#otp-code"),
+  otpEmailLabel: document.querySelector("#otp-email-label"),
+  verifyOtpButton: document.querySelector("#verify-otp-button"),
+  resendOtpCode: document.querySelector("#resend-otp-code"),
+  useDifferentEmail: document.querySelector("#use-different-email"),
+  signedInActions: document.querySelector("#signed-in-actions"),
+  syncNowButton: document.querySelector("#sync-now-button"),
+  signOutButton: document.querySelector("#sign-out-button"),
+  syncMessage: document.querySelector("#sync-message"),
+
+  // Navigation Tabs
+  tabBtnCustomers: document.querySelector("#tab-btn-customers"),
+  tabBtnOrders: document.querySelector("#tab-btn-orders"),
+  tabBtnManufacturer: document.querySelector("#tab-btn-manufacturer"),
+  tabBtnPetrol: document.querySelector("#tab-btn-petrol"),
+  customersTabCount: document.querySelector("#customers-tab-count"),
+  ordersTabCount: document.querySelector("#orders-tab-count"),
+  mfgTabCount: document.querySelector("#mfg-tab-count"),
+  petrolTabCount: document.querySelector("#petrol-tab-count"),
+
+  // Views
+  viewCustomers: document.querySelector("#view-customers"),
+  viewOrders: document.querySelector("#view-orders"),
+  viewManufacturer: document.querySelector("#view-manufacturer"),
+  viewPetrol: document.querySelector("#view-petrol"),
+
+  // Customer View specific
+  customerSearch: document.querySelector("#customer-search"),
+  customerSort: document.querySelector("#customer-sort"),
+  customerGrid: document.querySelector("#customer-grid"),
+  customerEmptyState: document.querySelector("#customer-empty-state"),
+
+  // Buttons & Modals
+  openOrderFormBtn: document.querySelector("#open-order-form-btn"),
+  quickAddOrderBtn: document.querySelector("#quick-add-order-btn"),
+  dataToolsButton: document.querySelector("#data-tools-button"),
+  dataToolsModal: document.querySelector("#data-tools-modal"),
+  closeToolsModal: document.querySelector("#close-tools-modal"),
+  closeToolsModalFooter: document.querySelector("#close-tools-modal-footer"),
+  downloadJsonBackupBtn: document.querySelector("#download-json-backup-btn"),
+  downloadExcelBtn: document.querySelector("#download-excel-btn"),
+  importJsonFile: document.querySelector("#import-json-file"),
+  reloadSeedDataBtn: document.querySelector("#reload-seed-data-btn"),
 };
 
+// Application State
 let orders = [];
 let petrolExpenses = [];
 let manufacturerPayments = [];
@@ -32,6 +160,8 @@ let currentUser = null;
 let isSyncing = false;
 let pendingEmail = "";
 let toastTimer;
+let activeTab = "customers";
+const expandedCustomerCards = new Set();
 
 function todayISO() {
   const now = new Date();
@@ -41,15 +171,6 @@ function todayISO() {
 function toNumber(value) {
   const parsed = Number.parseFloat(value);
   return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function calculateOrder(order) {
-  const quantity = toNumber(order.quantity);
-  const buyingPrice = toNumber(order.buyingPrice);
-  const sellingPrice = toNumber(order.sellingPrice);
-  const sales = quantity * sellingPrice;
-  const stockCost = quantity * buyingPrice;
-  return { quantity, buyingPrice, sellingPrice, sales, stockCost, net: sales - stockCost };
 }
 
 function formatSignedCurrency(value) {
@@ -63,9 +184,16 @@ function displayDate(isoDate) {
 }
 
 function escapeHtml(value) {
-  return String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
+  return String(value ?? "").replace(/[&<>'"]/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;",
+  }[char]));
 }
 
+// IndexedDB Storage
 function openDatabase() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -104,6 +232,7 @@ async function useStore(storeName, mode, callback) {
 const getAllLocal = (storeName) => useStore(storeName, "readonly", (store) => store.getAll());
 const saveLocal = (storeName, record) => useStore(storeName, "readwrite", (store) => store.put(record));
 const deleteLocal = (storeName, id) => useStore(storeName, "readwrite", (store) => store.delete(id));
+const clearLocalStore = (storeName) => useStore(storeName, "readwrite", (store) => store.clear());
 
 function storeForKind(kind) {
   return ({ order: ORDER_STORE, petrol: PETROL_STORE, manufacturerPayment: MANUFACTURER_PAYMENT_STORE })[kind];
@@ -114,18 +243,41 @@ function tableForKind(kind) {
 }
 
 function isVisibleToCurrentLedger(record) {
-  return !cloudConfigured || Boolean(currentUser && record.userId === currentUser.id);
+  if (!cloudConfigured || !currentUser) {
+    return true;
+  }
+  return !record.userId || record.userId === currentUser.id;
 }
 
+/**
+ * Loads records from IndexedDB. If local database is empty and user not signed in,
+ * safely populates with the master ledger (265 orders, 12 petrol, 15 mfg payments)
+ * so there is NEVER any data loss!
+ */
 async function loadLocalLedger() {
   const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([
     getAllLocal(ORDER_STORE),
     getAllLocal(PETROL_STORE),
     getAllLocal(MANUFACTURER_PAYMENT_STORE),
   ]);
-  orders = storedOrders.filter(isVisibleToCurrentLedger);
-  petrolExpenses = storedPetrol.filter(isVisibleToCurrentLedger);
-  manufacturerPayments = storedManufacturerPayments.filter(isVisibleToCurrentLedger);
+
+  if (storedOrders.length > 0 || storedPetrol.length > 0 || storedManufacturerPayments.length > 0) {
+    orders = storedOrders.filter(isVisibleToCurrentLedger);
+    petrolExpenses = storedPetrol.filter(isVisibleToCurrentLedger);
+    manufacturerPayments = storedManufacturerPayments.filter(isVisibleToCurrentLedger);
+  } else if (!currentUser) {
+    // Populate master dataset into IndexedDB so it persists permanently
+    await Promise.all([
+      ...SEED_ORDERS.map((o) => saveLocal(ORDER_STORE, o)),
+      ...SEED_PETROL.map((p) => saveLocal(PETROL_STORE, p)),
+      ...SEED_MANUFACTURER_PAYMENTS.map((m) => saveLocal(MANUFACTURER_PAYMENT_STORE, m)),
+    ]);
+    orders = [...SEED_ORDERS];
+    petrolExpenses = [...SEED_PETROL];
+    manufacturerPayments = [...SEED_MANUFACTURER_PAYMENTS];
+  }
+
+  updateCustomerDatalist();
   render();
 }
 
@@ -142,10 +294,10 @@ function updateSyncUi() {
   const dot = elements.accountButton.querySelector(".status-dot");
   dot.classList.remove("pending", "offline");
   if (!cloudConfigured) {
-    elements.syncStatusLabel.textContent = "Cloud sync setup";
+    elements.syncStatusLabel.textContent = "Local ledger";
     dot.classList.add("offline");
     elements.syncTitle.textContent = "Connect your ledger across every phone.";
-    elements.syncDescription.textContent = "This site is ready for free cloud sync. Add the Supabase project values in supabase-config.js, then deploy it once.";
+    elements.syncDescription.textContent = "This site is ready for free cloud sync. Add the Supabase project values in supabase-config.js.";
     elements.signInForm.classList.add("hidden");
     elements.otpForm.classList.add("hidden");
     elements.signedInActions.classList.add("hidden");
@@ -153,7 +305,7 @@ function updateSyncUi() {
     elements.syncStatusLabel.textContent = "Sign in to sync";
     dot.classList.add("pending");
     elements.syncTitle.textContent = "Sign in to sync every phone.";
-    elements.syncDescription.textContent = "Use the same email address on each mobile. We will send a secure sign-in code—read it anywhere and enter it on this phone.";
+    elements.syncDescription.textContent = "Use the same email address on each mobile. We will send a secure sign-in code.";
     elements.signInForm.classList.toggle("hidden", Boolean(pendingEmail));
     elements.otpForm.classList.toggle("hidden", !pendingEmail);
     if (pendingEmail) elements.otpEmailLabel.textContent = pendingEmail;
@@ -161,46 +313,91 @@ function updateSyncUi() {
   } else {
     elements.syncStatusLabel.textContent = "Cloud sync active";
     elements.syncTitle.textContent = "Your ledger is syncing securely.";
-    elements.syncDescription.textContent = `Signed in as ${currentUser.email || "your account"}. Open this site on another phone and sign in with the same email.`;
+    elements.syncDescription.textContent = `Signed in as ${currentUser.email || "your account"}. Cross-device sync is live.`;
     elements.signInForm.classList.add("hidden");
     elements.otpForm.classList.add("hidden");
     elements.signedInActions.classList.remove("hidden");
   }
 }
 
+function updateCustomerDatalist() {
+  const customerGroups = groupOrdersByCustomer(orders);
+  const names = customerGroups.map((g) => g.customer).filter((n) => !n.includes("Direct / Walk-in"));
+  names.sort((a, b) => a.localeCompare(b));
+
+  elements.customerDatalist.innerHTML = names.map((name) => `<option value="${escapeHtml(name)}"></option>`).join("");
+
+  // Also update filter dropdown in Orders view
+  const currentVal = elements.filterOrderCustomer.value;
+  elements.filterOrderCustomer.innerHTML = '<option value="">All Customers</option>' +
+    names.map((name) => `<option value="${escapeHtml(name)}" ${name === currentVal ? "selected" : ""}>${escapeHtml(name)}</option>`).join("");
+}
+
 function getFilteredOrders() {
   const query = elements.search.value.trim().toLowerCase();
-  const filtered = orders.filter((order) => !query || [order.orderDate, order.notes].some((value) => String(value || "").toLowerCase().includes(query)));
+  const customerFilter = elements.filterOrderCustomer.value.trim();
+
+  const filtered = orders.filter((order) => {
+    const { customer, item } = normalizeCustomer(order.notes);
+    if (customerFilter && customer !== customerFilter) return false;
+    if (!query) return true;
+    return [order.orderDate, order.notes, customer, item].some((val) =>
+      String(val || "").toLowerCase().includes(query)
+    );
+  });
+
   return filtered.sort((a, b) => {
-    if (elements.sort.value === "oldest") return a.orderDate.localeCompare(b.orderDate);
-    if (elements.sort.value === "profit-high") return calculateOrder(b).net - calculateOrder(a).net;
-    if (elements.sort.value === "profit-low") return calculateOrder(a).net - calculateOrder(b).net;
-    return b.orderDate.localeCompare(a.orderDate) || b.createdAt.localeCompare(a.createdAt);
+    const sortVal = elements.sort.value;
+    if (sortVal === "oldest") return a.orderDate.localeCompare(b.orderDate);
+    if (sortVal === "profit-high") return calculateOrderFigures(b).net - calculateOrderFigures(a).net;
+    if (sortVal === "profit-low") return calculateOrderFigures(a).net - calculateOrderFigures(b).net;
+    if (sortVal === "sales-high") return calculateOrderFigures(b).sales - calculateOrderFigures(a).sales;
+    if (sortVal === "qty-high") return toNumber(b.quantity) - toNumber(a.quantity);
+    return b.orderDate.localeCompare(a.orderDate) || (b.createdAt || "").localeCompare(a.createdAt || "");
   });
 }
 
 function renderSummary() {
-  const orderTotals = orders.reduce((result, order) => {
-    const values = calculateOrder(order);
-    result.sales += values.sales;
-    result.stock += values.stockCost;
-    return result;
-  }, { sales: 0, stock: 0 });
-  const petrolTotal = petrolExpenses.reduce((sum, expense) => sum + toNumber(expense.amount), 0);
-  const manufacturerPaid = manufacturerPayments.reduce((sum, payment) => sum + toNumber(payment.amount), 0);
+  const orderTotals = orders.reduce(
+    (result, order) => {
+      const figures = calculateOrderFigures(order);
+      result.sales += figures.sales;
+      result.stock += figures.stockCost;
+      return result;
+    },
+    { sales: 0, stock: 0 }
+  );
+
+  const petrolTotal = petrolExpenses.reduce((sum, exp) => sum + toNumber(exp.amount), 0);
+  const manufacturerPaid = manufacturerPayments.reduce((sum, pmt) => sum + toNumber(pmt.amount), 0);
   const profit = orderTotals.sales - orderTotals.stock - petrolTotal;
   const manufacturerDue = orderTotals.stock - manufacturerPaid;
-  const margin = orderTotals.sales ? (profit / orderTotals.sales) * 100 : 0;
-  elements.totalSales.textContent = formatSignedCurrency(orderTotals.sales);
+  const margin = orderTotals.sales > 0 ? (profit / orderTotals.sales) * 100 : 0;
+  const avgOrder = orders.length > 0 ? orderTotals.sales / orders.length : 0;
+
+  elements.totalSales.textContent = formatCurrency.format(orderTotals.sales);
   elements.salesCount.textContent = orders.length === 1 ? "1 order recorded" : `${orders.length} orders recorded`;
   elements.netProfit.textContent = formatSignedCurrency(profit);
-  elements.manufacturerDueTotal.textContent = formatSignedCurrency(manufacturerDue);
-  elements.profitMargin.textContent = `${margin.toFixed(1)}%`;
-  elements.totalPetrol.textContent = formatSignedCurrency(petrolTotal);
-  elements.totalManufacturerPaid.textContent = formatSignedCurrency(manufacturerPaid);
+  elements.manufacturerDueTotal.textContent = formatCurrency.format(manufacturerDue);
+  elements.profitMargin.textContent = `${margin.toFixed(1)}% margin`;
+  elements.totalPetrol.textContent = formatCurrency.format(petrolTotal);
+  if (elements.totalPetrolPanel) elements.totalPetrolPanel.textContent = formatCurrency.format(petrolTotal);
+  elements.totalManufacturerPaid.textContent = formatCurrency.format(manufacturerPaid);
+
+  if (elements.avgOrderBadge) elements.avgOrderBadge.textContent = `Avg: ${formatCurrency.format(avgOrder)} / order`;
+  if (elements.petrolDeductedBadge) elements.petrolDeductedBadge.textContent = `Petrol: ${formatCurrency.format(petrolTotal)}`;
+  if (elements.mfgPaidSummaryBadge) elements.mfgPaidSummaryBadge.textContent = `Paid: ${formatCurrency.format(manufacturerPaid)}`;
+  if (elements.petrolCountBadge) elements.petrolCountBadge.textContent = `${petrolExpenses.length} fuel entries`;
+
+  // Update tab counts
+  const customerGroups = groupOrdersByCustomer(orders);
+  if (elements.customersTabCount) elements.customersTabCount.textContent = customerGroups.length;
+  if (elements.ordersTabCount) elements.ordersTabCount.textContent = orders.length;
+  if (elements.mfgTabCount) elements.mfgTabCount.textContent = manufacturerPayments.length;
+  if (elements.petrolTabCount) elements.petrolTabCount.textContent = petrolExpenses.length;
+
   document.querySelector(".profit-card").classList.toggle("negative", profit < 0);
   document.querySelector(".due-card").classList.toggle("negative", manufacturerDue < 0);
-  document.querySelector(".margin-card").classList.toggle("negative", margin < 0);
 }
 
 function actionIcon(type) {
@@ -209,51 +406,253 @@ function actionIcon(type) {
     : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v5m4-5v5M9 7l1-2h4l1 2m-9 0 1 13h10l1-13"/></svg>';
 }
 
+/**
+ * Renders the Customer Grouped View (Core new aesthetic feature).
+ */
+function renderCustomersView() {
+  const groups = groupOrdersByCustomer(orders);
+  const query = elements.customerSearch.value.trim().toLowerCase();
+  const sortKey = elements.customerSort.value;
+
+  // Filter
+  const filtered = groups.filter((g) => {
+    if (!query) return true;
+    const variantsText = g.variantsList.join(" ").toLowerCase();
+    const itemsText = g.itemsList.join(" ").toLowerCase();
+    return g.customer.toLowerCase().includes(query) || variantsText.includes(query) || itemsText.includes(query);
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (sortKey === "orders-high") return b.ordersCount - a.ordersCount;
+    if (sortKey === "profit-high") return b.totalNet - a.totalNet;
+    if (sortKey === "margin-high") return b.margin - a.margin;
+    if (sortKey === "recent") return b.lastOrderDate.localeCompare(a.lastOrderDate);
+    if (sortKey === "name-asc") return a.customer.localeCompare(b.customer);
+    return b.totalSales - a.totalSales; // default
+  });
+
+  elements.customerGrid.innerHTML = filtered
+    .map((group) => {
+      const isExpanded = expandedCustomerCards.has(group.customer);
+      const avatarStyle = getAvatarColor(group.customer);
+      const initials = getInitials(group.customer);
+
+      const variantsHtml = group.variantsList.length > 1
+        ? `<div class="customer-variants">
+            <span class="variant-label">Variants:</span>
+            ${group.variantsList.map((v) => `<span class="variant-chip" title="Variant recorded in ledger">${escapeHtml(v)}</span>`).join("")}
+           </div>`
+        : group.itemsList.length > 0
+        ? `<div class="customer-variants">
+            <span class="variant-label">Items:</span>
+            ${group.itemsList.map((item) => `<span class="item-chip">${escapeHtml(item)}</span>`).join("")}
+           </div>`
+        : "";
+
+      // Mini-table of transactions inside this customer
+      const drawerRows = group.orders
+        .map((ord) => {
+          const itemTag = ord.itemDetail ? `<span class="item-chip" style="margin-left: 6px;">${escapeHtml(ord.itemDetail)}</span>` : "";
+          const netClass = ord.net < 0 ? "net-negative" : "net";
+          return `<tr>
+            <td><strong>${displayDate(ord.orderDate)}</strong>${itemTag}</td>
+            <td class="numeric">${formatNumber.format(ord.quantity)}</td>
+            <td class="numeric">${formatCurrency.format(ord.sellingPrice)}</td>
+            <td class="numeric"><strong>${formatCurrency.format(ord.sales)}</strong></td>
+            <td class="numeric ${netClass}">${formatSignedCurrency(ord.net)}</td>
+            <td style="text-align: right;">
+              <span class="row-actions">
+                <button class="icon-button" type="button" data-order-action="edit" data-id="${ord.id}" title="Edit order">${actionIcon("edit")}</button>
+                <button class="icon-button delete" type="button" data-order-action="delete" data-id="${ord.id}" title="Delete order">${actionIcon("delete")}</button>
+              </span>
+            </td>
+          </tr>`;
+        })
+        .join("");
+
+      return `
+        <article class="customer-card" data-customer-name="${escapeHtml(group.customer)}">
+          <div class="customer-card-header">
+            <div class="customer-profile">
+              <div class="customer-avatar" style="background: ${avatarStyle.bg}; color: ${avatarStyle.text};">
+                ${initials}
+              </div>
+              <div class="customer-info">
+                <h3 class="customer-name">
+                  ${escapeHtml(group.customer)}
+                  ${group.isDirect ? '<span class="direct-sale-badge">Walk-in</span>' : ""}
+                </h3>
+                <span class="customer-meta">${group.ordersCount} orders &bull; ${displayDate(group.firstOrderDate)} to ${displayDate(group.lastOrderDate)}</span>
+              </div>
+            </div>
+            <div class="customer-card-top-actions">
+              <button class="button button-outline-primary button-sm" type="button" data-add-for-customer="${escapeHtml(group.customer)}" title="Add order for this customer">
+                + Order
+              </button>
+            </div>
+          </div>
+
+          ${variantsHtml}
+
+          <div class="customer-stats-grid">
+            <div class="customer-stat-box">
+              <span class="stat-label">Sales</span>
+              <span class="stat-val">${formatCurrency.format(group.totalSales)}</span>
+            </div>
+            <div class="customer-stat-box">
+              <span class="stat-label">Profit</span>
+              <span class="stat-val profit-val">${formatCurrency.format(group.totalNet)}</span>
+            </div>
+            <div class="customer-stat-box">
+              <span class="stat-label">Units</span>
+              <span class="stat-val">${formatNumber.format(group.totalQuantity)}</span>
+            </div>
+            <div class="customer-stat-box">
+              <span class="stat-label">Margin</span>
+              <span class="stat-val">${group.margin.toFixed(1)}%</span>
+            </div>
+          </div>
+
+          <div class="customer-card-footer">
+            <button class="toggle-orders-btn ${isExpanded ? "expanded" : ""}" type="button" data-toggle-customer="${escapeHtml(group.customer)}">
+              <span>${isExpanded ? "Hide transactions" : `View ${group.ordersCount} transactions`}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
+          <div class="customer-orders-drawer ${isExpanded ? "open" : ""}">
+            <table class="drawer-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Qty</th>
+                  <th>Rate</th>
+                  <th>Sales</th>
+                  <th>Profit</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${drawerRows}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  elements.customerEmptyState.classList.toggle("visible", filtered.length === 0);
+}
+
 function renderOrders() {
   const visibleOrders = getFilteredOrders();
-  elements.ordersBody.innerHTML = visibleOrders.map((order) => {
-    const values = calculateOrder(order);
-    const note = order.notes ? `<span class="order-note" title="${escapeHtml(order.notes)}">${escapeHtml(order.notes)}</span>` : "";
-    const netClass = values.net < 0 ? "net net-negative" : "net";
-    return `<tr><td><span class="order-date">${displayDate(order.orderDate)}</span>${note}</td><td class="numeric">${formatNumber.format(values.quantity)}</td><td class="numeric">${formatCurrency.format(values.sales)}</td><td class="numeric">${formatCurrency.format(values.stockCost)}</td><td class="numeric ${netClass}">${formatSignedCurrency(values.net)}</td><td><span class="row-actions"><button class="icon-button" type="button" data-order-action="edit" data-id="${order.id}" aria-label="Edit order from ${displayDate(order.orderDate)}">${actionIcon("edit")}</button><button class="icon-button delete" type="button" data-order-action="delete" data-id="${order.id}" aria-label="Delete order from ${displayDate(order.orderDate)}">${actionIcon("delete")}</button></span></td></tr>`;
-  }).join("");
+
+  elements.ordersBody.innerHTML = visibleOrders
+    .map((order) => {
+      const figures = calculateOrderFigures(order);
+      const { customer, item } = normalizeCustomer(order.notes);
+      const noteDisplay = item || order.notes ? `<span class="order-note" title="${escapeHtml(order.notes)}">${escapeHtml(item || order.notes)}</span>` : "";
+      const netClass = figures.net < 0 ? "net-negative" : "net";
+
+      return `<tr>
+        <td>
+          <span class="order-date">${displayDate(order.orderDate)}</span>
+          <span class="customer-pill">${escapeHtml(customer)}</span>
+          ${noteDisplay}
+        </td>
+        <td class="numeric">${formatNumber.format(figures.quantity)}</td>
+        <td class="numeric">${formatCurrency.format(figures.sales)}</td>
+        <td class="numeric">${formatCurrency.format(figures.stockCost)}</td>
+        <td class="numeric ${netClass}">${formatSignedCurrency(figures.net)}</td>
+        <td style="text-align: right;">
+          <span class="row-actions">
+            <button class="icon-button" type="button" data-order-action="edit" data-id="${order.id}" aria-label="Edit order from ${displayDate(order.orderDate)}">${actionIcon("edit")}</button>
+            <button class="icon-button delete" type="button" data-order-action="delete" data-id="${order.id}" aria-label="Delete order from ${displayDate(order.orderDate)}">${actionIcon("delete")}</button>
+          </span>
+        </td>
+      </tr>`;
+    })
+    .join("");
+
   elements.emptyState.classList.toggle("visible", visibleOrders.length === 0);
-  const hasNoMatches = orders.length && !visibleOrders.length;
-  elements.emptyState.querySelector("h3").textContent = hasNoMatches ? "No matching orders" : "No orders saved yet";
-  elements.emptyState.querySelector("p").textContent = hasNoMatches ? "Try a different search term or clear the search field." : "Your sales history will appear here after you add your first order.";
 }
 
 function renderPetrolExpenses() {
-  const expenses = [...petrolExpenses].sort((a, b) => b.expenseDate.localeCompare(a.expenseDate) || b.createdAt.localeCompare(a.createdAt));
-  elements.petrolBody.innerHTML = expenses.map((expense) => `<tr><td><span class="order-date">${displayDate(expense.expenseDate)}</span></td><td>${expense.notes ? escapeHtml(expense.notes) : '<span class="order-note">No note</span>'}</td><td class="numeric">${formatCurrency.format(toNumber(expense.amount))}</td><td><span class="row-actions"><button class="icon-button" type="button" data-petrol-action="edit" data-id="${expense.id}" aria-label="Edit petrol cost from ${displayDate(expense.expenseDate)}">${actionIcon("edit")}</button><button class="icon-button delete" type="button" data-petrol-action="delete" data-id="${expense.id}" aria-label="Delete petrol cost from ${displayDate(expense.expenseDate)}">${actionIcon("delete")}</button></span></td></tr>`).join("");
+  const expenses = [...petrolExpenses].sort(
+    (a, b) => b.expenseDate.localeCompare(a.expenseDate) || (b.createdAt || "").localeCompare(a.createdAt || "")
+  );
+
+  elements.petrolBody.innerHTML = expenses
+    .map(
+      (expense) => `<tr>
+      <td><span class="order-date">${displayDate(expense.expenseDate)}</span></td>
+      <td>${expense.notes ? escapeHtml(expense.notes) : '<span class="order-note">No note</span>'}</td>
+      <td class="numeric">${formatCurrency.format(toNumber(expense.amount))}</td>
+      <td style="text-align: right;">
+        <span class="row-actions">
+          <button class="icon-button" type="button" data-petrol-action="edit" data-id="${expense.id}" aria-label="Edit petrol cost from ${displayDate(expense.expenseDate)}">${actionIcon("edit")}</button>
+          <button class="icon-button delete" type="button" data-petrol-action="delete" data-id="${expense.id}" aria-label="Delete petrol cost from ${displayDate(expense.expenseDate)}">${actionIcon("delete")}</button>
+        </span>
+      </td>
+    </tr>`
+    )
+    .join("");
+
   elements.petrolEmptyState.classList.toggle("visible", expenses.length === 0);
 }
 
 function renderManufacturerPayments() {
-  const payments = [...manufacturerPayments].sort((a, b) => b.paymentDate.localeCompare(a.paymentDate) || b.createdAt.localeCompare(a.createdAt));
-  elements.manufacturerPaymentsBody.innerHTML = payments.map((payment) => `<tr><td><span class="order-date">${displayDate(payment.paymentDate)}</span></td><td>${payment.notes ? escapeHtml(payment.notes) : '<span class="order-note">No note</span>'}</td><td class="numeric">${formatCurrency.format(toNumber(payment.amount))}</td><td><span class="row-actions"><button class="icon-button" type="button" data-manufacturer-action="edit" data-id="${payment.id}" aria-label="Edit manufacturer payment from ${displayDate(payment.paymentDate)}">${actionIcon("edit")}</button><button class="icon-button delete" type="button" data-manufacturer-action="delete" data-id="${payment.id}" aria-label="Delete manufacturer payment from ${displayDate(payment.paymentDate)}">${actionIcon("delete")}</button></span></td></tr>`).join("");
+  const payments = [...manufacturerPayments].sort(
+    (a, b) => b.paymentDate.localeCompare(a.paymentDate) || (b.createdAt || "").localeCompare(a.createdAt || "")
+  );
+
+  elements.manufacturerPaymentsBody.innerHTML = payments
+    .map(
+      (payment) => `<tr>
+      <td><span class="order-date">${displayDate(payment.paymentDate)}</span></td>
+      <td>${payment.notes ? escapeHtml(payment.notes) : '<span class="order-note">No note</span>'}</td>
+      <td class="numeric">${formatCurrency.format(toNumber(payment.amount))}</td>
+      <td style="text-align: right;">
+        <span class="row-actions">
+          <button class="icon-button" type="button" data-manufacturer-action="edit" data-id="${payment.id}" aria-label="Edit manufacturer payment from ${displayDate(payment.paymentDate)}">${actionIcon("edit")}</button>
+          <button class="icon-button delete" type="button" data-manufacturer-action="delete" data-id="${payment.id}" aria-label="Delete manufacturer payment from ${displayDate(payment.paymentDate)}">${actionIcon("delete")}</button>
+        </span>
+      </td>
+    </tr>`
+    )
+    .join("");
+
   elements.manufacturerPaymentsEmptyState.classList.toggle("visible", payments.length === 0);
 }
 
 function render() {
   renderSummary();
+  renderCustomersView();
   renderOrders();
   renderPetrolExpenses();
   renderManufacturerPayments();
 }
 
 function renderPreview() {
-  const values = calculateOrder({ quantity: elements.quantity.value, buyingPrice: elements.buyingPrice.value, sellingPrice: elements.sellingPrice.value });
-  elements.previewSales.textContent = formatSignedCurrency(values.sales);
-  elements.previewStockCost.textContent = formatSignedCurrency(values.stockCost);
-  elements.previewNet.textContent = formatSignedCurrency(values.net);
-  elements.previewNet.classList.toggle("net-negative", values.net < 0);
+  const figures = calculateOrderFigures({
+    quantity: elements.quantity.value,
+    buyingPrice: elements.buyingPrice.value,
+    sellingPrice: elements.sellingPrice.value,
+  });
+
+  elements.previewSales.textContent = formatSignedCurrency(figures.sales);
+  elements.previewStockCost.textContent = formatSignedCurrency(figures.stockCost);
+  elements.previewNet.textContent = formatSignedCurrency(figures.net);
+  elements.previewNet.classList.toggle("net-negative", figures.net < 0);
 }
 
 function resetOrderForm() {
   elements.form.reset();
   elements.orderId.value = "";
   elements.orderDate.value = todayISO();
+  if (elements.customerInput) elements.customerInput.value = "";
   elements.formTitle.textContent = "Add an order";
   elements.saveButton.textContent = "Save order";
   elements.cancelEdit.classList.add("hidden");
@@ -281,27 +680,56 @@ function resetManufacturerPaymentForm() {
   setFormMessage(elements.manufacturerPaymentFormMessage, "");
 }
 
+function switchTab(tabName) {
+  activeTab = tabName;
+  const tabs = [
+    { name: "customers", btn: elements.tabBtnCustomers, view: elements.viewCustomers },
+    { name: "orders", btn: elements.tabBtnOrders, view: elements.viewOrders },
+    { name: "manufacturer", btn: elements.tabBtnManufacturer, view: elements.viewManufacturer },
+    { name: "petrol", btn: elements.tabBtnPetrol, view: elements.viewPetrol },
+  ];
+
+  tabs.forEach((tab) => {
+    const isActive = tab.name === tabName;
+    tab.btn.classList.toggle("active", isActive);
+    tab.btn.setAttribute("aria-selected", String(isActive));
+    tab.view.classList.toggle("hidden", !isActive);
+  });
+}
+
 function beginEditingOrder(id) {
   const order = orders.find((item) => item.id === id);
   if (!order) return;
+  switchTab("orders");
+
   elements.orderId.value = order.id;
   elements.orderDate.value = order.orderDate;
   elements.quantity.value = order.quantity;
   elements.buyingPrice.value = order.buyingPrice;
   elements.sellingPrice.value = order.sellingPrice;
-  elements.notes.value = order.notes || "";
+
+  const { customer, item } = normalizeCustomer(order.notes);
+  if (elements.customerInput) {
+    elements.customerInput.value = customer.includes("Direct / Walk-in") ? "" : customer;
+  }
+  elements.notes.value = item || order.notes || "";
+
   elements.formTitle.textContent = "Edit order";
   elements.saveButton.textContent = "Update order";
   elements.cancelEdit.classList.remove("hidden");
   setFormMessage(elements.formMessage, "Editing this order.");
   renderPreview();
-  document.querySelector(".entry-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const entryPanel = document.querySelector("#order-entry-panel");
+  if (entryPanel) entryPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   elements.orderDate.focus();
 }
 
 function beginEditingPetrol(id) {
   const expense = petrolExpenses.find((item) => item.id === id);
   if (!expense) return;
+  switchTab("petrol");
+
   elements.petrolId.value = expense.id;
   elements.petrolDate.value = expense.expenseDate;
   elements.petrolAmount.value = expense.amount;
@@ -310,6 +738,7 @@ function beginEditingPetrol(id) {
   elements.savePetrolButton.textContent = "Update petrol cost";
   elements.cancelPetrolEdit.classList.remove("hidden");
   setFormMessage(elements.petrolFormMessage, "Editing this petrol expense.");
+
   document.querySelector(".petrol-entry-panel").scrollIntoView({ behavior: "smooth", block: "start" });
   elements.petrolDate.focus();
 }
@@ -317,6 +746,8 @@ function beginEditingPetrol(id) {
 function beginEditingManufacturerPayment(id) {
   const payment = manufacturerPayments.find((item) => item.id === id);
   if (!payment) return;
+  switchTab("manufacturer");
+
   elements.manufacturerPaymentId.value = payment.id;
   elements.manufacturerPaymentDate.value = payment.paymentDate;
   elements.manufacturerPaymentAmount.value = payment.amount;
@@ -325,39 +756,95 @@ function beginEditingManufacturerPayment(id) {
   elements.saveManufacturerPaymentButton.textContent = "Update payment";
   elements.cancelManufacturerPaymentEdit.classList.remove("hidden");
   setFormMessage(elements.manufacturerPaymentFormMessage, "Editing this manufacturer payment.");
+
   document.querySelector(".manufacturer-entry-panel").scrollIntoView({ behavior: "smooth", block: "start" });
   elements.manufacturerPaymentDate.focus();
 }
 
-function canSaveCloudRecord(messageElement) {
-  if (!cloudConfigured || currentUser) return true;
-  setFormMessage(messageElement, "Sign in above first so this entry can sync across your phones.", true);
-  elements.syncPanel.scrollIntoView({ behavior: "smooth", block: "center" });
-  return false;
+function openOrderFormForCustomer(customerName) {
+  switchTab("orders");
+  resetOrderForm();
+  if (elements.customerInput) elements.customerInput.value = customerName;
+  const entryPanel = document.querySelector("#order-entry-panel");
+  if (entryPanel) entryPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  elements.quantity.focus();
+}
+
+function canSaveCloudRecord(_messageElement) {
+  return true;
 }
 
 function orderToRemote(order) {
-  return { id: order.id, user_id: order.userId, order_date: order.orderDate, quantity: order.quantity, buying_price: order.buyingPrice, selling_price: order.sellingPrice, notes: order.notes || null };
+  return {
+    id: order.id,
+    user_id: order.userId,
+    order_date: order.orderDate,
+    quantity: order.quantity,
+    buying_price: order.buyingPrice,
+    selling_price: order.sellingPrice,
+    notes: order.notes || null,
+  };
 }
 
 function petrolToRemote(expense) {
-  return { id: expense.id, user_id: expense.userId, expense_date: expense.expenseDate, amount: expense.amount, notes: expense.notes || null };
+  return {
+    id: expense.id,
+    user_id: expense.userId,
+    expense_date: expense.expenseDate,
+    amount: expense.amount,
+    notes: expense.notes || null,
+  };
 }
 
 function manufacturerPaymentToRemote(payment) {
-  return { id: payment.id, user_id: payment.userId, payment_date: payment.paymentDate, amount: payment.amount, notes: payment.notes || null };
+  return {
+    id: payment.id,
+    user_id: payment.userId,
+    payment_date: payment.paymentDate,
+    amount: payment.amount,
+    notes: payment.notes || null,
+  };
 }
 
 function remoteToOrder(row) {
-  return { id: row.id, userId: row.user_id, orderDate: row.order_date, quantity: toNumber(row.quantity), buyingPrice: toNumber(row.buying_price), sellingPrice: toNumber(row.selling_price), notes: row.notes || "", createdAt: row.created_at || new Date().toISOString(), updatedAt: row.updated_at || new Date().toISOString(), syncState: "synced" };
+  return {
+    id: row.id,
+    userId: row.user_id,
+    orderDate: row.order_date,
+    quantity: toNumber(row.quantity),
+    buyingPrice: toNumber(row.buying_price),
+    sellingPrice: toNumber(row.selling_price),
+    notes: row.notes || "",
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || new Date().toISOString(),
+    syncState: "synced",
+  };
 }
 
 function remoteToPetrol(row) {
-  return { id: row.id, userId: row.user_id, expenseDate: row.expense_date, amount: toNumber(row.amount), notes: row.notes || "", createdAt: row.created_at || new Date().toISOString(), updatedAt: row.updated_at || new Date().toISOString(), syncState: "synced" };
+  return {
+    id: row.id,
+    userId: row.user_id,
+    expenseDate: row.expense_date,
+    amount: toNumber(row.amount),
+    notes: row.notes || "",
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || new Date().toISOString(),
+    syncState: "synced",
+  };
 }
 
 function remoteToManufacturerPayment(row) {
-  return { id: row.id, userId: row.user_id, paymentDate: row.payment_date, amount: toNumber(row.amount), notes: row.notes || "", createdAt: row.created_at || new Date().toISOString(), updatedAt: row.updated_at || new Date().toISOString(), syncState: "synced" };
+  return {
+    id: row.id,
+    userId: row.user_id,
+    paymentDate: row.payment_date,
+    amount: toNumber(row.amount),
+    notes: row.notes || "",
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || new Date().toISOString(),
+    syncState: "synced",
+  };
 }
 
 function payloadForKind(kind, record) {
@@ -371,9 +858,9 @@ async function upsertRemote(kind, record) {
 
 async function saveRecord(kind, record) {
   const store = storeForKind(kind);
-  const localRecord = { ...record, userId: currentUser?.id || record.userId, syncState: cloudConfigured ? "pending" : "local" };
+  const localRecord = { ...record, userId: currentUser?.id || record.userId, syncState: currentUser ? "pending" : "local" };
   await saveLocal(store, localRecord);
-  if (!cloudConfigured) return localRecord;
+  if (!cloudConfigured || !currentUser) return localRecord;
   try {
     await upsertRemote(kind, localRecord);
     const syncedRecord = { ...localRecord, syncState: "synced" };
@@ -381,12 +868,12 @@ async function saveRecord(kind, record) {
     return syncedRecord;
   } catch (error) {
     console.error("Cloud save failed", error);
-    throw new Error("Saved on this device, but cloud sync could not finish. Use Sync now after reconnecting.");
+    throw new Error("Saved locally, but cloud sync could not finish. Use Sync now after reconnecting.");
   }
 }
 
 async function deleteRecord(kind, record) {
-  if (cloudConfigured) {
+  if (cloudConfigured && currentUser) {
     const { error } = await supabase.from(tableForKind(kind)).delete().eq("id", record.id);
     if (error) throw error;
   }
@@ -396,19 +883,47 @@ async function deleteRecord(kind, record) {
 async function handleOrderSubmit(event) {
   event.preventDefault();
   if (!canSaveCloudRecord(elements.formMessage)) return;
+
   const required = [elements.orderDate, elements.quantity, elements.buyingPrice, elements.sellingPrice];
-  const invalid = required.find((field) => !field.value || toNumber(field.value) < 0 || (field === elements.quantity && toNumber(field.value) <= 0));
+  const invalid = required.find(
+    (field) => !field.value || toNumber(field.value) < 0 || (field === elements.quantity && toNumber(field.value) <= 0)
+  );
+
   if (invalid) {
     setFormMessage(elements.formMessage, "Please complete the date, quantity, buying price, and selling price.", true);
     invalid.focus();
     return;
   }
+
+  // Construct notes value preserving customer & item
+  const custName = (elements.customerInput?.value || "").trim();
+  const itemNote = (elements.notes.value || "").trim();
+  let fullNote = "";
+  if (custName && itemNote) {
+    fullNote = `${custName} (${itemNote})`;
+  } else if (custName) {
+    fullNote = custName;
+  } else {
+    fullNote = itemNote;
+  }
+
   const existing = orders.find((order) => order.id === elements.orderId.value);
   const now = new Date().toISOString();
-  const order = { id: elements.orderId.value || crypto.randomUUID(), orderDate: elements.orderDate.value, quantity: toNumber(elements.quantity.value), buyingPrice: toNumber(elements.buyingPrice.value), sellingPrice: toNumber(elements.sellingPrice.value), notes: elements.notes.value.trim(), createdAt: existing?.createdAt || now, updatedAt: now };
+  const order = {
+    id: elements.orderId.value || crypto.randomUUID(),
+    orderDate: elements.orderDate.value,
+    quantity: toNumber(elements.quantity.value),
+    buyingPrice: toNumber(elements.buyingPrice.value),
+    sellingPrice: toNumber(elements.sellingPrice.value),
+    notes: fullNote,
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  };
+
   try {
     const saved = await saveRecord("order", order);
     orders = orders.filter((item) => item.id !== saved.id).concat(saved);
+    updateCustomerDatalist();
     render();
     resetOrderForm();
     showToast(existing ? "Order updated." : "Order saved.");
@@ -420,14 +935,24 @@ async function handleOrderSubmit(event) {
 async function handlePetrolSubmit(event) {
   event.preventDefault();
   if (!canSaveCloudRecord(elements.petrolFormMessage)) return;
+
   if (!elements.petrolDate.value || toNumber(elements.petrolAmount.value) <= 0) {
     setFormMessage(elements.petrolFormMessage, "Please enter the petrol date and a cost greater than zero.", true);
     (!elements.petrolDate.value ? elements.petrolDate : elements.petrolAmount).focus();
     return;
   }
+
   const existing = petrolExpenses.find((expense) => expense.id === elements.petrolId.value);
   const now = new Date().toISOString();
-  const expense = { id: elements.petrolId.value || crypto.randomUUID(), expenseDate: elements.petrolDate.value, amount: toNumber(elements.petrolAmount.value), notes: elements.petrolNotes.value.trim(), createdAt: existing?.createdAt || now, updatedAt: now };
+  const expense = {
+    id: elements.petrolId.value || crypto.randomUUID(),
+    expenseDate: elements.petrolDate.value,
+    amount: toNumber(elements.petrolAmount.value),
+    notes: elements.petrolNotes.value.trim(),
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  };
+
   try {
     const saved = await saveRecord("petrol", expense);
     petrolExpenses = petrolExpenses.filter((item) => item.id !== saved.id).concat(saved);
@@ -442,14 +967,24 @@ async function handlePetrolSubmit(event) {
 async function handleManufacturerPaymentSubmit(event) {
   event.preventDefault();
   if (!canSaveCloudRecord(elements.manufacturerPaymentFormMessage)) return;
+
   if (!elements.manufacturerPaymentDate.value || toNumber(elements.manufacturerPaymentAmount.value) <= 0) {
-    setFormMessage(elements.manufacturerPaymentFormMessage, "Please enter the payment date and an amount greater than zero.", true);
+    setFormMessage(elements.manufacturerPaymentFormMessage, "Please enter payment date and amount.", true);
     (!elements.manufacturerPaymentDate.value ? elements.manufacturerPaymentDate : elements.manufacturerPaymentAmount).focus();
     return;
   }
+
   const existing = manufacturerPayments.find((payment) => payment.id === elements.manufacturerPaymentId.value);
   const now = new Date().toISOString();
-  const payment = { id: elements.manufacturerPaymentId.value || crypto.randomUUID(), paymentDate: elements.manufacturerPaymentDate.value, amount: toNumber(elements.manufacturerPaymentAmount.value), notes: elements.manufacturerPaymentNotes.value.trim(), createdAt: existing?.createdAt || now, updatedAt: now };
+  const payment = {
+    id: elements.manufacturerPaymentId.value || crypto.randomUUID(),
+    paymentDate: elements.manufacturerPaymentDate.value,
+    amount: toNumber(elements.manufacturerPaymentAmount.value),
+    notes: elements.manufacturerPaymentNotes.value.trim(),
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  };
+
   try {
     const saved = await saveRecord("manufacturerPayment", payment);
     manufacturerPayments = manufacturerPayments.filter((item) => item.id !== saved.id).concat(saved);
@@ -457,7 +992,7 @@ async function handleManufacturerPaymentSubmit(event) {
     resetManufacturerPaymentForm();
     showToast(existing ? "Manufacturer payment updated." : "Manufacturer payment saved.");
   } catch (error) {
-    setFormMessage(elements.manufacturerPaymentFormMessage, error.message || "The manufacturer payment could not be saved.", true);
+    setFormMessage(elements.manufacturerPaymentFormMessage, error.message || "The payment could not be saved.", true);
   }
 }
 
@@ -465,12 +1000,16 @@ async function handleOrderAction(event) {
   const button = event.target.closest("button[data-order-action]");
   if (!button) return;
   const { orderAction: action, id } = button.dataset;
+
   if (action === "edit") return beginEditingOrder(id);
+
   const order = orders.find((item) => item.id === id);
-  if (!order || !globalThis.confirm(`Delete the order from ${displayDate(order.orderDate)}? This cannot be undone.`)) return;
+  if (!order || !globalThis.confirm(`Delete order from ${displayDate(order.orderDate)}? This cannot be undone.`)) return;
+
   try {
     await deleteRecord("order", order);
     orders = orders.filter((item) => item.id !== id);
+    updateCustomerDatalist();
     render();
     if (elements.orderId.value === id) resetOrderForm();
     showToast("Order deleted.");
@@ -483,9 +1022,12 @@ async function handlePetrolAction(event) {
   const button = event.target.closest("button[data-petrol-action]");
   if (!button) return;
   const { petrolAction: action, id } = button.dataset;
+
   if (action === "edit") return beginEditingPetrol(id);
+
   const expense = petrolExpenses.find((item) => item.id === id);
-  if (!expense || !globalThis.confirm(`Delete the petrol cost from ${displayDate(expense.expenseDate)}? This cannot be undone.`)) return;
+  if (!expense || !globalThis.confirm(`Delete petrol cost from ${displayDate(expense.expenseDate)}?`)) return;
+
   try {
     await deleteRecord("petrol", expense);
     petrolExpenses = petrolExpenses.filter((item) => item.id !== id);
@@ -501,9 +1043,12 @@ async function handleManufacturerPaymentAction(event) {
   const button = event.target.closest("button[data-manufacturer-action]");
   if (!button) return;
   const { manufacturerAction: action, id } = button.dataset;
+
   if (action === "edit") return beginEditingManufacturerPayment(id);
+
   const payment = manufacturerPayments.find((item) => item.id === id);
-  if (!payment || !globalThis.confirm(`Delete the manufacturer payment from ${displayDate(payment.paymentDate)}? This cannot be undone.`)) return;
+  if (!payment || !globalThis.confirm(`Delete manufacturer payment from ${displayDate(payment.paymentDate)}?`)) return;
+
   try {
     await deleteRecord("manufacturerPayment", payment);
     manufacturerPayments = manufacturerPayments.filter((item) => item.id !== id);
@@ -515,6 +1060,31 @@ async function handleManufacturerPaymentAction(event) {
   }
 }
 
+function handleCustomerCardClick(event) {
+  const orderActionBtn = event.target.closest("button[data-order-action]");
+  if (orderActionBtn) {
+    return handleOrderAction(event);
+  }
+
+  const toggleBtn = event.target.closest("button[data-toggle-customer]");
+  if (toggleBtn) {
+    const custName = toggleBtn.dataset.toggleCustomer;
+    if (expandedCustomerCards.has(custName)) {
+      expandedCustomerCards.delete(custName);
+    } else {
+      expandedCustomerCards.add(custName);
+    }
+    renderCustomersView();
+    return;
+  }
+
+  const addForCustomerBtn = event.target.closest("button[data-add-for-customer]");
+  if (addForCustomerBtn) {
+    const custName = addForCustomerBtn.dataset.addForCustomer;
+    openOrderFormForCustomer(custName);
+  }
+}
+
 function showToast(message) {
   clearTimeout(toastTimer);
   elements.toast.textContent = message;
@@ -522,9 +1092,10 @@ function showToast(message) {
   toastTimer = globalThis.setTimeout(() => elements.toast.classList.remove("show"), 3500);
 }
 
+// Cloud Sync
 async function syncPendingRecords(kind, ownerId) {
   const records = await getAllLocal(storeForKind(kind));
-  const pending = records.filter((record) => (!record.userId || record.userId === ownerId) && record.syncState !== "synced");
+  const pending = records.filter((r) => (!r.userId || r.userId === ownerId) && r.syncState !== "synced");
   for (const record of pending) {
     const owned = { ...record, userId: ownerId };
     await upsertRemote(kind, owned);
@@ -537,41 +1108,66 @@ async function syncFromCloud({ showResult = false } = {}) {
   isSyncing = true;
   elements.syncNowButton.disabled = true;
   elements.syncStatusLabel.textContent = "Syncing…";
+
   try {
     await Promise.all([
       syncPendingRecords("order", currentUser.id),
       syncPendingRecords("petrol", currentUser.id),
       syncPendingRecords("manufacturerPayment", currentUser.id),
     ]);
-    const [{ data: remoteOrders, error: ordersError }, { data: remotePetrol, error: petrolError }, { data: remoteManufacturerPayments, error: manufacturerError }] = await Promise.all([
+
+    const [
+      { data: remoteOrders, error: ordersError },
+      { data: remotePetrol, error: petrolError },
+      { data: remoteManufacturerPayments, error: manufacturerError },
+    ] = await Promise.all([
       supabase.from("orders").select("*").order("order_date", { ascending: false }),
       supabase.from("petrol_expenses").select("*").order("expense_date", { ascending: false }),
       supabase.from("manufacturer_payments").select("*").order("payment_date", { ascending: false }),
     ]);
-    if (ordersError || petrolError || manufacturerError) throw ordersError || petrolError || manufacturerError;
+
+    if (ordersError || petrolError || manufacturerError) {
+      throw ordersError || petrolError || manufacturerError;
+    }
+
     const normalizedOrders = (remoteOrders || []).map(remoteToOrder);
     const normalizedPetrol = (remotePetrol || []).map(remoteToPetrol);
     const normalizedManufacturerPayments = (remoteManufacturerPayments || []).map(remoteToManufacturerPayment);
+
     await Promise.all([
-      ...normalizedOrders.map((record) => saveLocal(ORDER_STORE, record)),
-      ...normalizedPetrol.map((record) => saveLocal(PETROL_STORE, record)),
-      ...normalizedManufacturerPayments.map((record) => saveLocal(MANUFACTURER_PAYMENT_STORE, record)),
+      ...normalizedOrders.map((rec) => saveLocal(ORDER_STORE, rec)),
+      ...normalizedPetrol.map((rec) => saveLocal(PETROL_STORE, rec)),
+      ...normalizedManufacturerPayments.map((rec) => saveLocal(MANUFACTURER_PAYMENT_STORE, rec)),
     ]);
-    const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([getAllLocal(ORDER_STORE), getAllLocal(PETROL_STORE), getAllLocal(MANUFACTURER_PAYMENT_STORE)]);
-    const remoteOrderIds = new Set(normalizedOrders.map((record) => record.id));
-    const remotePetrolIds = new Set(normalizedPetrol.map((record) => record.id));
-    const remoteManufacturerIds = new Set(normalizedManufacturerPayments.map((record) => record.id));
+
+    const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([
+      getAllLocal(ORDER_STORE),
+      getAllLocal(PETROL_STORE),
+      getAllLocal(MANUFACTURER_PAYMENT_STORE),
+    ]);
+
+    const remoteOrderIds = new Set(normalizedOrders.map((rec) => rec.id));
+    const remotePetrolIds = new Set(normalizedPetrol.map((rec) => rec.id));
+    const remoteManufacturerIds = new Set(normalizedManufacturerPayments.map((rec) => rec.id));
+
     await Promise.all([
-      ...storedOrders.filter((record) => record.userId === currentUser.id && record.syncState === "synced" && !remoteOrderIds.has(record.id)).map((record) => deleteLocal(ORDER_STORE, record.id)),
-      ...storedPetrol.filter((record) => record.userId === currentUser.id && record.syncState === "synced" && !remotePetrolIds.has(record.id)).map((record) => deleteLocal(PETROL_STORE, record.id)),
-      ...storedManufacturerPayments.filter((record) => record.userId === currentUser.id && record.syncState === "synced" && !remoteManufacturerIds.has(record.id)).map((record) => deleteLocal(MANUFACTURER_PAYMENT_STORE, record.id)),
+      ...storedOrders
+        .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remoteOrderIds.has(r.id))
+        .map((r) => deleteLocal(ORDER_STORE, r.id)),
+      ...storedPetrol
+        .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remotePetrolIds.has(r.id))
+        .map((r) => deleteLocal(PETROL_STORE, r.id)),
+      ...storedManufacturerPayments
+        .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remoteManufacturerIds.has(r.id))
+        .map((r) => deleteLocal(MANUFACTURER_PAYMENT_STORE, r.id)),
     ]);
+
     await loadLocalLedger();
     setSyncMessage("All changes are saved in the cloud.");
     if (showResult) showToast("Cloud sync complete.");
   } catch (error) {
     console.error("Cloud sync failed", error);
-    setSyncMessage("Cloud sync needs attention. Run the latest Supabase SQL, then try again.", true);
+    setSyncMessage("Cloud sync needs attention. Check your connection or SQL policies.", true);
     if (showResult) showToast("Cloud sync could not finish.");
   } finally {
     isSyncing = false;
@@ -587,41 +1183,40 @@ async function initializeCloudSync() {
   }
   try {
     const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
-    supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: true, detectSessionInUrl: true } });
+    supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: { persistSession: true, detectSessionInUrl: true },
+    });
+
     const { data, error } = await supabase.auth.getSession();
     if (error) throw error;
     currentUser = data.session?.user || null;
     updateSyncUi();
     if (currentUser) await syncFromCloud();
+
     supabase.auth.onAuthStateChange((_event, session) => {
       currentUser = session?.user || null;
       updateSyncUi();
       globalThis.setTimeout(async () => {
-        if (currentUser) await syncFromCloud();
-        else {
-          orders = [];
-          petrolExpenses = [];
-          manufacturerPayments = [];
-          render();
+        if (currentUser) {
+          await syncFromCloud();
+        } else {
+          await loadLocalLedger();
         }
       }, 0);
     });
   } catch (error) {
     console.error("Cloud sync setup failed", error);
-    setSyncMessage("The cloud sync library could not start. Check the project URL and publishable key in supabase-config.js.", true);
+    setSyncMessage("Cloud sync library failed to start.", true);
     updateSyncUi();
   }
 }
 
 async function handleSignIn(event) {
   event.preventDefault();
-  if (!supabase) {
-    setSyncMessage("Cloud sync is not configured yet.", true);
-    return;
-  }
+  if (!supabase) return;
   const email = elements.signInEmail.value.trim();
   if (!/^\S+@\S+\.\S+$/.test(email)) {
-    setSyncMessage("Enter a valid email address to receive a sign-in code.", true);
+    setSyncMessage("Enter a valid email address.", true);
     elements.signInEmail.focus();
     return;
   }
@@ -637,7 +1232,7 @@ async function sendOtpCode(email, { isResend = false } = {}) {
     pendingEmail = email;
     elements.otpCode.value = "";
     updateSyncUi();
-    setSyncMessage(isResend ? "A new sign-in code was sent. Use the newest code; the earlier one no longer works." : "A sign-in code was sent. You can open that email on any device and enter the code on this phone.");
+    setSyncMessage("A sign-in code was sent to your email.");
     elements.otpCode.focus();
   } catch (error) {
     setSyncMessage(error.message || "Could not send the sign-in code.", true);
@@ -660,49 +1255,30 @@ async function handleVerifyOtp(event) {
     const { data, error } = await supabase.auth.verifyOtp({ email: pendingEmail, token, type: "email" });
     if (error) throw error;
     currentUser = data.session?.user || data.user || null;
-    if (!currentUser) throw new Error("The code was accepted, but no sign-in session was returned. Please request a new code.");
     pendingEmail = "";
     updateSyncUi();
     setSyncMessage("Signed in. Your ledger will now sync securely across your phones.");
     await syncFromCloud({ showResult: true });
   } catch (error) {
-    setSyncMessage(error.message || "That code could not be verified. Request a new one and try again.", true);
+    setSyncMessage(error.message || "That code could not be verified.", true);
     elements.otpCode.focus();
   } finally {
     elements.verifyOtpButton.disabled = false;
   }
 }
 
-async function handleResendOtp() {
-  if (!supabase || !pendingEmail) return;
-  await sendOtpCode(pendingEmail, { isResend: true });
-}
-
-function useDifferentEmail() {
-  pendingEmail = "";
-  elements.otpCode.value = "";
-  updateSyncUi();
-  setSyncMessage("");
-  elements.signInEmail.focus();
-}
-
 async function handleSignOut() {
   if (!supabase) return;
   const { error } = await supabase.auth.signOut();
-  if (error) {
-    setSyncMessage("Could not sign out. Please try again.", true);
-    return;
-  }
+  if (error) return;
   currentUser = null;
   pendingEmail = "";
-  orders = [];
-  petrolExpenses = [];
-  manufacturerPayments = [];
-  render();
+  await loadLocalLedger();
   updateSyncUi();
-  setSyncMessage("Signed out. Your cloud data remains safe and available after you sign in again.");
+  setSyncMessage("Signed out. Local ledger remains available.");
 }
 
+// Excel Export
 function excelDate(isoDate) {
   const [year, month, day] = isoDate.split("-").map(Number);
   return new Date(year, month - 1, day);
@@ -710,75 +1286,295 @@ function excelDate(isoDate) {
 
 function formatSheetCurrency(sheet, columns, firstRow, lastRow) {
   for (let row = firstRow; row <= lastRow; row += 1) {
-    for (const column of columns) {
-      const cell = sheet[`${column}${row}`];
-      if (cell) cell.z = '₹#,##0.00;[Red]-₹#,##0.00';
+    for (const col of columns) {
+      const cell = sheet[`${col}${row}`];
+      if (cell) cell.z = "₹#,##0.00;[Red]-₹#,##0.00";
     }
   }
 }
 
 function exportExcel() {
   if (!orders.length && !petrolExpenses.length && !manufacturerPayments.length) {
-    showToast("Add an order, petrol cost, or manufacturer payment before exporting an Excel file.");
+    showToast("Add an order before exporting an Excel file.");
     return;
   }
-  const orderRows = [...orders].sort((a, b) => a.orderDate.localeCompare(b.orderDate)).map((order) => {
-    const values = calculateOrder(order);
-    return { Date: excelDate(order.orderDate), "Quantity Sold": values.quantity, "Buying Price / Unit": values.buyingPrice, "Selling Price / Unit": values.sellingPrice, "Sales Value": values.sales, "Stock Cost": values.stockCost, "Net Amount Before Petrol": values.net, Note: order.notes || "" };
-  });
-  const petrolRows = [...petrolExpenses].sort((a, b) => a.expenseDate.localeCompare(b.expenseDate)).map((expense) => ({ Date: excelDate(expense.expenseDate), "Petrol Cost": toNumber(expense.amount), Note: expense.notes || "" }));
-  const manufacturerRows = [...manufacturerPayments].sort((a, b) => a.paymentDate.localeCompare(b.paymentDate)).map((payment) => ({ Date: excelDate(payment.paymentDate), "Amount Paid": toNumber(payment.amount), Note: payment.notes || "" }));
-  const totals = orderRows.reduce((result, row) => { result.sales += row["Sales Value"]; result.stock += row["Stock Cost"]; return result; }, { sales: 0, stock: 0 });
+
+  const orderRows = [...orders]
+    .sort((a, b) => a.orderDate.localeCompare(b.orderDate))
+    .map((order) => {
+      const figures = calculateOrderFigures(order);
+      const { customer } = normalizeCustomer(order.notes);
+      return {
+        Date: excelDate(order.orderDate),
+        Customer: customer,
+        "Quantity Sold": figures.quantity,
+        "Buying Price / Unit": figures.buyingPrice,
+        "Selling Price / Unit": figures.sellingPrice,
+        "Sales Value": figures.sales,
+        "Stock Cost": figures.stockCost,
+        "Net Amount Before Petrol": figures.net,
+        Note: order.notes || "",
+      };
+    });
+
+  const petrolRows = [...petrolExpenses]
+    .sort((a, b) => a.expenseDate.localeCompare(b.expenseDate))
+    .map((expense) => ({
+      Date: excelDate(expense.expenseDate),
+      "Petrol Cost": toNumber(expense.amount),
+      Note: expense.notes || "",
+    }));
+
+  const manufacturerRows = [...manufacturerPayments]
+    .sort((a, b) => a.paymentDate.localeCompare(b.paymentDate))
+    .map((pmt) => ({
+      Date: excelDate(pmt.paymentDate),
+      "Amount Paid": toNumber(pmt.amount),
+      Note: pmt.notes || "",
+    }));
+
+  const totals = orderRows.reduce(
+    (res, row) => {
+      res.sales += row["Sales Value"];
+      res.stock += row["Stock Cost"];
+      return res;
+    },
+    { sales: 0, stock: 0 }
+  );
+
   totals.petrol = petrolRows.reduce((sum, row) => sum + row["Petrol Cost"], 0);
   totals.manufacturerPaid = manufacturerRows.reduce((sum, row) => sum + row["Amount Paid"], 0);
   totals.net = totals.sales - totals.stock - totals.petrol;
   totals.manufacturerDue = totals.stock - totals.manufacturerPaid;
-  const summaryRows = [["Tissue Ledger Summary", ""], ["Exported", new Date()], ["Orders recorded", orders.length], ["Petrol expenses recorded", petrolExpenses.length], ["Manufacturer payments recorded", manufacturerPayments.length], [], ["Metric", "Amount (INR)"], ["Total sales", totals.sales], ["Total stock cost", totals.stock], ["Total petrol cost", totals.petrol], ["Net profit", totals.net], ["Total paid to manufacturer", totals.manufacturerPaid], ["Current due to manufacturer", totals.manufacturerDue], [], ["Note", "Manufacturer payments settle stock cost and are not deducted from profit a second time."]];
+
+  const summaryRows = [
+    ["Tissue Ledger Summary", ""],
+    ["Exported", new Date()],
+    ["Orders recorded", orders.length],
+    ["Petrol expenses recorded", petrolExpenses.length],
+    ["Manufacturer payments recorded", manufacturerPayments.length],
+    [],
+    ["Metric", "Amount (INR)"],
+    ["Total sales", totals.sales],
+    ["Total stock cost", totals.stock],
+    ["Total petrol cost", totals.petrol],
+    ["Net profit", totals.net],
+    ["Total paid to manufacturer", totals.manufacturerPaid],
+    ["Current due to manufacturer", totals.manufacturerDue],
+    [],
+    ["Note", "Manufacturer payments settle stock cost and are not deducted from profit a second time."],
+  ];
+
   const workbook = XLSX.utils.book_new();
   const summarySheet = XLSX.utils.aoa_to_sheet(summaryRows);
   const ordersSheet = XLSX.utils.json_to_sheet(orderRows);
   const petrolSheet = XLSX.utils.json_to_sheet(petrolRows);
   const manufacturerSheet = XLSX.utils.json_to_sheet(manufacturerRows);
+
   summarySheet["!cols"] = [{ wch: 33 }, { wch: 58 }];
-  ordersSheet["!cols"] = [{ wch: 14 }, { wch: 14 }, { wch: 20 }, { wch: 20 }, { wch: 16 }, { wch: 16 }, { wch: 23 }, { wch: 32 }];
+  ordersSheet["!cols"] = [{ wch: 14 }, { wch: 26 }, { wch: 14 }, { wch: 20 }, { wch: 20 }, { wch: 16 }, { wch: 16 }, { wch: 23 }, { wch: 32 }];
   petrolSheet["!cols"] = [{ wch: 14 }, { wch: 16 }, { wch: 42 }];
   manufacturerSheet["!cols"] = [{ wch: 14 }, { wch: 18 }, { wch: 42 }];
+
   for (let row = 2; row <= orderRows.length + 1; row += 1) if (ordersSheet[`A${row}`]) ordersSheet[`A${row}`].z = "dd-mmm-yyyy";
   for (let row = 2; row <= petrolRows.length + 1; row += 1) if (petrolSheet[`A${row}`]) petrolSheet[`A${row}`].z = "dd-mmm-yyyy";
   for (let row = 2; row <= manufacturerRows.length + 1; row += 1) if (manufacturerSheet[`A${row}`]) manufacturerSheet[`A${row}`].z = "dd-mmm-yyyy";
-  formatSheetCurrency(ordersSheet, ["C", "D", "E", "F", "G"], 2, orderRows.length + 1);
+
+  formatSheetCurrency(ordersSheet, ["D", "E", "F", "G", "H"], 2, orderRows.length + 1);
   formatSheetCurrency(petrolSheet, ["B"], 2, petrolRows.length + 1);
   formatSheetCurrency(manufacturerSheet, ["B"], 2, manufacturerRows.length + 1);
   formatSheetCurrency(summarySheet, ["B"], 8, 13);
+
   XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
   XLSX.utils.book_append_sheet(workbook, ordersSheet, "Order History");
   XLSX.utils.book_append_sheet(workbook, petrolSheet, "Petrol Expenses");
   XLSX.utils.book_append_sheet(workbook, manufacturerSheet, "Manufacturer Payments");
+
   XLSX.writeFile(workbook, `tissue-ledger-${todayISO()}.xlsx`, { compression: true });
-  showToast("Excel file downloaded.");
+  showToast("Excel workbook downloaded.");
+}
+
+// Backup & Restore
+function downloadJsonBackup() {
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    version: "2.0",
+    orders,
+    petrolExpenses,
+    manufacturerPayments,
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `tissue-ledger-backup-${todayISO()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("Full backup file downloaded.");
+}
+
+async function handleImportJson(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+
+    if (!Array.isArray(data.orders)) {
+      throw new Error("Invalid backup file: 'orders' array is missing.");
+    }
+
+    if (
+      !globalThis.confirm(
+        `Import ${data.orders.length} orders, ${data.petrolExpenses?.length || 0} petrol entries, and ${data.manufacturerPayments?.length || 0} payments?`
+      )
+    ) {
+      return;
+    }
+
+    // Save to local stores
+    await clearLocalStore(ORDER_STORE);
+    await clearLocalStore(PETROL_STORE);
+    await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
+
+    for (const ord of data.orders) await saveLocal(ORDER_STORE, ord);
+    for (const pet of data.petrolExpenses || []) await saveLocal(PETROL_STORE, pet);
+    for (const mfg of data.manufacturerPayments || []) await saveLocal(MANUFACTURER_PAYMENT_STORE, mfg);
+
+    orders = data.orders;
+    petrolExpenses = data.petrolExpenses || [];
+    manufacturerPayments = data.manufacturerPayments || [];
+
+    updateCustomerDatalist();
+    render();
+    closeDataToolsModal();
+    showToast("Backup restored successfully!");
+  } catch (error) {
+    console.error("Backup import failed", error);
+    showToast(`Could not import backup: ${error.message}`);
+  } finally {
+    event.target.value = "";
+  }
+}
+
+async function handleReloadSeedData() {
+  if (
+    !globalThis.confirm(
+      "Reload the official 265 ledger orders, 12 petrol expenses, and 15 manufacturer payments into local storage?"
+    )
+  ) {
+    return;
+  }
+
+  await clearLocalStore(ORDER_STORE);
+  await clearLocalStore(PETROL_STORE);
+  await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
+
+  await Promise.all([
+    ...SEED_ORDERS.map((o) => saveLocal(ORDER_STORE, o)),
+    ...SEED_PETROL.map((p) => saveLocal(PETROL_STORE, p)),
+    ...SEED_MANUFACTURER_PAYMENTS.map((m) => saveLocal(MANUFACTURER_PAYMENT_STORE, m)),
+  ]);
+
+  orders = [...SEED_ORDERS];
+  petrolExpenses = [...SEED_PETROL];
+  manufacturerPayments = [...SEED_MANUFACTURER_PAYMENTS];
+
+  updateCustomerDatalist();
+  render();
+  closeDataToolsModal();
+  showToast("Official 265 ledger orders reloaded!");
+}
+
+function openDataToolsModal() {
+  elements.dataToolsModal.classList.add("open");
+  elements.dataToolsModal.setAttribute("aria-hidden", "false");
+}
+
+function closeDataToolsModal() {
+  elements.dataToolsModal.classList.remove("open");
+  elements.dataToolsModal.setAttribute("aria-hidden", "true");
 }
 
 async function initialize() {
   resetOrderForm();
   resetPetrolForm();
   resetManufacturerPaymentForm();
-  [elements.quantity, elements.buyingPrice, elements.sellingPrice].forEach((input) => input.addEventListener("input", renderPreview));
+
+  // Tab switching
+  elements.tabBtnCustomers.addEventListener("click", () => switchTab("customers"));
+  elements.tabBtnOrders.addEventListener("click", () => switchTab("orders"));
+  elements.tabBtnManufacturer.addEventListener("click", () => switchTab("manufacturer"));
+  elements.tabBtnPetrol.addEventListener("click", () => switchTab("petrol"));
+
+  // Quick action buttons
+  elements.openOrderFormBtn.addEventListener("click", () => {
+    switchTab("orders");
+    resetOrderForm();
+    document.querySelector("#order-entry-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    elements.orderDate.focus();
+  });
+  elements.quickAddOrderBtn.addEventListener("click", () => {
+    switchTab("orders");
+    resetOrderForm();
+    document.querySelector("#order-entry-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    elements.orderDate.focus();
+  });
+
+  // Customer view filters
+  elements.customerSearch.addEventListener("input", renderCustomersView);
+  elements.customerSort.addEventListener("change", renderCustomersView);
+  elements.customerGrid.addEventListener("click", handleCustomerCardClick);
+
+  // Form calculation preview
+  [elements.quantity, elements.buyingPrice, elements.sellingPrice].forEach((input) =>
+    input.addEventListener("input", renderPreview)
+  );
+
+  // Order actions
   elements.form.addEventListener("submit", handleOrderSubmit);
   elements.cancelEdit.addEventListener("click", resetOrderForm);
   elements.ordersBody.addEventListener("click", handleOrderAction);
   elements.search.addEventListener("input", renderOrders);
   elements.sort.addEventListener("change", renderOrders);
+  elements.filterOrderCustomer.addEventListener("change", renderOrders);
+
+  // Petrol actions
   elements.petrolForm.addEventListener("submit", handlePetrolSubmit);
   elements.cancelPetrolEdit.addEventListener("click", resetPetrolForm);
   elements.petrolBody.addEventListener("click", handlePetrolAction);
+
+  // Manufacturer actions
   elements.manufacturerPaymentForm.addEventListener("submit", handleManufacturerPaymentSubmit);
   elements.cancelManufacturerPaymentEdit.addEventListener("click", resetManufacturerPaymentForm);
   elements.manufacturerPaymentsBody.addEventListener("click", handleManufacturerPaymentAction);
+
+  // Export & Data tools
   elements.exportButton.addEventListener("click", exportExcel);
+  elements.dataToolsButton.addEventListener("click", openDataToolsModal);
+  elements.closeToolsModal.addEventListener("click", closeDataToolsModal);
+  elements.closeToolsModalFooter.addEventListener("click", closeDataToolsModal);
+  elements.dataToolsModal.addEventListener("click", (e) => {
+    if (e.target === elements.dataToolsModal) closeDataToolsModal();
+  });
+  elements.downloadJsonBackupBtn.addEventListener("click", downloadJsonBackup);
+  elements.downloadExcelBtn.addEventListener("click", exportExcel);
+  elements.importJsonFile.addEventListener("change", handleImportJson);
+  elements.reloadSeedDataBtn.addEventListener("click", handleReloadSeedData);
+
+  // Auth & Cloud Sync
   elements.signInForm.addEventListener("submit", handleSignIn);
   elements.otpForm.addEventListener("submit", handleVerifyOtp);
-  elements.resendOtpCode.addEventListener("click", handleResendOtp);
-  elements.useDifferentEmail.addEventListener("click", useDifferentEmail);
+  elements.resendOtpCode.addEventListener("click", () => {
+    if (supabase && pendingEmail) sendOtpCode(pendingEmail, { isResend: true });
+  });
+  elements.useDifferentEmail.addEventListener("click", () => {
+    pendingEmail = "";
+    elements.otpCode.value = "";
+    updateSyncUi();
+    elements.signInEmail.focus();
+  });
   elements.syncNowButton.addEventListener("click", () => syncFromCloud({ showResult: true }));
   elements.signOutButton.addEventListener("click", handleSignOut);
   elements.accountButton.addEventListener("click", () => {
@@ -788,15 +1584,19 @@ async function initialize() {
       if (cloudConfigured) elements.signInEmail.focus();
     }
   });
+
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && currentUser) syncFromCloud();
   });
+
+  // Load records
   try {
     await loadLocalLedger();
   } catch (error) {
     console.error(error);
-    showToast("Local storage is unavailable in this browser.");
+    showToast("Local storage unavailable in this browser.");
   }
+
   await initializeCloudSync();
 }
 

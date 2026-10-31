@@ -5,53 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="A simple tissue sales ledger for tracking orders, manufacturer payments, fuel costs, and profit."
+      content="A professional tissue sales ledger tracking orders, customer groupings, manufacturer payments, fuel costs, and actual net profit."
     />
-    <title>Tissue Ledger</title>
+    <title>Tissue Ledger &mdash; Sales &amp; Customer Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="page-shell">
+      <!-- Site Header -->
       <header class="site-header">
         <a class="brand" href="#top" aria-label="Tissue Ledger home">
           <span class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 48 48" fill="none">
-              <path d="M12 15.5C12 11.91 14.91 9 18.5 9H35v16.5C35 29.09 32.09 32 28.5 32H12V15.5Z" fill="currentColor" opacity=".9"/>
-              <path d="M16 20.5C16 17.46 18.46 15 21.5 15H38v16.5C38 34.54 35.54 37 32.5 37H16V20.5Z" fill="currentColor" opacity=".42"/>
-              <path d="M10 31.5h21" stroke="white" stroke-width="2.6" stroke-linecap="round"/>
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 6.5C4 4.57 5.57 3 7.5 3H19v12.5c0 1.93-1.57 3.5-3.5 3.5H4V6.5Z" fill="currentColor" opacity=".95"/>
+              <path d="M7 9.5C7 7.57 8.57 6 10.5 6H21v12.5c0 1.93-1.57 3.5-3.5 3.5H7V9.5Z" fill="currentColor" opacity=".4"/>
+              <path d="M3 18h14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </span>
-          <span>Tissue Ledger</span>
+          <div class="brand-text">
+            <span class="brand-title">Tissue Ledger <span class="pro-badge">PRO</span></span>
+            <span class="brand-subtitle">Smart Customer &amp; Profit Tracking</span>
+          </div>
         </a>
+
         <div class="header-actions">
           <button class="sync-status" id="account-button" type="button" title="Set up or refresh cloud sync">
             <span class="status-dot"></span><span id="sync-status-label">Cloud sync setup</span>
           </button>
-          <button class="button button-secondary" id="export-button" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          
+          <button class="button button-secondary button-sm" id="data-tools-button" type="button" title="Backup, Restore &amp; Import Data">
+            <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10"/></svg>
+            Data Tools
+          </button>
+
+          <button class="button button-secondary button-sm" id="export-button" type="button" title="Export full workbook as Excel (.xlsx)">
+            <svg viewBox="0 0 24 24"><path d="M12 3v11m0 0 4-4m-4 4-4-4M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
             Export Excel
+          </button>
+
+          <button class="button button-primary button-sm" id="open-order-form-btn" type="button">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></svg>
+            + New Order
           </button>
         </div>
       </header>
 
       <main id="top">
-        <section class="intro" aria-labelledby="page-title">
-          <div>
-            <p class="eyebrow">Sales &amp; cost tracker</p>
-            <h1 id="page-title">Know every roll,<br /><em>every rupee.</em></h1>
-          </div>
-          <p class="intro-copy">Record each tissue sale, track payments to your manufacturer, and see your actual profit at a glance.</p>
-        </section>
-
+        <!-- Cloud Sync Panel -->
         <section class="sync-panel" id="sync-panel" aria-labelledby="sync-title">
           <div class="sync-copy">
-            <p class="eyebrow">Free cloud sync</p>
+            <p class="eyebrow">Cloud Synchronization</p>
             <h2 id="sync-title">Connect your ledger across every phone.</h2>
             <p id="sync-description">A secure cloud connection will let you use the same ledger on each mobile with one email sign-in.</p>
           </div>
@@ -67,8 +76,11 @@
               <button class="button button-primary" id="verify-otp-button" type="submit">Verify code</button>
             </div>
             <div class="otp-options">
-              <span id="otp-help">You can read the email on another device and type the code here.</span>
-              <span class="otp-buttons"><button class="link-button" id="resend-otp-code" type="button">Resend code</button><button class="link-button" id="use-different-email" type="button">Use a different email</button></span>
+              <span id="otp-help">Read email on any phone and enter code here.</span>
+              <span class="otp-buttons">
+                <button class="link-button" id="resend-otp-code" type="button">Resend code</button>
+                <button class="link-button" id="use-different-email" type="button">Use different email</button>
+              </span>
             </div>
           </form>
           <div class="sync-actions hidden" id="signed-in-actions">
@@ -78,277 +90,455 @@
           <p class="sync-message" id="sync-message" role="status"></p>
         </section>
 
-        <section class="summary-grid" aria-label="Business summary">
+        <!-- KPI / Summary Grid -->
+        <section class="summary-grid" aria-label="Business summary metrics">
           <article class="summary-card revenue-card">
-            <div class="card-label"><span class="card-icon sale-icon">↗</span> Total sales</div>
+            <div class="card-top">
+              <div class="card-label"><span class="card-icon sale-icon">↗</span> Total Sales</div>
+              <span class="card-badge badge-green" id="sales-count">265 orders recorded</span>
+            </div>
             <strong id="total-sales">₹0</strong>
-            <span id="sales-count">No orders yet</span>
+            <div class="card-footer-info">
+              <span>Gross invoice value</span>
+              <span id="avg-order-badge">Avg: ₹0 / order</span>
+            </div>
           </article>
+
           <article class="summary-card profit-card">
-            <div class="card-label"><span class="card-icon profit-icon">◒</span> Net profit</div>
+            <div class="card-top">
+              <div class="card-label"><span class="card-icon profit-icon">◒</span> Net Profit</div>
+              <span class="card-badge badge-green" id="profit-margin">0% margin</span>
+            </div>
             <strong id="net-profit">₹0</strong>
-            <span>Sales − stock cost − petrol</span>
+            <div class="card-footer-info">
+              <span>Sales − Stock − Petrol</span>
+              <span id="petrol-deducted-badge">Petrol: ₹0</span>
+            </div>
           </article>
+
           <article class="summary-card due-card">
-            <div class="card-label"><span class="card-icon due-icon">⌁</span> Due to manufacturer</div>
+            <div class="card-top">
+              <div class="card-label"><span class="card-icon due-icon">⌁</span> Manufacturer Due</div>
+              <span class="card-badge badge-amber" id="due-status-badge">Outstanding</span>
+            </div>
             <strong id="manufacturer-due">₹0</strong>
-            <span>Stock cost less payments made</span>
+            <div class="card-footer-info">
+              <span>Stock cost less payments</span>
+              <span id="mfg-paid-summary-badge">Paid: ₹0</span>
+            </div>
           </article>
+
           <article class="summary-card margin-card">
-            <div class="card-label"><span class="card-icon margin-icon">%</span> Profit margin</div>
-            <strong id="profit-margin">0%</strong>
-            <span>Net profit / total sales</span>
+            <div class="card-top">
+              <div class="card-label"><span class="card-icon margin-icon">⛽</span> Petrol Expenses</div>
+              <span class="card-badge badge-blue" id="petrol-count-badge">0 fuel trips</span>
+            </div>
+            <strong id="total-petrol">₹0</strong>
+            <div class="card-footer-info">
+              <span>Fuel &amp; logistics deduction</span>
+              <span>Deducted from profit</span>
+            </div>
           </article>
         </section>
 
-        <section class="workspace" aria-label="Order entry and order history">
-          <aside class="entry-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">New entry</p>
-                <h2 id="form-title">Add an order</h2>
+        <!-- View Segmented Controller Navigation -->
+        <nav class="view-navigation" aria-label="Ledger views">
+          <div class="nav-tabs" role="tablist">
+            <button class="tab-button active" id="tab-btn-customers" type="button" role="tab" aria-selected="true" aria-controls="view-customers">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              By Customer <span class="tab-count" id="customers-tab-count">41</span>
+            </button>
+            <button class="tab-button" id="tab-btn-orders" type="button" role="tab" aria-selected="false" aria-controls="view-orders">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              All Transactions <span class="tab-count" id="orders-tab-count">265</span>
+            </button>
+            <button class="tab-button" id="tab-btn-manufacturer" type="button" role="tab" aria-selected="false" aria-controls="view-manufacturer">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              Manufacturer Ledger <span class="tab-count" id="mfg-tab-count">15</span>
+            </button>
+            <button class="tab-button" id="tab-btn-petrol" type="button" role="tab" aria-selected="false" aria-controls="view-petrol">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V5c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v17"/><path d="M15 8h2a2 2 0 0 1 2 2v6a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-3 0"/></svg>
+              Petrol Expenses <span class="tab-count" id="petrol-tab-count">12</span>
+            </button>
+          </div>
+          <div class="nav-actions">
+            <button class="button button-outline-primary button-sm" id="quick-add-order-btn" type="button">
+              + Add Order
+            </button>
+          </div>
+        </nav>
+
+        <!-- ===================================================================
+             VIEW 1: Grouped by Customer (Primary Requested Feature)
+             =================================================================== -->
+        <section class="tab-view" id="view-customers" role="tabpanel" aria-labelledby="tab-btn-customers">
+          <div class="customers-view-header">
+            <div class="customers-search-bar">
+              <div class="search-input-wrapper">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input id="customer-search" type="search" placeholder="Search customer name, location, or variant..." />
               </div>
-              <span class="panel-number">01</span>
             </div>
-
-            <form id="order-form" novalidate>
-              <input id="order-id" type="hidden" />
-              <div class="form-row">
-                <label for="order-date">Sale date <span aria-hidden="true">*</span></label>
-                <input id="order-date" name="orderDate" type="date" required />
-              </div>
-
-              <div class="form-row">
-                <label for="quantity">Quantity sold <span aria-hidden="true">*</span></label>
-                <div class="field-with-suffix">
-                  <input id="quantity" name="quantity" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="e.g. 60" required />
-                  <span>units</span>
-                </div>
-              </div>
-
-              <div class="split-fields">
-                <div class="form-row">
-                  <label for="buying-price">Buying price <span aria-hidden="true">*</span></label>
-                  <div class="field-with-prefix">
-                    <span>₹</span>
-                    <input id="buying-price" name="buyingPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required />
-                  </div>
-                  <small>per unit</small>
-                </div>
-                <div class="form-row">
-                  <label for="selling-price">Selling price <span aria-hidden="true">*</span></label>
-                  <div class="field-with-prefix">
-                    <span>₹</span>
-                    <input id="selling-price" name="sellingPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required />
-                  </div>
-                  <small>per unit</small>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <label for="notes">Note <span class="optional">optional</span></label>
-                <textarea id="notes" name="notes" maxlength="240" placeholder="Customer, area, or anything useful..."></textarea>
-              </div>
-
-              <section class="live-calculation" aria-live="polite" aria-label="Order calculation preview">
-                <div><span>Sale value</span><strong id="preview-sales">₹0</strong></div>
-                <div><span>Stock cost</span><strong id="preview-stock-cost">₹0</strong></div>
-                <div class="preview-total"><span>Net amount</span><strong id="preview-net">₹0</strong></div>
-              </section>
-              <p class="helper-text">Net amount is sale value minus stock cost. Petrol is recorded separately below and is included in the total profit.</p>
-
-              <div class="form-actions">
-                <button class="button button-primary" id="save-button" type="submit">Save order</button>
-                <button class="button button-ghost hidden" id="cancel-edit" type="button">Cancel</button>
-              </div>
-              <p id="form-message" class="form-message" role="status"></p>
-            </form>
-          </aside>
-
-          <section class="history-panel">
-            <div class="panel-heading history-heading">
-              <div>
-                <p class="eyebrow">Your records</p>
-                <h2>Order history</h2>
-              </div>
-              <span class="panel-number">02</span>
-            </div>
-
-            <div class="history-tools">
-              <label class="search-field" for="search-orders">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
-                <span class="sr-only">Search orders</span>
-                <input id="search-orders" type="search" placeholder="Search notes or date" />
-              </label>
-              <select id="sort-orders" aria-label="Sort orders">
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
-                <option value="profit-high">Highest profit</option>
-                <option value="profit-low">Lowest profit</option>
+            <div class="customers-filter-tools">
+              <select id="customer-sort" class="filter-select" aria-label="Sort customers">
+                <option value="sales-high">Highest Sales (₹)</option>
+                <option value="orders-high">Most Orders</option>
+                <option value="profit-high">Highest Profit (₹)</option>
+                <option value="margin-high">Highest Margin (%)</option>
+                <option value="recent">Most Recent Order</option>
+                <option value="name-asc">Customer Name (A–Z)</option>
               </select>
             </div>
+          </div>
 
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Qty.</th>
-                    <th>Sales</th>
-                    <th>Stock cost</th>
-                    <th>Net amount</th>
-                    <th><span class="sr-only">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody id="orders-body"></tbody>
-              </table>
-              <div id="empty-state" class="empty-state">
-                <span class="empty-icon" aria-hidden="true">□</span>
-                <h3>No orders saved yet</h3>
-                <p>Your sales history will appear here after you add your first order.</p>
-              </div>
-            </div>
-            <p class="history-note">The due balance is calculated from total stock cost less the manufacturer payments below. Use free cloud sync to keep the same history on all of your phones.</p>
-          </section>
+          <!-- Customer Cards Grid -->
+          <div class="customer-grid" id="customer-grid"></div>
+
+          <div id="customer-empty-state" class="empty-state">
+            <span class="empty-icon" aria-hidden="true">👥</span>
+            <h3>No matching customers</h3>
+            <p>Try a different search query or clear the filter to see all customers.</p>
+          </div>
         </section>
 
-        <section class="manufacturer-workspace" aria-label="Manufacturer payment ledger">
-          <aside class="entry-panel manufacturer-entry-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">Separate payment ledger</p>
-                <h2 id="manufacturer-form-title">Add manufacturer payment</h2>
-              </div>
-              <span class="panel-number">03</span>
-            </div>
-
-            <form id="manufacturer-payment-form" novalidate>
-              <input id="manufacturer-payment-id" type="hidden" />
-              <div class="form-row">
-                <label for="manufacturer-payment-date">Payment date <span aria-hidden="true">*</span></label>
-                <input id="manufacturer-payment-date" name="manufacturerPaymentDate" type="date" required />
-              </div>
-              <div class="form-row">
-                <label for="manufacturer-payment-amount">Amount paid <span aria-hidden="true">*</span></label>
-                <div class="field-with-prefix">
-                  <span>₹</span>
-                  <input id="manufacturer-payment-amount" name="manufacturerPaymentAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required />
+        <!-- ===================================================================
+             VIEW 2: All Transactions (Chronological Ledger) + Order Form
+             =================================================================== -->
+        <section class="tab-view hidden" id="view-orders" role="tabpanel" aria-labelledby="tab-btn-orders">
+          <div class="workspace" aria-label="Order entry and order history">
+            <!-- Order Form Panel -->
+            <aside class="entry-panel" id="order-entry-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Order entry</p>
+                  <h2 id="form-title">Add an order</h2>
                 </div>
-                <small>Recorded as a settlement of stock cost, not an extra expense</small>
+                <span class="panel-number">01</span>
               </div>
-              <div class="form-row">
-                <label for="manufacturer-payment-notes">Note <span class="optional">optional</span></label>
-                <textarea id="manufacturer-payment-notes" name="manufacturerPaymentNotes" maxlength="240" placeholder="Receipt number, invoice, or anything useful..."></textarea>
-              </div>
-              <div class="form-actions">
-                <button class="button button-primary" id="save-manufacturer-payment-button" type="submit">Save payment</button>
-                <button class="button button-ghost hidden" id="cancel-manufacturer-payment-edit" type="button">Cancel</button>
-              </div>
-              <p id="manufacturer-payment-form-message" class="form-message" role="status"></p>
-            </form>
-          </aside>
 
-          <section class="history-panel manufacturer-history-panel">
-            <div class="panel-heading history-heading">
-              <div>
-                <p class="eyebrow">Payment history</p>
-                <h2>Manufacturer payments</h2>
+              <form id="order-form" novalidate>
+                <input id="order-id" type="hidden" />
+                
+                <div class="form-row">
+                  <label for="order-date">Sale date <span aria-hidden="true">*</span></label>
+                  <input id="order-date" name="orderDate" type="date" required />
+                </div>
+
+                <div class="form-row">
+                  <label for="customer-input">Customer <span class="optional">e.g. Karla, Sufi Palace, Honey Dhaba</span></label>
+                  <input id="customer-input" type="text" list="customer-datalist" placeholder="Select or type customer name..." autocomplete="off" />
+                  <datalist id="customer-datalist"></datalist>
+                </div>
+
+                <div class="form-row">
+                  <label for="quantity">Quantity sold <span aria-hidden="true">*</span></label>
+                  <div class="field-with-suffix">
+                    <input id="quantity" name="quantity" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="e.g. 60" required />
+                    <span>units</span>
+                  </div>
+                </div>
+
+                <div class="split-fields">
+                  <div class="form-row">
+                    <label for="buying-price">Buying price <span aria-hidden="true">*</span></label>
+                    <div class="field-with-prefix">
+                      <span>₹</span>
+                      <input id="buying-price" name="buyingPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required />
+                    </div>
+                    <small>per unit</small>
+                  </div>
+                  <div class="form-row">
+                    <label for="selling-price">Selling price <span aria-hidden="true">*</span></label>
+                    <div class="field-with-prefix">
+                      <span>₹</span>
+                      <input id="selling-price" name="sellingPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required />
+                    </div>
+                    <small>per unit</small>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <label for="notes">Item / Route Note <span class="optional">optional (e.g. Napkin, Spoon, Straw)</span></label>
+                  <textarea id="notes" name="notes" maxlength="240" placeholder="Item detail, route, receipt or notes..."></textarea>
+                </div>
+
+                <section class="live-calculation" aria-live="polite" aria-label="Order calculation preview">
+                  <div><span>Sale value</span><strong id="preview-sales">₹0</strong></div>
+                  <div><span>Stock cost</span><strong id="preview-stock-cost">₹0</strong></div>
+                  <div class="preview-total"><span>Net profit</span><strong id="preview-net">₹0</strong></div>
+                </section>
+                <p class="helper-text">Net profit is sale value minus stock cost. Petrol expenses are deducted separately in the summary.</p>
+
+                <div class="form-actions">
+                  <button class="button button-primary" id="save-button" type="submit">Save order</button>
+                  <button class="button button-ghost hidden" id="cancel-edit" type="button">Cancel</button>
+                </div>
+                <p id="form-message" class="form-message" role="status"></p>
+              </form>
+            </aside>
+
+            <!-- Order History Panel -->
+            <section class="history-panel">
+              <div class="panel-heading history-heading">
+                <div>
+                  <p class="eyebrow">Your records</p>
+                  <h2>Order history</h2>
+                </div>
+                <span class="panel-number">02</span>
               </div>
-              <div class="expense-total"><span>Total paid</span><strong id="total-manufacturer-paid">₹0</strong></div>
-            </div>
-            <div class="table-wrap manufacturer-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Note</th>
-                    <th>Amount paid</th>
-                    <th><span class="sr-only">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody id="manufacturer-payments-body"></tbody>
-              </table>
-              <div id="manufacturer-payments-empty-state" class="empty-state">
-                <span class="empty-icon" aria-hidden="true">□</span>
-                <h3>No manufacturer payments saved yet</h3>
-                <p>Add each payment here. The amount due will update automatically.</p>
+
+              <div class="history-tools">
+                <label class="search-field" for="search-orders">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+                  <span class="sr-only">Search orders</span>
+                  <input id="search-orders" type="search" placeholder="Search customer, note, or date..." />
+                </label>
+                <select id="filter-order-customer" aria-label="Filter by customer">
+                  <option value="">All Customers</option>
+                </select>
+                <select id="sort-orders" aria-label="Sort orders">
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="profit-high">Highest profit</option>
+                  <option value="profit-low">Lowest profit</option>
+                  <option value="sales-high">Highest sales</option>
+                  <option value="qty-high">Highest quantity</option>
+                </select>
               </div>
-            </div>
-          </section>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date &amp; Customer</th>
+                      <th>Qty.</th>
+                      <th>Sales</th>
+                      <th>Stock cost</th>
+                      <th>Net profit</th>
+                      <th><span class="sr-only">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="orders-body"></tbody>
+                </table>
+                <div id="empty-state" class="empty-state">
+                  <span class="empty-icon" aria-hidden="true">📋</span>
+                  <h3>No orders saved yet</h3>
+                  <p>Your sales history will appear here after you add your first order.</p>
+                </div>
+              </div>
+              <p class="history-note">Due balance is calculated from total stock cost less the manufacturer payments. Free cloud sync keeps your data identical across all phones.</p>
+            </section>
+          </div>
         </section>
 
-        <section class="fuel-workspace" aria-label="Petrol expense ledger">
-          <aside class="entry-panel petrol-entry-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">Separate expense ledger</p>
-                <h2 id="petrol-form-title">Add petrol cost</h2>
+        <!-- ===================================================================
+             VIEW 3: Manufacturer Payment Ledger
+             =================================================================== -->
+        <section class="tab-view hidden" id="view-manufacturer" role="tabpanel" aria-labelledby="tab-btn-manufacturer">
+          <div class="manufacturer-workspace" aria-label="Manufacturer payment ledger">
+            <aside class="entry-panel manufacturer-entry-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Stock Settlement Ledger</p>
+                  <h2 id="manufacturer-form-title">Add manufacturer payment</h2>
+                </div>
+                <span class="panel-number">03</span>
               </div>
-              <span class="panel-number">04</span>
-            </div>
 
-            <form id="petrol-form" novalidate>
-              <input id="petrol-id" type="hidden" />
-              <div class="form-row">
-                <label for="petrol-date">Expense date <span aria-hidden="true">*</span></label>
-                <input id="petrol-date" name="petrolDate" type="date" required />
-              </div>
-              <div class="form-row">
-                <label for="petrol-amount">Petrol cost <span aria-hidden="true">*</span></label>
-                <div class="field-with-prefix">
-                  <span>₹</span>
-                  <input id="petrol-amount" name="petrolAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required />
+              <form id="manufacturer-payment-form" novalidate>
+                <input id="manufacturer-payment-id" type="hidden" />
+                <div class="form-row">
+                  <label for="manufacturer-payment-date">Payment date <span aria-hidden="true">*</span></label>
+                  <input id="manufacturer-payment-date" name="manufacturerPaymentDate" type="date" required />
+                </div>
+                <div class="form-row">
+                  <label for="manufacturer-payment-amount">Amount paid <span aria-hidden="true">*</span></label>
+                  <div class="field-with-prefix">
+                    <span>₹</span>
+                    <input id="manufacturer-payment-amount" name="manufacturerPaymentAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required />
+                  </div>
+                  <small>Recorded as a settlement of stock cost, not an extra expense</small>
+                </div>
+                <div class="form-row">
+                  <label for="manufacturer-payment-notes">Note <span class="optional">optional</span></label>
+                  <textarea id="manufacturer-payment-notes" name="manufacturerPaymentNotes" maxlength="240" placeholder="Receipt number, invoice, or supplier reference..."></textarea>
+                </div>
+                <div class="form-actions">
+                  <button class="button button-primary" id="save-manufacturer-payment-button" type="submit">Save payment</button>
+                  <button class="button button-ghost hidden" id="cancel-manufacturer-payment-edit" type="button">Cancel</button>
+                </div>
+                <p id="manufacturer-payment-form-message" class="form-message" role="status"></p>
+              </form>
+            </aside>
+
+            <section class="history-panel manufacturer-history-panel">
+              <div class="panel-heading history-heading">
+                <div>
+                  <p class="eyebrow">Payment history</p>
+                  <h2>Manufacturer payments</h2>
+                </div>
+                <div class="expense-total">
+                  <span>Total paid</span>
+                  <strong id="total-manufacturer-paid">₹0</strong>
                 </div>
               </div>
-              <div class="form-row">
-                <label for="petrol-notes">Note <span class="optional">optional</span></label>
-                <textarea id="petrol-notes" name="petrolNotes" maxlength="240" placeholder="Route, receipt number, or anything useful..."></textarea>
+              <div class="table-wrap manufacturer-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Note</th>
+                      <th>Amount paid</th>
+                      <th><span class="sr-only">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="manufacturer-payments-body"></tbody>
+                </table>
+                <div id="manufacturer-payments-empty-state" class="empty-state">
+                  <span class="empty-icon" aria-hidden="true">🏭</span>
+                  <h3>No manufacturer payments saved yet</h3>
+                  <p>Add each payment here. The amount due will update automatically.</p>
+                </div>
               </div>
-              <div class="form-actions">
-                <button class="button button-primary" id="save-petrol-button" type="submit">Save petrol cost</button>
-                <button class="button button-ghost hidden" id="cancel-petrol-edit" type="button">Cancel</button>
-              </div>
-              <p id="petrol-form-message" class="form-message" role="status"></p>
-            </form>
-          </aside>
+            </section>
+          </div>
+        </section>
 
-          <section class="history-panel petrol-history-panel">
-            <div class="panel-heading history-heading">
-              <div>
-                <p class="eyebrow">Fuel history</p>
-                <h2>Petrol costs</h2>
+        <!-- ===================================================================
+             VIEW 4: Petrol Expenses Ledger
+             =================================================================== -->
+        <section class="tab-view hidden" id="view-petrol" role="tabpanel" aria-labelledby="tab-btn-petrol">
+          <div class="fuel-workspace" aria-label="Petrol expense ledger">
+            <aside class="entry-panel petrol-entry-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Fuel Expense Ledger</p>
+                  <h2 id="petrol-form-title">Add petrol cost</h2>
+                </div>
+                <span class="panel-number">04</span>
               </div>
-              <div class="expense-total"><span>Total petrol</span><strong id="total-petrol">₹0</strong></div>
-            </div>
-            <div class="table-wrap petrol-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Note</th>
-                    <th>Cost</th>
-                    <th><span class="sr-only">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody id="petrol-body"></tbody>
-              </table>
-              <div id="petrol-empty-state" class="empty-state">
-                <span class="empty-icon" aria-hidden="true">□</span>
-                <h3>No petrol costs saved yet</h3>
-                <p>Add each fuel expense here. It will reduce your total net profit automatically.</p>
+
+              <form id="petrol-form" novalidate>
+                <input id="petrol-id" type="hidden" />
+                <div class="form-row">
+                  <label for="petrol-date">Expense date <span aria-hidden="true">*</span></label>
+                  <input id="petrol-date" name="petrolDate" type="date" required />
+                </div>
+                <div class="form-row">
+                  <label for="petrol-amount">Petrol cost <span aria-hidden="true">*</span></label>
+                  <div class="field-with-prefix">
+                    <span>₹</span>
+                    <input id="petrol-amount" name="petrolAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <label for="petrol-notes">Note <span class="optional">optional</span></label>
+                  <textarea id="petrol-notes" name="petrolNotes" maxlength="240" placeholder="Route, delivery area, or fuel bill..."></textarea>
+                </div>
+                <div class="form-actions">
+                  <button class="button button-primary" id="save-petrol-button" type="submit">Save petrol cost</button>
+                  <button class="button button-ghost hidden" id="cancel-petrol-edit" type="button">Cancel</button>
+                </div>
+                <p id="petrol-form-message" class="form-message" role="status"></p>
+              </form>
+            </aside>
+
+            <section class="history-panel petrol-history-panel">
+              <div class="panel-heading history-heading">
+                <div>
+                  <p class="eyebrow">Fuel history</p>
+                  <h2>Petrol costs</h2>
+                </div>
+                <div class="expense-total">
+                  <span>Total petrol</span>
+                  <strong id="total-petrol-panel">₹0</strong>
+                </div>
               </div>
-            </div>
-          </section>
+              <div class="table-wrap petrol-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Note</th>
+                      <th>Cost</th>
+                      <th><span class="sr-only">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="petrol-body"></tbody>
+                </table>
+                <div id="petrol-empty-state" class="empty-state">
+                  <span class="empty-icon" aria-hidden="true">⛽</span>
+                  <h3>No petrol costs saved yet</h3>
+                  <p>Add each fuel expense here. It reduces your net profit automatically.</p>
+                </div>
+              </div>
+            </section>
+          </div>
         </section>
       </main>
 
+      <!-- Site Footer -->
       <footer>
-        <span>Tissue Ledger</span>
-        <span>Private by design · Secure email sign-in</span>
+        <span>Tissue Ledger &bull; Private &amp; Secure Cloud Sync</span>
+        <span>Zero Data Loss Protection &bull; All 265 Orders Preserved</span>
       </footer>
     </div>
 
+    <!-- Data Tools & Backup Modal -->
+    <div class="modal-backdrop" id="data-tools-modal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-labelledby="tools-modal-title">
+        <div class="modal-header">
+          <h3 id="tools-modal-title">Data Tools &amp; Safe Backup</h3>
+          <button class="icon-button" id="close-tools-modal" type="button" aria-label="Close modal">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="tool-option-card">
+            <div class="tool-option-info">
+              <h4>Download Full JSON Backup</h4>
+              <p>Save all orders, fuel expenses, and manufacturer payments into a timestamped file on your device.</p>
+            </div>
+            <button class="button button-primary button-sm" id="download-json-backup-btn" type="button">Download</button>
+          </div>
+
+          <div class="tool-option-card">
+            <div class="tool-option-info">
+              <h4>Download Excel Workbook (.xlsx)</h4>
+              <p>Export all 4 clean spreadsheets: Summary, Orders, Manufacturer, and Petrol.</p>
+            </div>
+            <button class="button button-secondary button-sm" id="download-excel-btn" type="button">Export Excel</button>
+          </div>
+
+          <div class="tool-option-card">
+            <div class="tool-option-info">
+              <h4>Restore from Backup File (JSON)</h4>
+              <p>Safely restore previous backup records into your local ledger.</p>
+            </div>
+            <label class="button button-outline-primary button-sm" style="margin: 0; cursor: pointer;">
+              Select File
+              <input type="file" id="import-json-file" accept=".json" class="sr-only" />
+            </label>
+          </div>
+
+          <div class="tool-option-card">
+            <div class="tool-option-info">
+              <h4>Reload Master Ledger (265 Orders)</h4>
+              <p>Re-populate the 265 orders, 12 fuel entries, and 15 payments from the official ledger.</p>
+            </div>
+            <button class="button button-ghost button-sm" id="reload-seed-data-btn" type="button">Reload</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-secondary button-sm" id="close-tools-modal-footer" type="button">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- Scripts -->
     <script type="module" src="app.js"></script>
   </body>
 </html>
