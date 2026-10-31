@@ -33,12 +33,12 @@ const elements = {
   formTitle: document.querySelector("#form-title"),
   orderId: document.querySelector("#order-id"),
   orderDate: document.querySelector("#order-date"),
-  customerInput: document.querySelector("#customer-input"),
-  customerDatalist: document.querySelector("#customer-datalist"),
   quantity: document.querySelector("#quantity"),
   buyingPrice: document.querySelector("#buying-price"),
   sellingPrice: document.querySelector("#selling-price"),
   notes: document.querySelector("#notes"),
+  customerSuggestions: document.querySelector("#customer-suggestions"),
+  quickCustomerChips: document.querySelector("#quick-customer-chips"),
   previewSales: document.querySelector("#preview-sales"),
   previewStockCost: document.querySelector("#preview-stock-cost"),
   previewNet: document.querySelector("#preview-net"),
@@ -325,7 +325,23 @@ function updateCustomerDatalist() {
   const names = customerGroups.map((g) => g.customer).filter((n) => !n.includes("Direct / Walk-in"));
   names.sort((a, b) => a.localeCompare(b));
 
-  elements.customerDatalist.innerHTML = names.map((name) => `<option value="${escapeHtml(name)}"></option>`).join("");
+  if (elements.customerSuggestions) {
+    elements.customerSuggestions.innerHTML = names.map((name) => `<option value="${escapeHtml(name)}"></option>`).join("");
+  }
+
+  // Populate top frequent customer chips for rapid one-tap entry
+  if (elements.quickCustomerChips) {
+    const topCustomers = [...customerGroups]
+      .filter((g) => !g.isDirect)
+      .sort((a, b) => b.ordersCount - a.ordersCount)
+      .slice(0, 8);
+    elements.quickCustomerChips.innerHTML = topCustomers
+      .map(
+        (g) =>
+          `<button type="button" class="customer-chip-pill" data-fill-customer="${escapeHtml(g.customer)}">${escapeHtml(g.customer)}</button>`
+      )
+      .join("");
+  }
 
   // Also update filter dropdown in Orders view
   const currentVal = elements.filterOrderCustomer.value;
@@ -652,7 +668,7 @@ function resetOrderForm() {
   elements.form.reset();
   elements.orderId.value = "";
   elements.orderDate.value = todayISO();
-  if (elements.customerInput) elements.customerInput.value = "";
+  elements.notes.value = "";
   elements.formTitle.textContent = "Add an order";
   elements.saveButton.textContent = "Save order";
   elements.cancelEdit.classList.add("hidden");
@@ -707,12 +723,8 @@ function beginEditingOrder(id) {
   elements.quantity.value = order.quantity;
   elements.buyingPrice.value = order.buyingPrice;
   elements.sellingPrice.value = order.sellingPrice;
-
-  const { customer, item } = normalizeCustomer(order.notes);
-  if (elements.customerInput) {
-    elements.customerInput.value = customer.includes("Direct / Walk-in") ? "" : customer;
-  }
-  elements.notes.value = item || order.notes || "";
+  // Restore note verbatim without any distortion
+  elements.notes.value = order.notes || "";
 
   elements.formTitle.textContent = "Edit order";
   elements.saveButton.textContent = "Update order";
@@ -764,7 +776,9 @@ function beginEditingManufacturerPayment(id) {
 function openOrderFormForCustomer(customerName) {
   switchTab("orders");
   resetOrderForm();
-  if (elements.customerInput) elements.customerInput.value = customerName;
+  if (customerName && !customerName.includes("Direct / Walk-in")) {
+    elements.notes.value = customerName;
+  }
   const entryPanel = document.querySelector("#order-entry-panel");
   if (entryPanel) entryPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   elements.quantity.focus();
@@ -895,17 +909,8 @@ async function handleOrderSubmit(event) {
     return;
   }
 
-  // Construct notes value preserving customer & item
-  const custName = (elements.customerInput?.value || "").trim();
-  const itemNote = (elements.notes.value || "").trim();
-  let fullNote = "";
-  if (custName && itemNote) {
-    fullNote = `${custName} (${itemNote})`;
-  } else if (custName) {
-    fullNote = custName;
-  } else {
-    fullNote = itemNote;
-  }
+  // Preserve user note directly without any artificial mutation
+  const noteValue = (elements.notes.value || "").trim();
 
   const existing = orders.find((order) => order.id === elements.orderId.value);
   const now = new Date().toISOString();
@@ -915,7 +920,7 @@ async function handleOrderSubmit(event) {
     quantity: toNumber(elements.quantity.value),
     buyingPrice: toNumber(elements.buyingPrice.value),
     sellingPrice: toNumber(elements.sellingPrice.value),
-    notes: fullNote,
+    notes: noteValue,
     createdAt: existing?.createdAt || now,
     updatedAt: now,
   };
@@ -1531,6 +1536,25 @@ async function initialize() {
   [elements.quantity, elements.buyingPrice, elements.sellingPrice].forEach((input) =>
     input.addEventListener("input", renderPreview)
   );
+
+  // Quick quantity adder pills (+10, +25, +50, +100)
+  document.querySelectorAll(".pill-btn[data-add-qty]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const add = toNumber(btn.dataset.addQty);
+      const current = toNumber(elements.quantity.value);
+      elements.quantity.value = current + add;
+      renderPreview();
+      elements.quantity.focus();
+    });
+  });
+
+  // Rapid customer suggestion chips
+  elements.quickCustomerChips?.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-fill-customer]");
+    if (!chip) return;
+    elements.notes.value = chip.dataset.fillCustomer;
+    elements.notes.focus();
+  });
 
   // Order actions
   elements.form.addEventListener("submit", handleOrderSubmit);

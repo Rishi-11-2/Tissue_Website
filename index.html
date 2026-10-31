@@ -225,13 +225,15 @@
                 </div>
 
                 <div class="form-row">
-                  <label for="customer-input">Customer <span class="optional">e.g. Karla, Sufi Palace, Honey Dhaba</span></label>
-                  <input id="customer-input" type="text" list="customer-datalist" placeholder="Select or type customer name..." autocomplete="off" />
-                  <datalist id="customer-datalist"></datalist>
-                </div>
-
-                <div class="form-row">
-                  <label for="quantity">Quantity sold <span aria-hidden="true">*</span></label>
+                  <div class="label-with-actions">
+                    <label for="quantity">Quantity sold <span aria-hidden="true">*</span></label>
+                    <div class="quick-qty-pills" aria-label="Quick quantity additions">
+                      <button type="button" class="pill-btn" data-add-qty="10">+10</button>
+                      <button type="button" class="pill-btn" data-add-qty="25">+25</button>
+                      <button type="button" class="pill-btn" data-add-qty="50">+50</button>
+                      <button type="button" class="pill-btn" data-add-qty="100">+100</button>
+                    </div>
+                  </div>
                   <div class="field-with-suffix">
                     <input id="quantity" name="quantity" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="e.g. 60" required />
                     <span>units</span>
@@ -258,8 +260,13 @@
                 </div>
 
                 <div class="form-row">
-                  <label for="notes">Item / Route Note <span class="optional">optional (e.g. Napkin, Spoon, Straw)</span></label>
-                  <textarea id="notes" name="notes" maxlength="240" placeholder="Item detail, route, receipt or notes..."></textarea>
+                  <div class="label-with-actions">
+                    <label for="notes">Note <span class="optional">optional (Customer, area, item...)</span></label>
+                    <span class="field-tip">Type customer or select suggestion</span>
+                  </div>
+                  <input id="notes" name="notes" type="text" list="customer-suggestions" maxlength="240" placeholder="Customer, area, or anything useful..." autocomplete="off" />
+                  <datalist id="customer-suggestions"></datalist>
+                  <div class="quick-customer-chips" id="quick-customer-chips" aria-label="Quick customer suggestions"></div>
                 </div>
 
                 <section class="live-calculation" aria-live="polite" aria-label="Order calculation preview">

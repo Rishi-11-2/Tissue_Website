@@ -1095,6 +1095,71 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
+.label-with-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.label-with-actions label {
+  margin-bottom: 0;
+}
+
+.field-tip {
+  font-size: 11px;
+  color: var(--slate-400);
+}
+
+.quick-qty-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.pill-btn {
+  background: var(--slate-100);
+  border: 1px solid var(--slate-200);
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--slate-600);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pill-btn:hover {
+  background: var(--primary-subtle);
+  border-color: var(--primary-border);
+  color: var(--primary);
+}
+
+.quick-customer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.customer-chip-pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--slate-100);
+  border: 1px solid var(--slate-200);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--slate-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.customer-chip-pill:hover {
+  background: var(--primary-subtle);
+  border-color: var(--primary-border);
+  color: var(--primary-dark);
+}
+
 .split-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
