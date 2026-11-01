@@ -1,13 +1,13 @@
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js";
-import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js?v=20261101_3";
+import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js?v=20261101_3";
 import {
   normalizeCustomer,
   groupOrdersByCustomer,
   calculateOrderFigures,
   getAvatarColor,
   getInitials,
-} from "./customer-ledger.js";
+} from "./customer-ledger.js?v=20261101_3";
 
 const DB_NAME = "tissue-ledger-db";
 const DB_VERSION = 3;
@@ -194,37 +194,53 @@ function escapeHtml(value) {
 }
 
 // IndexedDB Storage
-function openDatabase() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onerror = () => reject(request.error);
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(ORDER_STORE)) {
-        const store = db.createObjectStore(ORDER_STORE, { keyPath: "id" });
-        store.createIndex("orderDate", "orderDate", { unique: false });
-      }
-      if (!db.objectStoreNames.contains(PETROL_STORE)) {
-        const store = db.createObjectStore(PETROL_STORE, { keyPath: "id" });
-        store.createIndex("expenseDate", "expenseDate", { unique: false });
-      }
-      if (!db.objectStoreNames.contains(MANUFACTURER_PAYMENT_STORE)) {
-        const store = db.createObjectStore(MANUFACTURER_PAYMENT_STORE, { keyPath: "id" });
-        store.createIndex("paymentDate", "paymentDate", { unique: false });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-  });
+let dbPromise = null;
+function getDatabase() {
+  if (!dbPromise) {
+    dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onerror = () => {
+        dbPromise = null;
+        reject(request.error);
+      };
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(ORDER_STORE)) {
+          const store = db.createObjectStore(ORDER_STORE, { keyPath: "id" });
+          store.createIndex("orderDate", "orderDate", { unique: false });
+        }
+        if (!db.objectStoreNames.contains(PETROL_STORE)) {
+          const store = db.createObjectStore(PETROL_STORE, { keyPath: "id" });
+          store.createIndex("expenseDate", "expenseDate", { unique: false });
+        }
+        if (!db.objectStoreNames.contains(MANUFACTURER_PAYMENT_STORE)) {
+          const store = db.createObjectStore(MANUFACTURER_PAYMENT_STORE, { keyPath: "id" });
+          store.createIndex("paymentDate", "paymentDate", { unique: false });
+        }
+      };
+      request.onsuccess = () => {
+        const db = request.result;
+        db.onclose = () => {
+          dbPromise = null;
+        };
+        db.onversionchange = () => {
+          db.close();
+          dbPromise = null;
+        };
+        resolve(db);
+      };
+    });
+  }
+  return dbPromise;
 }
 
 async function useStore(storeName, mode, callback) {
-  const db = await openDatabase();
+  const db = await getDatabase();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeName, mode);
     const request = callback(transaction.objectStore(storeName));
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
-    transaction.oncomplete = () => db.close();
     transaction.onerror = () => reject(transaction.error);
   });
 }
@@ -234,6 +250,36 @@ const saveLocal = (storeName, record) => useStore(storeName, "readwrite", (store
 const deleteLocal = (storeName, id) => useStore(storeName, "readwrite", (store) => store.delete(id));
 const clearLocalStore = (storeName) => useStore(storeName, "readwrite", (store) => store.clear());
 
+async function saveLocalBatch(storeName, records) {
+  if (!records || records.length === 0) return;
+  const db = await getDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(storeName, "readwrite");
+    const store = transaction.objectStore(storeName);
+    for (const record of records) {
+      store.put(record);
+    }
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error || new Error("Transaction aborted"));
+  });
+}
+
+async function deleteLocalBatch(storeName, ids) {
+  if (!ids || ids.length === 0) return;
+  const db = await getDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(storeName, "readwrite");
+    const store = transaction.objectStore(storeName);
+    for (const id of ids) {
+      store.delete(id);
+    }
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error || new Error("Transaction aborted"));
+  });
+}
+
 function storeForKind(kind) {
   return ({ order: ORDER_STORE, petrol: PETROL_STORE, manufacturerPayment: MANUFACTURER_PAYMENT_STORE })[kind];
 }
@@ -242,22 +288,40 @@ function tableForKind(kind) {
   return ({ order: "orders", petrol: "petrol_expenses", manufacturerPayment: "manufacturer_payments" })[kind];
 }
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isValidUuid(id) {
   return typeof id === "string" && UUID_REGEX.test(id);
 }
 
-async function sanitizeStoreUuids(storeName) {
+function mapLegacyIdToUuid(id, prefix, hexPrefix) {
+  if (typeof id === "string" && id.startsWith(prefix)) {
+    const num = parseInt(id.replace(prefix, ""), 10);
+    if (!isNaN(num) && num > 0) {
+      return `${hexPrefix}0000000-0000-4000-8000-${String(num).padStart(12, "0")}`;
+    }
+  }
+  return null;
+}
+
+async function sanitizeStoreUuids(storeName, prefix, hexPrefix) {
   try {
     const records = await getAllLocal(storeName);
+    const toDelete = [];
+    const toSave = [];
     for (const record of records) {
       if (!isValidUuid(record.id)) {
-        const oldId = record.id;
-        record.id = crypto.randomUUID();
-        await deleteLocal(storeName, oldId);
-        await saveLocal(storeName, record);
+        toDelete.push(record.id);
+        const mappedUuid = mapLegacyIdToUuid(record.id, prefix, hexPrefix);
+        record.id = mappedUuid || crypto.randomUUID();
+        toSave.push(record);
       }
+    }
+    if (toDelete.length > 0) {
+      await deleteLocalBatch(storeName, toDelete);
+    }
+    if (toSave.length > 0) {
+      await saveLocalBatch(storeName, toSave);
     }
   } catch (err) {
     console.warn("Could not sanitize store UUIDs:", storeName, err);
@@ -272,7 +336,7 @@ function isVisibleToCurrentLedger(record) {
 }
 
 const SEED_VERSION_KEY = "tissue_ledger_seed_version";
-const CURRENT_SEED_VERSION = "2026-10-31-v272-uuid";
+const CURRENT_SEED_VERSION = "2026-11-01-v272-final";
 
 /**
  * Loads records from IndexedDB. If local database is empty or has older seed,
@@ -282,9 +346,9 @@ const CURRENT_SEED_VERSION = "2026-10-31-v272-uuid";
 async function loadLocalLedger() {
   // First sanitize any legacy non-UUID IDs in IndexedDB
   await Promise.all([
-    sanitizeStoreUuids(ORDER_STORE),
-    sanitizeStoreUuids(PETROL_STORE),
-    sanitizeStoreUuids(MANUFACTURER_PAYMENT_STORE),
+    sanitizeStoreUuids(ORDER_STORE, "ord_", "a"),
+    sanitizeStoreUuids(PETROL_STORE, "pet_", "b"),
+    sanitizeStoreUuids(MANUFACTURER_PAYMENT_STORE, "mfg_", "c"),
   ]);
 
   const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([
@@ -295,36 +359,40 @@ async function loadLocalLedger() {
 
   const localSeedVersion = localStorage.getItem(SEED_VERSION_KEY);
 
-  // If local store has older data or previous seed version, upgrade to the latest 272 master records
-  if ((!currentUser && localSeedVersion !== CURRENT_SEED_VERSION) || (storedOrders.length === 0 && !currentUser)) {
-    await clearLocalStore(ORDER_STORE);
-    await clearLocalStore(PETROL_STORE);
-    await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
+  // If local store has older data or is empty, ensure the latest 272 master records are loaded
+  if (localSeedVersion !== CURRENT_SEED_VERSION || storedOrders.length === 0) {
+    if (!currentUser) {
+      const existingOrderIds = new Set(storedOrders.map((o) => o.id));
+      const ordersToInsert = SEED_ORDERS.filter((o) => !existingOrderIds.has(o.id));
 
-    await Promise.all([
-      ...SEED_ORDERS.map((o) => saveLocal(ORDER_STORE, o)),
-      ...SEED_PETROL.map((p) => saveLocal(PETROL_STORE, p)),
-      ...SEED_MANUFACTURER_PAYMENTS.map((m) => saveLocal(MANUFACTURER_PAYMENT_STORE, m)),
-    ]);
+      const existingPetrolIds = new Set(storedPetrol.map((p) => p.id));
+      const petrolToInsert = SEED_PETROL.filter((p) => !existingPetrolIds.has(p.id));
 
+      const existingMfgIds = new Set(storedManufacturerPayments.map((m) => m.id));
+      const mfgToInsert = SEED_MANUFACTURER_PAYMENTS.filter((m) => !existingMfgIds.has(m.id));
+
+      if (storedOrders.length === 0) {
+        await saveLocalBatch(ORDER_STORE, SEED_ORDERS);
+        await saveLocalBatch(PETROL_STORE, SEED_PETROL);
+        await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, SEED_MANUFACTURER_PAYMENTS);
+      } else {
+        if (ordersToInsert.length > 0) await saveLocalBatch(ORDER_STORE, ordersToInsert);
+        if (petrolToInsert.length > 0) await saveLocalBatch(PETROL_STORE, petrolToInsert);
+        if (mfgToInsert.length > 0) await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, mfgToInsert);
+      }
+    }
     localStorage.setItem(SEED_VERSION_KEY, CURRENT_SEED_VERSION);
-    orders = [...SEED_ORDERS];
-    petrolExpenses = [...SEED_PETROL];
-    manufacturerPayments = [...SEED_MANUFACTURER_PAYMENTS];
-  } else if (storedOrders.length > 0 || storedPetrol.length > 0 || storedManufacturerPayments.length > 0) {
-    orders = storedOrders.filter(isVisibleToCurrentLedger);
-    petrolExpenses = storedPetrol.filter(isVisibleToCurrentLedger);
-    manufacturerPayments = storedManufacturerPayments.filter(isVisibleToCurrentLedger);
-  } else if (!currentUser) {
-    await Promise.all([
-      ...SEED_ORDERS.map((o) => saveLocal(ORDER_STORE, o)),
-      ...SEED_PETROL.map((p) => saveLocal(PETROL_STORE, p)),
-      ...SEED_MANUFACTURER_PAYMENTS.map((m) => saveLocal(MANUFACTURER_PAYMENT_STORE, m)),
-    ]);
-    orders = [...SEED_ORDERS];
-    petrolExpenses = [...SEED_PETROL];
-    manufacturerPayments = [...SEED_MANUFACTURER_PAYMENTS];
   }
+
+  const [currentOrders, currentPetrol, currentMfg] = await Promise.all([
+    getAllLocal(ORDER_STORE),
+    getAllLocal(PETROL_STORE),
+    getAllLocal(MANUFACTURER_PAYMENT_STORE),
+  ]);
+
+  orders = currentOrders.filter(isVisibleToCurrentLedger);
+  petrolExpenses = currentPetrol.filter(isVisibleToCurrentLedger);
+  manufacturerPayments = currentMfg.filter(isVisibleToCurrentLedger);
 
   updateCustomerDatalist();
   render();
@@ -900,8 +968,22 @@ function payloadForKind(kind, record) {
 }
 
 async function upsertRemote(kind, record) {
-  const { error } = await supabase.from(tableForKind(kind)).upsert(payloadForKind(kind, record));
-  if (error) throw error;
+  const payload = payloadForKind(kind, record);
+  const { error } = await supabase.from(tableForKind(kind)).upsert(payload, { onConflict: "id" });
+  if (error) {
+    console.error(`Remote single upsert failed for ${kind}:`, error);
+    throw error;
+  }
+}
+
+async function upsertRemoteBatch(kind, records) {
+  if (!records.length) return;
+  const payloads = records.map((rec) => payloadForKind(kind, rec));
+  const { error } = await supabase.from(tableForKind(kind)).upsert(payloads, { onConflict: "id" });
+  if (error) {
+    console.error(`Remote batch upsert failed for ${kind}:`, error);
+    throw error;
+  }
 }
 
 async function saveRecord(kind, record) {
@@ -1135,19 +1217,40 @@ function showToast(message) {
 }
 
 // Cloud Sync
-async function syncPendingRecords(kind, ownerId) {
+async function syncPendingRecords(kind, ownerId, remoteExistingIds = new Set()) {
   const store = storeForKind(kind);
   const records = await getAllLocal(store);
-  const pending = records.filter((r) => (!r.userId || r.userId === ownerId) && r.syncState !== "synced");
-  for (const record of pending) {
-    if (!isValidUuid(record.id)) {
-      const oldId = record.id;
-      record.id = crypto.randomUUID();
-      await deleteLocal(store, oldId);
+  const pending = records.filter((r) => {
+    if (r.syncState === "synced") return false;
+    if (remoteExistingIds.has(r.id)) return false;
+    return !r.userId || r.userId === ownerId;
+  });
+
+  if (pending.length === 0) return;
+
+  const BATCH_SIZE = 50;
+  for (let i = 0; i < pending.length; i += BATCH_SIZE) {
+    const chunk = pending.slice(i, i + BATCH_SIZE);
+    const updatedChunk = [];
+    const oldIdsToDelete = [];
+
+    for (const record of chunk) {
+      if (!isValidUuid(record.id)) {
+        const oldId = record.id;
+        oldIdsToDelete.push(oldId);
+        record.id = crypto.randomUUID();
+      }
+      record.userId = ownerId;
+      record.syncState = "synced";
+      updatedChunk.push(record);
     }
-    const owned = { ...record, userId: ownerId };
-    await upsertRemote(kind, owned);
-    await saveLocal(store, { ...owned, syncState: "synced" });
+
+    if (oldIdsToDelete.length > 0) {
+      await deleteLocalBatch(store, oldIdsToDelete);
+    }
+
+    await upsertRemoteBatch(kind, updatedChunk);
+    await saveLocalBatch(store, updatedChunk);
   }
 }
 
@@ -1158,12 +1261,7 @@ async function syncFromCloud({ showResult = false } = {}) {
   elements.syncStatusLabel.textContent = "Syncing…";
 
   try {
-    await Promise.all([
-      syncPendingRecords("order", currentUser.id),
-      syncPendingRecords("petrol", currentUser.id),
-      syncPendingRecords("manufacturerPayment", currentUser.id),
-    ]);
-
+    // 1. Fetch remote records from cloud first
     const [
       { data: remoteOrders, error: ordersError },
       { data: remotePetrol, error: petrolError },
@@ -1175,49 +1273,67 @@ async function syncFromCloud({ showResult = false } = {}) {
     ]);
 
     if (ordersError || petrolError || manufacturerError) {
-      throw ordersError || petrolError || manufacturerError;
+      const err = ordersError || petrolError || manufacturerError;
+      console.error("Supabase select error:", err);
+      throw err;
     }
 
     const normalizedOrders = (remoteOrders || []).map(remoteToOrder);
     const normalizedPetrol = (remotePetrol || []).map(remoteToPetrol);
     const normalizedManufacturerPayments = (remoteManufacturerPayments || []).map(remoteToManufacturerPayment);
 
+    const remoteOrderIds = new Set(normalizedOrders.map((rec) => rec.id));
+    const remotePetrolIds = new Set(normalizedPetrol.map((rec) => rec.id));
+    const remoteManufacturerIds = new Set(normalizedManufacturerPayments.map((rec) => rec.id));
+
+    // 2. Sync local unsynced pending records in fast batches
     await Promise.all([
-      ...normalizedOrders.map((rec) => saveLocal(ORDER_STORE, rec)),
-      ...normalizedPetrol.map((rec) => saveLocal(PETROL_STORE, rec)),
-      ...normalizedManufacturerPayments.map((rec) => saveLocal(MANUFACTURER_PAYMENT_STORE, rec)),
+      syncPendingRecords("order", currentUser.id, remoteOrderIds),
+      syncPendingRecords("petrol", currentUser.id, remotePetrolIds),
+      syncPendingRecords("manufacturerPayment", currentUser.id, remoteManufacturerIds),
     ]);
 
+    // 3. Save remote records locally in batch
+    await Promise.all([
+      saveLocalBatch(ORDER_STORE, normalizedOrders),
+      saveLocalBatch(PETROL_STORE, normalizedPetrol),
+      saveLocalBatch(MANUFACTURER_PAYMENT_STORE, normalizedManufacturerPayments),
+    ]);
+
+    // 4. Clean up any locally deleted records that belonged to this user
     const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([
       getAllLocal(ORDER_STORE),
       getAllLocal(PETROL_STORE),
       getAllLocal(MANUFACTURER_PAYMENT_STORE),
     ]);
 
-    const remoteOrderIds = new Set(normalizedOrders.map((rec) => rec.id));
-    const remotePetrolIds = new Set(normalizedPetrol.map((rec) => rec.id));
-    const remoteManufacturerIds = new Set(normalizedManufacturerPayments.map((rec) => rec.id));
-
-    await Promise.all([
-      ...storedOrders
+    if (normalizedOrders.length > 0) {
+      const toDelete = storedOrders
         .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remoteOrderIds.has(r.id))
-        .map((r) => deleteLocal(ORDER_STORE, r.id)),
-      ...storedPetrol
+        .map((r) => r.id);
+      if (toDelete.length > 0) await deleteLocalBatch(ORDER_STORE, toDelete);
+    }
+    if (normalizedPetrol.length > 0) {
+      const toDelete = storedPetrol
         .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remotePetrolIds.has(r.id))
-        .map((r) => deleteLocal(PETROL_STORE, r.id)),
-      ...storedManufacturerPayments
+        .map((r) => r.id);
+      if (toDelete.length > 0) await deleteLocalBatch(PETROL_STORE, toDelete);
+    }
+    if (normalizedManufacturerPayments.length > 0) {
+      const toDelete = storedManufacturerPayments
         .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remoteManufacturerIds.has(r.id))
-        .map((r) => deleteLocal(MANUFACTURER_PAYMENT_STORE, r.id)),
-    ]);
+        .map((r) => r.id);
+      if (toDelete.length > 0) await deleteLocalBatch(MANUFACTURER_PAYMENT_STORE, toDelete);
+    }
 
     await loadLocalLedger();
     setSyncMessage("All changes are saved in the cloud.");
     if (showResult) showToast("Cloud sync complete.");
   } catch (error) {
     console.error("Cloud sync failed", error);
-    const detail = error?.message || error?.details || "Check your connection or SQL policies.";
-    setSyncMessage(`Cloud sync needs attention: ${detail}`, true);
-    if (showResult) showToast(`Cloud sync error: ${detail}`);
+    const detail = error?.message || error?.details || error?.hint || "Check connection or SQL policies.";
+    setSyncMessage(`Cloud sync: ${detail}`, true);
+    if (showResult) showToast(`Cloud sync: ${detail}`);
   } finally {
     isSyncing = false;
     elements.syncNowButton.disabled = false;
@@ -1487,9 +1603,9 @@ async function handleImportJson(event) {
     await clearLocalStore(PETROL_STORE);
     await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
 
-    for (const ord of data.orders) await saveLocal(ORDER_STORE, ord);
-    for (const pet of data.petrolExpenses || []) await saveLocal(PETROL_STORE, pet);
-    for (const mfg of data.manufacturerPayments || []) await saveLocal(MANUFACTURER_PAYMENT_STORE, mfg);
+    await saveLocalBatch(ORDER_STORE, data.orders);
+    await saveLocalBatch(PETROL_STORE, data.petrolExpenses || []);
+    await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, data.manufacturerPayments || []);
 
     orders = data.orders;
     petrolExpenses = data.petrolExpenses || [];
@@ -1510,7 +1626,7 @@ async function handleImportJson(event) {
 async function handleReloadSeedData() {
   if (
     !globalThis.confirm(
-      "Reload the official 265 ledger orders, 12 petrol expenses, and 15 manufacturer payments into local storage?"
+      "Reload the official 272 ledger orders, 14 petrol expenses, and 19 manufacturer payments into local storage?"
     )
   ) {
     return;
@@ -1520,11 +1636,9 @@ async function handleReloadSeedData() {
   await clearLocalStore(PETROL_STORE);
   await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
 
-  await Promise.all([
-    ...SEED_ORDERS.map((o) => saveLocal(ORDER_STORE, o)),
-    ...SEED_PETROL.map((p) => saveLocal(PETROL_STORE, p)),
-    ...SEED_MANUFACTURER_PAYMENTS.map((m) => saveLocal(MANUFACTURER_PAYMENT_STORE, m)),
-  ]);
+  await saveLocalBatch(ORDER_STORE, SEED_ORDERS);
+  await saveLocalBatch(PETROL_STORE, SEED_PETROL);
+  await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, SEED_MANUFACTURER_PAYMENTS);
 
   orders = [...SEED_ORDERS];
   petrolExpenses = [...SEED_PETROL];
