@@ -242,6 +242,28 @@ function tableForKind(kind) {
   return ({ order: "orders", petrol: "petrol_expenses", manufacturerPayment: "manufacturer_payments" })[kind];
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isValidUuid(id) {
+  return typeof id === "string" && UUID_REGEX.test(id);
+}
+
+async function sanitizeStoreUuids(storeName) {
+  try {
+    const records = await getAllLocal(storeName);
+    for (const record of records) {
+      if (!isValidUuid(record.id)) {
+        const oldId = record.id;
+        record.id = crypto.randomUUID();
+        await deleteLocal(storeName, oldId);
+        await saveLocal(storeName, record);
+      }
+    }
+  } catch (err) {
+    console.warn("Could not sanitize store UUIDs:", storeName, err);
+  }
+}
+
 function isVisibleToCurrentLedger(record) {
   if (!cloudConfigured || !currentUser) {
     return true;
@@ -250,7 +272,7 @@ function isVisibleToCurrentLedger(record) {
 }
 
 const SEED_VERSION_KEY = "tissue_ledger_seed_version";
-const CURRENT_SEED_VERSION = "2026-10-31-v272";
+const CURRENT_SEED_VERSION = "2026-10-31-v272-uuid";
 
 /**
  * Loads records from IndexedDB. If local database is empty or has older seed,
@@ -258,6 +280,13 @@ const CURRENT_SEED_VERSION = "2026-10-31-v272";
  * so there is NEVER any data loss!
  */
 async function loadLocalLedger() {
+  // First sanitize any legacy non-UUID IDs in IndexedDB
+  await Promise.all([
+    sanitizeStoreUuids(ORDER_STORE),
+    sanitizeStoreUuids(PETROL_STORE),
+    sanitizeStoreUuids(MANUFACTURER_PAYMENT_STORE),
+  ]);
+
   const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([
     getAllLocal(ORDER_STORE),
     getAllLocal(PETROL_STORE),
@@ -266,7 +295,7 @@ async function loadLocalLedger() {
 
   const localSeedVersion = localStorage.getItem(SEED_VERSION_KEY);
 
-  // If local store has older data (less than 272 orders) or previous seed version, upgrade to the latest 272 master records
+  // If local store has older data or previous seed version, upgrade to the latest 272 master records
   if ((!currentUser && localSeedVersion !== CURRENT_SEED_VERSION) || (storedOrders.length === 0 && !currentUser)) {
     await clearLocalStore(ORDER_STORE);
     await clearLocalStore(PETROL_STORE);
@@ -877,6 +906,9 @@ async function upsertRemote(kind, record) {
 
 async function saveRecord(kind, record) {
   const store = storeForKind(kind);
+  if (!isValidUuid(record.id)) {
+    record.id = crypto.randomUUID();
+  }
   const localRecord = { ...record, userId: currentUser?.id || record.userId, syncState: currentUser ? "pending" : "local" };
   await saveLocal(store, localRecord);
   if (!cloudConfigured || !currentUser) return localRecord;
@@ -1104,12 +1136,18 @@ function showToast(message) {
 
 // Cloud Sync
 async function syncPendingRecords(kind, ownerId) {
-  const records = await getAllLocal(storeForKind(kind));
+  const store = storeForKind(kind);
+  const records = await getAllLocal(store);
   const pending = records.filter((r) => (!r.userId || r.userId === ownerId) && r.syncState !== "synced");
   for (const record of pending) {
+    if (!isValidUuid(record.id)) {
+      const oldId = record.id;
+      record.id = crypto.randomUUID();
+      await deleteLocal(store, oldId);
+    }
     const owned = { ...record, userId: ownerId };
     await upsertRemote(kind, owned);
-    await saveLocal(storeForKind(kind), { ...owned, syncState: "synced" });
+    await saveLocal(store, { ...owned, syncState: "synced" });
   }
 }
 
@@ -1177,8 +1215,9 @@ async function syncFromCloud({ showResult = false } = {}) {
     if (showResult) showToast("Cloud sync complete.");
   } catch (error) {
     console.error("Cloud sync failed", error);
-    setSyncMessage("Cloud sync needs attention. Check your connection or SQL policies.", true);
-    if (showResult) showToast("Cloud sync could not finish.");
+    const detail = error?.message || error?.details || "Check your connection or SQL policies.";
+    setSyncMessage(`Cloud sync needs attention: ${detail}`, true);
+    if (showResult) showToast(`Cloud sync error: ${detail}`);
   } finally {
     isSyncing = false;
     elements.syncNowButton.disabled = false;

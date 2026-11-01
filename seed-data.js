@@ -1,14 +1,14 @@
 // Master seed dataset for Tissue Ledger (Updated with latest export: 272 orders, 14 petrol, 19 mfg payments)
+// All IDs are valid RFC 4122 UUIDv4 to maintain 100% compatibility with PostgreSQL & Supabase uuid schema.
 // Total sales: ₹473,501.00 | Net profit: ₹70,308.50 | Manufacturer due: ₹113,747.50
-// Fully deterministic baseline to guarantee ZERO data loss under any circumstance.
 
 export const SEED_ORDERS = [
   {
-    "id": "ord_001",
+    "id": "a0000000-0000-4000-8000-000000000001",
     "orderDate": "2026-01-15",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "",
     "createdAt": "2026-01-15T10:00:00.000Z",
     "updatedAt": "2026-01-15T10:00:00.000Z",
@@ -16,11 +16,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_002",
+    "id": "a0000000-0000-4000-8000-000000000002",
     "orderDate": "2026-01-17",
-    "quantity": 150.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 150,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Rajasthan guest House",
     "createdAt": "2026-01-17T10:00:00.000Z",
     "updatedAt": "2026-01-17T10:00:00.000Z",
@@ -28,11 +28,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_003",
+    "id": "a0000000-0000-4000-8000-000000000003",
     "orderDate": "2026-01-19",
-    "quantity": 100.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Jamuna banquet",
     "createdAt": "2026-01-19T10:00:00.000Z",
     "updatedAt": "2026-01-19T10:00:00.000Z",
@@ -40,11 +40,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_004",
+    "id": "a0000000-0000-4000-8000-000000000004",
     "orderDate": "2026-01-22",
-    "quantity": 20.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 20,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Gupta brother (Ballygunge)",
     "createdAt": "2026-01-22T10:00:00.000Z",
     "updatedAt": "2026-01-22T10:00:00.000Z",
@@ -52,11 +52,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_005",
+    "id": "a0000000-0000-4000-8000-000000000005",
     "orderDate": "2026-01-24",
-    "quantity": 200.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 18.0,
+    "quantity": 200,
+    "buyingPrice": 15,
+    "sellingPrice": 18,
     "notes": "Karla",
     "createdAt": "2026-01-24T10:00:00.000Z",
     "updatedAt": "2026-01-24T10:00:00.000Z",
@@ -64,11 +64,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_006",
+    "id": "a0000000-0000-4000-8000-000000000006",
     "orderDate": "2026-01-25",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-01-25T10:00:00.000Z",
     "updatedAt": "2026-01-25T10:00:00.000Z",
@@ -76,11 +76,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_007",
+    "id": "a0000000-0000-4000-8000-000000000007",
     "orderDate": "2026-01-27",
-    "quantity": 500.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 500,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Mintu shaw",
     "createdAt": "2026-01-27T10:00:00.000Z",
     "updatedAt": "2026-01-27T10:00:00.000Z",
@@ -88,10 +88,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_008",
+    "id": "a0000000-0000-4000-8000-000000000008",
     "orderDate": "2026-01-27",
-    "quantity": 500.0,
-    "buyingPrice": 12.0,
+    "quantity": 500,
+    "buyingPrice": 12,
     "sellingPrice": 14.5,
     "notes": "Mintu shaw",
     "createdAt": "2026-01-27T10:00:00.000Z",
@@ -100,11 +100,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_009",
+    "id": "a0000000-0000-4000-8000-000000000009",
     "orderDate": "2026-01-29",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "",
     "createdAt": "2026-01-29T10:00:00.000Z",
     "updatedAt": "2026-01-29T10:00:00.000Z",
@@ -112,11 +112,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_010",
+    "id": "a0000000-0000-4000-8000-000000000010",
     "orderDate": "2026-01-30",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 17,
     "notes": "Khana khazana",
     "createdAt": "2026-01-30T10:00:00.000Z",
     "updatedAt": "2026-01-30T10:00:00.000Z",
@@ -124,11 +124,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_011",
+    "id": "a0000000-0000-4000-8000-000000000011",
     "orderDate": "2026-01-30",
-    "quantity": 10.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 10,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Aami bangla diamond city",
     "createdAt": "2026-01-30T10:00:00.000Z",
     "updatedAt": "2026-01-30T10:00:00.000Z",
@@ -136,11 +136,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_012",
+    "id": "a0000000-0000-4000-8000-000000000012",
     "orderDate": "2026-01-30",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-01-30T10:00:00.000Z",
     "updatedAt": "2026-01-30T10:00:00.000Z",
@@ -148,11 +148,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_013",
+    "id": "a0000000-0000-4000-8000-000000000013",
     "orderDate": "2026-02-01",
-    "quantity": 30.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 30,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-02-01T10:00:00.000Z",
     "updatedAt": "2026-02-01T10:00:00.000Z",
@@ -160,11 +160,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_014",
+    "id": "a0000000-0000-4000-8000-000000000014",
     "orderDate": "2026-02-02",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Rajasthan bhojnalaya",
     "createdAt": "2026-02-02T10:00:00.000Z",
     "updatedAt": "2026-02-02T10:00:00.000Z",
@@ -172,11 +172,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_015",
+    "id": "a0000000-0000-4000-8000-000000000015",
     "orderDate": "2026-02-02",
-    "quantity": 200.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 200,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Veg dhaba",
     "createdAt": "2026-02-02T10:00:00.000Z",
     "updatedAt": "2026-02-02T10:00:00.000Z",
@@ -184,10 +184,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_016",
+    "id": "a0000000-0000-4000-8000-000000000016",
     "orderDate": "2026-02-02",
-    "quantity": 100.0,
-    "buyingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 15,
     "sellingPrice": 17.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-02-02T10:00:00.000Z",
@@ -196,10 +196,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_017",
+    "id": "a0000000-0000-4000-8000-000000000017",
     "orderDate": "2026-02-04",
-    "quantity": 50.0,
-    "buyingPrice": 18.0,
+    "quantity": 50,
+    "buyingPrice": 18,
     "sellingPrice": 23.5,
     "notes": "Mark hotel",
     "createdAt": "2026-02-04T10:00:00.000Z",
@@ -208,11 +208,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_018",
+    "id": "a0000000-0000-4000-8000-000000000018",
     "orderDate": "2026-02-07",
-    "quantity": 40.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 40,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-02-07T10:00:00.000Z",
     "updatedAt": "2026-02-07T10:00:00.000Z",
@@ -220,11 +220,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_019",
+    "id": "a0000000-0000-4000-8000-000000000019",
     "orderDate": "2026-02-11",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-02-11T10:00:00.000Z",
     "updatedAt": "2026-02-11T10:00:00.000Z",
@@ -232,10 +232,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_020",
+    "id": "a0000000-0000-4000-8000-000000000020",
     "orderDate": "2026-02-11",
-    "quantity": 300.0,
-    "buyingPrice": 19.0,
+    "quantity": 300,
+    "buyingPrice": 19,
     "sellingPrice": 22.5,
     "notes": "Bika",
     "createdAt": "2026-02-11T10:00:00.000Z",
@@ -244,11 +244,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_021",
+    "id": "a0000000-0000-4000-8000-000000000021",
     "orderDate": "2026-02-12",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "",
     "createdAt": "2026-02-12T10:00:00.000Z",
     "updatedAt": "2026-02-12T10:00:00.000Z",
@@ -256,11 +256,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_022",
+    "id": "a0000000-0000-4000-8000-000000000022",
     "orderDate": "2026-02-14",
-    "quantity": 10.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 10,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-02-14T10:00:00.000Z",
     "updatedAt": "2026-02-14T10:00:00.000Z",
@@ -268,11 +268,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_023",
+    "id": "a0000000-0000-4000-8000-000000000023",
     "orderDate": "2026-02-14",
-    "quantity": 210.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 18.0,
+    "quantity": 210,
+    "buyingPrice": 15,
+    "sellingPrice": 18,
     "notes": "Karla",
     "createdAt": "2026-02-14T10:00:00.000Z",
     "updatedAt": "2026-02-14T10:00:00.000Z",
@@ -280,11 +280,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_024",
+    "id": "a0000000-0000-4000-8000-000000000024",
     "orderDate": "2026-02-17",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 17,
     "notes": "Zuddu theatre road",
     "createdAt": "2026-02-17T10:00:00.000Z",
     "updatedAt": "2026-02-17T10:00:00.000Z",
@@ -292,11 +292,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_025",
+    "id": "a0000000-0000-4000-8000-000000000025",
     "orderDate": "2026-02-19",
-    "quantity": 100.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Jamuna banquet",
     "createdAt": "2026-02-19T10:00:00.000Z",
     "updatedAt": "2026-02-19T10:00:00.000Z",
@@ -304,11 +304,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_026",
+    "id": "a0000000-0000-4000-8000-000000000026",
     "orderDate": "2026-02-20",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-02-20T10:00:00.000Z",
     "updatedAt": "2026-02-20T10:00:00.000Z",
@@ -316,11 +316,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_027",
+    "id": "a0000000-0000-4000-8000-000000000027",
     "orderDate": "2026-02-21",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 17,
     "notes": "Maya ram",
     "createdAt": "2026-02-21T10:00:00.000Z",
     "updatedAt": "2026-02-21T10:00:00.000Z",
@@ -328,11 +328,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_028",
+    "id": "a0000000-0000-4000-8000-000000000028",
     "orderDate": "2026-02-22",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 17,
     "notes": "God father",
     "createdAt": "2026-02-22T10:00:00.000Z",
     "updatedAt": "2026-02-22T10:00:00.000Z",
@@ -340,11 +340,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_029",
+    "id": "a0000000-0000-4000-8000-000000000029",
     "orderDate": "2026-02-22",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 13.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 13,
     "notes": "Aanand",
     "createdAt": "2026-02-22T10:00:00.000Z",
     "updatedAt": "2026-02-22T10:00:00.000Z",
@@ -352,11 +352,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_030",
+    "id": "a0000000-0000-4000-8000-000000000030",
     "orderDate": "2026-02-23",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 19,
     "notes": "Hotel saad",
     "createdAt": "2026-02-23T10:00:00.000Z",
     "updatedAt": "2026-02-23T10:00:00.000Z",
@@ -364,11 +364,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_031",
+    "id": "a0000000-0000-4000-8000-000000000031",
     "orderDate": "2026-02-26",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Machua",
     "createdAt": "2026-02-26T10:00:00.000Z",
     "updatedAt": "2026-02-26T10:00:00.000Z",
@@ -376,11 +376,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_032",
+    "id": "a0000000-0000-4000-8000-000000000032",
     "orderDate": "2026-02-27",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-02-27T10:00:00.000Z",
     "updatedAt": "2026-02-27T10:00:00.000Z",
@@ -388,11 +388,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_033",
+    "id": "a0000000-0000-4000-8000-000000000033",
     "orderDate": "2026-02-27",
-    "quantity": 100.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Machua",
     "createdAt": "2026-02-27T10:00:00.000Z",
     "updatedAt": "2026-02-27T10:00:00.000Z",
@@ -400,10 +400,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_034",
+    "id": "a0000000-0000-4000-8000-000000000034",
     "orderDate": "2026-02-28",
-    "quantity": 100.0,
-    "buyingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 15,
     "sellingPrice": 17.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-02-28T10:00:00.000Z",
@@ -412,10 +412,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_035",
+    "id": "a0000000-0000-4000-8000-000000000035",
     "orderDate": "2026-03-01",
-    "quantity": 50.0,
-    "buyingPrice": 18.0,
+    "quantity": 50,
+    "buyingPrice": 18,
     "sellingPrice": 23.5,
     "notes": "Mark hotel",
     "createdAt": "2026-03-01T10:00:00.000Z",
@@ -424,11 +424,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_036",
+    "id": "a0000000-0000-4000-8000-000000000036",
     "orderDate": "2026-03-03",
-    "quantity": 15.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 15,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-03-03T10:00:00.000Z",
     "updatedAt": "2026-03-03T10:00:00.000Z",
@@ -436,10 +436,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_037",
+    "id": "a0000000-0000-4000-8000-000000000037",
     "orderDate": "2026-03-03",
-    "quantity": 300.0,
-    "buyingPrice": 19.0,
+    "quantity": 300,
+    "buyingPrice": 19,
     "sellingPrice": 22.5,
     "notes": "Bika",
     "createdAt": "2026-03-03T10:00:00.000Z",
@@ -448,11 +448,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_038",
+    "id": "a0000000-0000-4000-8000-000000000038",
     "orderDate": "2026-03-07",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-03-07T10:00:00.000Z",
     "updatedAt": "2026-03-07T10:00:00.000Z",
@@ -460,11 +460,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_039",
+    "id": "a0000000-0000-4000-8000-000000000039",
     "orderDate": "2026-03-08",
-    "quantity": 100.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Machua",
     "createdAt": "2026-03-08T10:00:00.000Z",
     "updatedAt": "2026-03-08T10:00:00.000Z",
@@ -472,11 +472,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_040",
+    "id": "a0000000-0000-4000-8000-000000000040",
     "orderDate": "2026-03-09",
-    "quantity": 210.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 18.0,
+    "quantity": 210,
+    "buyingPrice": 15,
+    "sellingPrice": 18,
     "notes": "Karla",
     "createdAt": "2026-03-09T10:00:00.000Z",
     "updatedAt": "2026-03-09T10:00:00.000Z",
@@ -484,11 +484,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_041",
+    "id": "a0000000-0000-4000-8000-000000000041",
     "orderDate": "2026-03-09",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Machua",
     "createdAt": "2026-03-09T10:00:00.000Z",
     "updatedAt": "2026-03-09T10:00:00.000Z",
@@ -496,11 +496,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_042",
+    "id": "a0000000-0000-4000-8000-000000000042",
     "orderDate": "2026-03-10",
-    "quantity": 10.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 10,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Ganesh maharaj",
     "createdAt": "2026-03-10T10:00:00.000Z",
     "updatedAt": "2026-03-10T10:00:00.000Z",
@@ -508,11 +508,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_043",
+    "id": "a0000000-0000-4000-8000-000000000043",
     "orderDate": "2026-03-10",
-    "quantity": 200.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 200,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Rajasthan guest House",
     "createdAt": "2026-03-10T10:00:00.000Z",
     "updatedAt": "2026-03-10T10:00:00.000Z",
@@ -520,11 +520,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_044",
+    "id": "a0000000-0000-4000-8000-000000000044",
     "orderDate": "2026-03-13",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "",
     "createdAt": "2026-03-13T10:00:00.000Z",
     "updatedAt": "2026-03-13T10:00:00.000Z",
@@ -532,11 +532,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_045",
+    "id": "a0000000-0000-4000-8000-000000000045",
     "orderDate": "2026-03-16",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-03-16T10:00:00.000Z",
     "updatedAt": "2026-03-16T10:00:00.000Z",
@@ -544,11 +544,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_046",
+    "id": "a0000000-0000-4000-8000-000000000046",
     "orderDate": "2026-03-17",
-    "quantity": 200.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 17.0,
+    "quantity": 200,
+    "buyingPrice": 14,
+    "sellingPrice": 17,
     "notes": "Aanand",
     "createdAt": "2026-03-17T10:00:00.000Z",
     "updatedAt": "2026-03-17T10:00:00.000Z",
@@ -556,11 +556,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_047",
+    "id": "a0000000-0000-4000-8000-000000000047",
     "orderDate": "2026-03-18",
-    "quantity": 10.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 10,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-03-18T10:00:00.000Z",
     "updatedAt": "2026-03-18T10:00:00.000Z",
@@ -568,11 +568,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_048",
+    "id": "a0000000-0000-4000-8000-000000000048",
     "orderDate": "2026-03-18",
-    "quantity": 100.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Machua",
     "createdAt": "2026-03-18T10:00:00.000Z",
     "updatedAt": "2026-03-18T10:00:00.000Z",
@@ -580,11 +580,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_049",
+    "id": "a0000000-0000-4000-8000-000000000049",
     "orderDate": "2026-03-21",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 17,
     "notes": "Maya ram",
     "createdAt": "2026-03-21T10:00:00.000Z",
     "updatedAt": "2026-03-21T10:00:00.000Z",
@@ -592,11 +592,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_050",
+    "id": "a0000000-0000-4000-8000-000000000050",
     "orderDate": "2026-03-21",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 18.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 18,
     "notes": "God father",
     "createdAt": "2026-03-21T10:00:00.000Z",
     "updatedAt": "2026-03-21T10:00:00.000Z",
@@ -604,11 +604,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_051",
+    "id": "a0000000-0000-4000-8000-000000000051",
     "orderDate": "2026-03-24",
-    "quantity": 30.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 30,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-03-24T10:00:00.000Z",
     "updatedAt": "2026-03-24T10:00:00.000Z",
@@ -616,10 +616,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_052",
+    "id": "a0000000-0000-4000-8000-000000000052",
     "orderDate": "2026-03-26",
-    "quantity": 50.0,
-    "buyingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 19,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-03-26T10:00:00.000Z",
@@ -628,11 +628,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_053",
+    "id": "a0000000-0000-4000-8000-000000000053",
     "orderDate": "2026-03-27",
-    "quantity": 100.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 12,
+    "sellingPrice": 15,
     "notes": "Machua",
     "createdAt": "2026-03-27T10:00:00.000Z",
     "updatedAt": "2026-03-27T10:00:00.000Z",
@@ -640,11 +640,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_054",
+    "id": "a0000000-0000-4000-8000-000000000054",
     "orderDate": "2026-03-31",
-    "quantity": 15.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 15,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-03-31T10:00:00.000Z",
     "updatedAt": "2026-03-31T10:00:00.000Z",
@@ -652,11 +652,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_055",
+    "id": "a0000000-0000-4000-8000-000000000055",
     "orderDate": "2026-03-31",
-    "quantity": 300.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 300,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Veg dhaba",
     "createdAt": "2026-03-31T10:00:00.000Z",
     "updatedAt": "2026-03-31T10:00:00.000Z",
@@ -664,11 +664,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_056",
+    "id": "a0000000-0000-4000-8000-000000000056",
     "orderDate": "2026-04-03",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-04-03T10:00:00.000Z",
     "updatedAt": "2026-04-03T10:00:00.000Z",
@@ -676,11 +676,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_057",
+    "id": "a0000000-0000-4000-8000-000000000057",
     "orderDate": "2026-04-09",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-04-09T10:00:00.000Z",
     "updatedAt": "2026-04-09T10:00:00.000Z",
@@ -688,10 +688,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_058",
+    "id": "a0000000-0000-4000-8000-000000000058",
     "orderDate": "2026-04-10",
-    "quantity": 100.0,
-    "buyingPrice": 15.0,
+    "quantity": 100,
+    "buyingPrice": 15,
     "sellingPrice": 17.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-04-10T10:00:00.000Z",
@@ -700,11 +700,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_059",
+    "id": "a0000000-0000-4000-8000-000000000059",
     "orderDate": "2026-04-10",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "",
     "createdAt": "2026-04-10T10:00:00.000Z",
     "updatedAt": "2026-04-10T10:00:00.000Z",
@@ -712,11 +712,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_060",
+    "id": "a0000000-0000-4000-8000-000000000060",
     "orderDate": "2026-04-10",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
-    "sellingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 16,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-04-10T10:00:00.000Z",
     "updatedAt": "2026-04-10T10:00:00.000Z",
@@ -724,11 +724,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_061",
+    "id": "a0000000-0000-4000-8000-000000000061",
     "orderDate": "2026-04-10",
-    "quantity": 56.0,
-    "buyingPrice": 16.0,
-    "sellingPrice": 19.0,
+    "quantity": 56,
+    "buyingPrice": 16,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-04-10T10:00:00.000Z",
     "updatedAt": "2026-04-10T10:00:00.000Z",
@@ -736,11 +736,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_062",
+    "id": "a0000000-0000-4000-8000-000000000062",
     "orderDate": "2026-04-12",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 25,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Honey dhaba",
     "createdAt": "2026-04-12T10:00:00.000Z",
     "updatedAt": "2026-04-12T10:00:00.000Z",
@@ -748,10 +748,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_063",
+    "id": "a0000000-0000-4000-8000-000000000063",
     "orderDate": "2026-04-13",
-    "quantity": 25.0,
-    "buyingPrice": 12.0,
+    "quantity": 25,
+    "buyingPrice": 12,
     "sellingPrice": 14.5,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-04-13T10:00:00.000Z",
@@ -760,11 +760,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_064",
+    "id": "a0000000-0000-4000-8000-000000000064",
     "orderDate": "2026-04-15",
-    "quantity": 94.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 94,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-04-15T10:00:00.000Z",
     "updatedAt": "2026-04-15T10:00:00.000Z",
@@ -772,11 +772,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_065",
+    "id": "a0000000-0000-4000-8000-000000000065",
     "orderDate": "2026-04-15",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 19,
     "notes": "Hotel saad",
     "createdAt": "2026-04-15T10:00:00.000Z",
     "updatedAt": "2026-04-15T10:00:00.000Z",
@@ -784,11 +784,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_066",
+    "id": "a0000000-0000-4000-8000-000000000066",
     "orderDate": "2026-04-16",
-    "quantity": 100.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 100,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Nasta kakurgachi",
     "createdAt": "2026-04-16T10:00:00.000Z",
     "updatedAt": "2026-04-16T10:00:00.000Z",
@@ -796,11 +796,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_067",
+    "id": "a0000000-0000-4000-8000-000000000067",
     "orderDate": "2026-04-20",
-    "quantity": 25.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 25,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-04-20T10:00:00.000Z",
     "updatedAt": "2026-04-20T10:00:00.000Z",
@@ -808,11 +808,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_068",
+    "id": "a0000000-0000-4000-8000-000000000068",
     "orderDate": "2026-04-22",
-    "quantity": 60.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-04-22T10:00:00.000Z",
     "updatedAt": "2026-04-22T10:00:00.000Z",
@@ -820,11 +820,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_069",
+    "id": "a0000000-0000-4000-8000-000000000069",
     "orderDate": "2026-04-24",
-    "quantity": 80.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 18.0,
+    "quantity": 80,
+    "buyingPrice": 18,
+    "sellingPrice": 18,
     "notes": "Karla",
     "createdAt": "2026-04-24T10:00:00.000Z",
     "updatedAt": "2026-04-24T10:00:00.000Z",
@@ -832,11 +832,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_070",
+    "id": "a0000000-0000-4000-8000-000000000070",
     "orderDate": "2026-04-25",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 18.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 18,
     "notes": "",
     "createdAt": "2026-04-25T10:00:00.000Z",
     "updatedAt": "2026-04-25T10:00:00.000Z",
@@ -844,10 +844,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_071",
+    "id": "a0000000-0000-4000-8000-000000000071",
     "orderDate": "2026-04-26",
-    "quantity": 100.0,
-    "buyingPrice": 13.0,
+    "quantity": 100,
+    "buyingPrice": 13,
     "sellingPrice": 16.5,
     "notes": "Jamuna banquet",
     "createdAt": "2026-04-26T10:00:00.000Z",
@@ -856,11 +856,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_072",
+    "id": "a0000000-0000-4000-8000-000000000072",
     "orderDate": "2026-04-30",
-    "quantity": 500.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 500,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Veg dhaba",
     "createdAt": "2026-04-30T10:00:00.000Z",
     "updatedAt": "2026-04-30T10:00:00.000Z",
@@ -868,10 +868,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_073",
+    "id": "a0000000-0000-4000-8000-000000000073",
     "orderDate": "2026-04-30",
-    "quantity": 120.0,
-    "buyingPrice": 16.0,
+    "quantity": 120,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-04-30T10:00:00.000Z",
@@ -880,11 +880,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_074",
+    "id": "a0000000-0000-4000-8000-000000000074",
     "orderDate": "2026-05-01",
-    "quantity": 40.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 40,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-05-01T10:00:00.000Z",
     "updatedAt": "2026-05-01T10:00:00.000Z",
@@ -892,11 +892,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_075",
+    "id": "a0000000-0000-4000-8000-000000000075",
     "orderDate": "2026-05-02",
-    "quantity": 100.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 100,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-05-02T10:00:00.000Z",
     "updatedAt": "2026-05-02T10:00:00.000Z",
@@ -904,11 +904,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_076",
+    "id": "a0000000-0000-4000-8000-000000000076",
     "orderDate": "2026-05-03",
-    "quantity": 25.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 25,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-05-03T10:00:00.000Z",
     "updatedAt": "2026-05-03T10:00:00.000Z",
@@ -916,10 +916,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_077",
+    "id": "a0000000-0000-4000-8000-000000000077",
     "orderDate": "2026-05-04",
-    "quantity": 30.0,
-    "buyingPrice": 12.0,
+    "quantity": 30,
+    "buyingPrice": 12,
     "sellingPrice": 14.5,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-05-04T10:00:00.000Z",
@@ -928,11 +928,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_078",
+    "id": "a0000000-0000-4000-8000-000000000078",
     "orderDate": "2026-05-08",
-    "quantity": 100.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 17.0,
+    "quantity": 100,
+    "buyingPrice": 15,
+    "sellingPrice": 17,
     "notes": "Aanand",
     "createdAt": "2026-05-08T10:00:00.000Z",
     "updatedAt": "2026-05-08T10:00:00.000Z",
@@ -940,10 +940,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_079",
+    "id": "a0000000-0000-4000-8000-000000000079",
     "orderDate": "2026-05-09",
-    "quantity": 60.0,
-    "buyingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-05-09T10:00:00.000Z",
@@ -952,11 +952,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_080",
+    "id": "a0000000-0000-4000-8000-000000000080",
     "orderDate": "2026-05-09",
-    "quantity": 50.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 50,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-05-09T10:00:00.000Z",
     "updatedAt": "2026-05-09T10:00:00.000Z",
@@ -964,11 +964,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_081",
+    "id": "a0000000-0000-4000-8000-000000000081",
     "orderDate": "2026-05-10",
-    "quantity": 100.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 100,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-05-10T10:00:00.000Z",
     "updatedAt": "2026-05-10T10:00:00.000Z",
@@ -976,11 +976,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_082",
+    "id": "a0000000-0000-4000-8000-000000000082",
     "orderDate": "2026-05-12",
-    "quantity": 10.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 10,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Bhai bhai",
     "createdAt": "2026-05-12T10:00:00.000Z",
     "updatedAt": "2026-05-12T10:00:00.000Z",
@@ -988,11 +988,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_083",
+    "id": "a0000000-0000-4000-8000-000000000083",
     "orderDate": "2026-05-13",
-    "quantity": 25.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 25,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-05-13T10:00:00.000Z",
     "updatedAt": "2026-05-13T10:00:00.000Z",
@@ -1000,11 +1000,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_084",
+    "id": "a0000000-0000-4000-8000-000000000084",
     "orderDate": "2026-05-15",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Karla",
     "createdAt": "2026-05-15T10:00:00.000Z",
     "updatedAt": "2026-05-15T10:00:00.000Z",
@@ -1012,11 +1012,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_085",
+    "id": "a0000000-0000-4000-8000-000000000085",
     "orderDate": "2026-05-17",
-    "quantity": 15.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 15,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-05-17T10:00:00.000Z",
     "updatedAt": "2026-05-17T10:00:00.000Z",
@@ -1024,11 +1024,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_086",
+    "id": "a0000000-0000-4000-8000-000000000086",
     "orderDate": "2026-05-20",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-05-20T10:00:00.000Z",
     "updatedAt": "2026-05-20T10:00:00.000Z",
@@ -1036,11 +1036,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_087",
+    "id": "a0000000-0000-4000-8000-000000000087",
     "orderDate": "2026-05-21",
-    "quantity": 25.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 25,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-05-21T10:00:00.000Z",
     "updatedAt": "2026-05-21T10:00:00.000Z",
@@ -1048,11 +1048,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_088",
+    "id": "a0000000-0000-4000-8000-000000000088",
     "orderDate": "2026-05-21",
-    "quantity": 75.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 75,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-05-21T10:00:00.000Z",
     "updatedAt": "2026-05-21T10:00:00.000Z",
@@ -1060,10 +1060,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_089",
+    "id": "a0000000-0000-4000-8000-000000000089",
     "orderDate": "2026-05-22",
-    "quantity": 60.0,
-    "buyingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-05-22T10:00:00.000Z",
@@ -1072,10 +1072,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_090",
+    "id": "a0000000-0000-4000-8000-000000000090",
     "orderDate": "2026-05-22",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 18.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-05-22T10:00:00.000Z",
@@ -1084,11 +1084,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_091",
+    "id": "a0000000-0000-4000-8000-000000000091",
     "orderDate": "2026-05-23",
-    "quantity": 20.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 20,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Pepper",
     "createdAt": "2026-05-23T10:00:00.000Z",
     "updatedAt": "2026-05-23T10:00:00.000Z",
@@ -1096,11 +1096,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_092",
+    "id": "a0000000-0000-4000-8000-000000000092",
     "orderDate": "2026-05-23",
-    "quantity": 200.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 17.0,
+    "quantity": 200,
+    "buyingPrice": 15,
+    "sellingPrice": 17,
     "notes": "Aanand",
     "createdAt": "2026-05-23T10:00:00.000Z",
     "updatedAt": "2026-05-23T10:00:00.000Z",
@@ -1108,10 +1108,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_093",
+    "id": "a0000000-0000-4000-8000-000000000093",
     "orderDate": "2026-05-25",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
+    "quantity": 60,
+    "buyingPrice": 13,
     "sellingPrice": 14.5,
     "notes": "Gupta veg kestopur",
     "createdAt": "2026-05-25T10:00:00.000Z",
@@ -1120,11 +1120,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_094",
+    "id": "a0000000-0000-4000-8000-000000000094",
     "orderDate": "2026-05-26",
-    "quantity": 50.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 50,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-05-26T10:00:00.000Z",
     "updatedAt": "2026-05-26T10:00:00.000Z",
@@ -1132,11 +1132,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_095",
+    "id": "a0000000-0000-4000-8000-000000000095",
     "orderDate": "2026-05-29",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 18.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 18,
     "notes": "",
     "createdAt": "2026-05-29T10:00:00.000Z",
     "updatedAt": "2026-05-29T10:00:00.000Z",
@@ -1144,11 +1144,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_096",
+    "id": "a0000000-0000-4000-8000-000000000096",
     "orderDate": "2026-05-29",
-    "quantity": 75.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 75,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-05-29T10:00:00.000Z",
     "updatedAt": "2026-05-29T10:00:00.000Z",
@@ -1156,10 +1156,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_097",
+    "id": "a0000000-0000-4000-8000-000000000097",
     "orderDate": "2026-05-31",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
+    "quantity": 30,
+    "buyingPrice": 13,
     "sellingPrice": 14.5,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-05-31T10:00:00.000Z",
@@ -1168,11 +1168,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_098",
+    "id": "a0000000-0000-4000-8000-000000000098",
     "orderDate": "2026-06-01",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-06-01T10:00:00.000Z",
     "updatedAt": "2026-06-01T10:00:00.000Z",
@@ -1180,10 +1180,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_099",
+    "id": "a0000000-0000-4000-8000-000000000099",
     "orderDate": "2026-06-01",
-    "quantity": 34.0,
-    "buyingPrice": 12.0,
+    "quantity": 34,
+    "buyingPrice": 12,
     "sellingPrice": 15.5,
     "notes": "Honey dhaba",
     "createdAt": "2026-06-01T10:00:00.000Z",
@@ -1192,11 +1192,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_100",
+    "id": "a0000000-0000-4000-8000-000000000100",
     "orderDate": "2026-06-02",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 19,
     "notes": "Hotel saad",
     "createdAt": "2026-06-02T10:00:00.000Z",
     "updatedAt": "2026-06-02T10:00:00.000Z",
@@ -1204,10 +1204,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_101",
+    "id": "a0000000-0000-4000-8000-000000000101",
     "orderDate": "2026-06-03",
-    "quantity": 100.0,
-    "buyingPrice": 16.0,
+    "quantity": 100,
+    "buyingPrice": 16,
     "sellingPrice": 18.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-06-03T10:00:00.000Z",
@@ -1216,10 +1216,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_102",
+    "id": "a0000000-0000-4000-8000-000000000102",
     "orderDate": "2026-06-05",
-    "quantity": 60.0,
-    "buyingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-06-05T10:00:00.000Z",
@@ -1228,11 +1228,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_103",
+    "id": "a0000000-0000-4000-8000-000000000103",
     "orderDate": "2026-06-06",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 70,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-06-06T10:00:00.000Z",
     "updatedAt": "2026-06-06T10:00:00.000Z",
@@ -1240,10 +1240,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_104",
+    "id": "a0000000-0000-4000-8000-000000000104",
     "orderDate": "2026-06-06",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
+    "quantity": 50,
+    "buyingPrice": 13,
     "sellingPrice": 16.5,
     "notes": "Chef maxilogist",
     "createdAt": "2026-06-06T10:00:00.000Z",
@@ -1252,10 +1252,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_105",
+    "id": "a0000000-0000-4000-8000-000000000105",
     "orderDate": "2026-06-07",
-    "quantity": 100.0,
-    "buyingPrice": 13.0,
+    "quantity": 100,
+    "buyingPrice": 13,
     "sellingPrice": 16.5,
     "notes": "Jamuna banquet",
     "createdAt": "2026-06-07T10:00:00.000Z",
@@ -1264,11 +1264,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_106",
+    "id": "a0000000-0000-4000-8000-000000000106",
     "orderDate": "2026-06-08",
-    "quantity": 13.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 13,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Pepper",
     "createdAt": "2026-06-08T10:00:00.000Z",
     "updatedAt": "2026-06-08T10:00:00.000Z",
@@ -1276,11 +1276,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_107",
+    "id": "a0000000-0000-4000-8000-000000000107",
     "orderDate": "2026-06-09",
-    "quantity": 252.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 252,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Shiraj restaurant",
     "createdAt": "2026-06-09T10:00:00.000Z",
     "updatedAt": "2026-06-09T10:00:00.000Z",
@@ -1288,11 +1288,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_108",
+    "id": "a0000000-0000-4000-8000-000000000108",
     "orderDate": "2026-06-11",
-    "quantity": 75.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 75,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-06-11T10:00:00.000Z",
     "updatedAt": "2026-06-11T10:00:00.000Z",
@@ -1300,11 +1300,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_109",
+    "id": "a0000000-0000-4000-8000-000000000109",
     "orderDate": "2026-06-12",
-    "quantity": 15.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 15,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-06-12T10:00:00.000Z",
     "updatedAt": "2026-06-12T10:00:00.000Z",
@@ -1312,11 +1312,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_110",
+    "id": "a0000000-0000-4000-8000-000000000110",
     "orderDate": "2026-06-16",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-06-16T10:00:00.000Z",
     "updatedAt": "2026-06-16T10:00:00.000Z",
@@ -1324,11 +1324,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_111",
+    "id": "a0000000-0000-4000-8000-000000000111",
     "orderDate": "2026-06-16",
-    "quantity": 50.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 50,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-06-16T10:00:00.000Z",
     "updatedAt": "2026-06-16T10:00:00.000Z",
@@ -1336,11 +1336,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_112",
+    "id": "a0000000-0000-4000-8000-000000000112",
     "orderDate": "2026-06-16",
-    "quantity": 10.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 15.0,
+    "quantity": 10,
+    "buyingPrice": 13,
+    "sellingPrice": 15,
     "notes": "Bhai bhai",
     "createdAt": "2026-06-16T10:00:00.000Z",
     "updatedAt": "2026-06-16T10:00:00.000Z",
@@ -1348,11 +1348,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_113",
+    "id": "a0000000-0000-4000-8000-000000000113",
     "orderDate": "2026-06-19",
-    "quantity": 29.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 29,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-06-19T10:00:00.000Z",
     "updatedAt": "2026-06-19T10:00:00.000Z",
@@ -1360,10 +1360,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_114",
+    "id": "a0000000-0000-4000-8000-000000000114",
     "orderDate": "2026-06-20",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-06-20T10:00:00.000Z",
@@ -1372,11 +1372,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_115",
+    "id": "a0000000-0000-4000-8000-000000000115",
     "orderDate": "2026-06-20",
-    "quantity": 25.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 25,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Plush 28",
     "createdAt": "2026-06-20T10:00:00.000Z",
     "updatedAt": "2026-06-20T10:00:00.000Z",
@@ -1384,11 +1384,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_116",
+    "id": "a0000000-0000-4000-8000-000000000116",
     "orderDate": "2026-06-20",
-    "quantity": 50.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-06-20T10:00:00.000Z",
     "updatedAt": "2026-06-20T10:00:00.000Z",
@@ -1396,10 +1396,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_117",
+    "id": "a0000000-0000-4000-8000-000000000117",
     "orderDate": "2026-06-22",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-06-22T10:00:00.000Z",
@@ -1408,11 +1408,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_118",
+    "id": "a0000000-0000-4000-8000-000000000118",
     "orderDate": "2026-06-23",
-    "quantity": 57.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 57,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-06-23T10:00:00.000Z",
     "updatedAt": "2026-06-23T10:00:00.000Z",
@@ -1420,11 +1420,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_119",
+    "id": "a0000000-0000-4000-8000-000000000119",
     "orderDate": "2026-06-24",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 18.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 18,
     "notes": "",
     "createdAt": "2026-06-24T10:00:00.000Z",
     "updatedAt": "2026-06-24T10:00:00.000Z",
@@ -1432,11 +1432,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_120",
+    "id": "a0000000-0000-4000-8000-000000000120",
     "orderDate": "2026-06-26",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 30,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-06-26T10:00:00.000Z",
     "updatedAt": "2026-06-26T10:00:00.000Z",
@@ -1444,11 +1444,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_121",
+    "id": "a0000000-0000-4000-8000-000000000121",
     "orderDate": "2026-06-26",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-06-26T10:00:00.000Z",
     "updatedAt": "2026-06-26T10:00:00.000Z",
@@ -1456,11 +1456,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_122",
+    "id": "a0000000-0000-4000-8000-000000000122",
     "orderDate": "2026-06-28",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 15.0,
+    "quantity": 30,
+    "buyingPrice": 13,
+    "sellingPrice": 15,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-06-28T10:00:00.000Z",
     "updatedAt": "2026-06-28T10:00:00.000Z",
@@ -1468,11 +1468,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_123",
+    "id": "a0000000-0000-4000-8000-000000000123",
     "orderDate": "2026-06-30",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 70,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-06-30T10:00:00.000Z",
     "updatedAt": "2026-06-30T10:00:00.000Z",
@@ -1480,11 +1480,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_124",
+    "id": "a0000000-0000-4000-8000-000000000124",
     "orderDate": "2026-07-02",
-    "quantity": 50.0,
-    "buyingPrice": 47.0,
-    "sellingPrice": 55.0,
+    "quantity": 50,
+    "buyingPrice": 47,
+    "sellingPrice": 55,
     "notes": "Sufi Palace spoon",
     "createdAt": "2026-07-02T10:00:00.000Z",
     "updatedAt": "2026-07-02T10:00:00.000Z",
@@ -1492,10 +1492,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_125",
+    "id": "a0000000-0000-4000-8000-000000000125",
     "orderDate": "2026-07-02",
-    "quantity": 60.0,
-    "buyingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-07-02T10:00:00.000Z",
@@ -1504,10 +1504,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_126",
+    "id": "a0000000-0000-4000-8000-000000000126",
     "orderDate": "2026-07-03",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 18.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-07-03T10:00:00.000Z",
@@ -1516,11 +1516,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_127",
+    "id": "a0000000-0000-4000-8000-000000000127",
     "orderDate": "2026-07-05",
-    "quantity": 30.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 30,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-07-05T10:00:00.000Z",
     "updatedAt": "2026-07-05T10:00:00.000Z",
@@ -1528,10 +1528,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_128",
+    "id": "a0000000-0000-4000-8000-000000000128",
     "orderDate": "2026-07-08",
-    "quantity": 100.0,
-    "buyingPrice": 16.0,
+    "quantity": 100,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-07-08T10:00:00.000Z",
@@ -1540,11 +1540,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_129",
+    "id": "a0000000-0000-4000-8000-000000000129",
     "orderDate": "2026-07-09",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 70,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-07-09T10:00:00.000Z",
     "updatedAt": "2026-07-09T10:00:00.000Z",
@@ -1552,11 +1552,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_130",
+    "id": "a0000000-0000-4000-8000-000000000130",
     "orderDate": "2026-07-10",
-    "quantity": 50.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 50,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-07-10T10:00:00.000Z",
     "updatedAt": "2026-07-10T10:00:00.000Z",
@@ -1564,10 +1564,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_131",
+    "id": "a0000000-0000-4000-8000-000000000131",
     "orderDate": "2026-07-11",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-07-11T10:00:00.000Z",
@@ -1576,11 +1576,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_132",
+    "id": "a0000000-0000-4000-8000-000000000132",
     "orderDate": "2026-07-11",
-    "quantity": 60.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 14.0,
+    "quantity": 60,
+    "buyingPrice": 12,
+    "sellingPrice": 14,
     "notes": "Gupta veg kestopur",
     "createdAt": "2026-07-11T10:00:00.000Z",
     "updatedAt": "2026-07-11T10:00:00.000Z",
@@ -1588,10 +1588,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_133",
+    "id": "a0000000-0000-4000-8000-000000000133",
     "orderDate": "2026-07-12",
-    "quantity": 100.0,
-    "buyingPrice": 13.0,
+    "quantity": 100,
+    "buyingPrice": 13,
     "sellingPrice": 16.5,
     "notes": "Jamuna banquet",
     "createdAt": "2026-07-12T10:00:00.000Z",
@@ -1600,11 +1600,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_134",
+    "id": "a0000000-0000-4000-8000-000000000134",
     "orderDate": "2026-07-13",
-    "quantity": 10.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 15.0,
+    "quantity": 10,
+    "buyingPrice": 13,
+    "sellingPrice": 15,
     "notes": "Bhai bhai",
     "createdAt": "2026-07-13T10:00:00.000Z",
     "updatedAt": "2026-07-13T10:00:00.000Z",
@@ -1612,11 +1612,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_135",
+    "id": "a0000000-0000-4000-8000-000000000135",
     "orderDate": "2026-07-15",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 30,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-07-15T10:00:00.000Z",
     "updatedAt": "2026-07-15T10:00:00.000Z",
@@ -1624,11 +1624,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_136",
+    "id": "a0000000-0000-4000-8000-000000000136",
     "orderDate": "2026-07-15",
-    "quantity": 250.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 250,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Shiraj restaurant",
     "createdAt": "2026-07-15T10:00:00.000Z",
     "updatedAt": "2026-07-15T10:00:00.000Z",
@@ -1636,11 +1636,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_137",
+    "id": "a0000000-0000-4000-8000-000000000137",
     "orderDate": "2026-07-15",
-    "quantity": 100.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 100,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Nasta kakurgachi",
     "createdAt": "2026-07-15T10:00:00.000Z",
     "updatedAt": "2026-07-15T10:00:00.000Z",
@@ -1648,10 +1648,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_138",
+    "id": "a0000000-0000-4000-8000-000000000138",
     "orderDate": "2026-07-15",
-    "quantity": 150.0,
-    "buyingPrice": 19.0,
+    "quantity": 150,
+    "buyingPrice": 19,
     "sellingPrice": 22.5,
     "notes": "Bika",
     "createdAt": "2026-07-15T10:00:00.000Z",
@@ -1660,11 +1660,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_139",
+    "id": "a0000000-0000-4000-8000-000000000139",
     "orderDate": "2026-07-15",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 30,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Honey dhaba",
     "createdAt": "2026-07-15T10:00:00.000Z",
     "updatedAt": "2026-07-15T10:00:00.000Z",
@@ -1672,11 +1672,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_140",
+    "id": "a0000000-0000-4000-8000-000000000140",
     "orderDate": "2026-07-16",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 70,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-07-16T10:00:00.000Z",
     "updatedAt": "2026-07-16T10:00:00.000Z",
@@ -1684,10 +1684,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_141",
+    "id": "a0000000-0000-4000-8000-000000000141",
     "orderDate": "2026-07-17",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-07-17T10:00:00.000Z",
@@ -1696,10 +1696,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_142",
+    "id": "a0000000-0000-4000-8000-000000000142",
     "orderDate": "2026-07-18",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 18.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-07-18T10:00:00.000Z",
@@ -1708,11 +1708,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_143",
+    "id": "a0000000-0000-4000-8000-000000000143",
     "orderDate": "2026-07-19",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 30,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Plush 28",
     "createdAt": "2026-07-19T10:00:00.000Z",
     "updatedAt": "2026-07-19T10:00:00.000Z",
@@ -1720,11 +1720,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_144",
+    "id": "a0000000-0000-4000-8000-000000000144",
     "orderDate": "2026-07-20",
-    "quantity": 50.0,
-    "buyingPrice": 19.0,
-    "sellingPrice": 24.0,
+    "quantity": 50,
+    "buyingPrice": 19,
+    "sellingPrice": 24,
     "notes": "Gopala restaurant",
     "createdAt": "2026-07-20T10:00:00.000Z",
     "updatedAt": "2026-07-20T10:00:00.000Z",
@@ -1732,11 +1732,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_145",
+    "id": "a0000000-0000-4000-8000-000000000145",
     "orderDate": "2026-07-21",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-07-21T10:00:00.000Z",
     "updatedAt": "2026-07-21T10:00:00.000Z",
@@ -1744,11 +1744,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_146",
+    "id": "a0000000-0000-4000-8000-000000000146",
     "orderDate": "2026-07-22",
-    "quantity": 500.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 23.0,
+    "quantity": 500,
+    "buyingPrice": 18,
+    "sellingPrice": 23,
     "notes": "Sufi palace",
     "createdAt": "2026-07-22T10:00:00.000Z",
     "updatedAt": "2026-07-22T10:00:00.000Z",
@@ -1756,11 +1756,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_147",
+    "id": "a0000000-0000-4000-8000-000000000147",
     "orderDate": "2026-07-23",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 70,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-07-23T10:00:00.000Z",
     "updatedAt": "2026-07-23T10:00:00.000Z",
@@ -1768,11 +1768,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_148",
+    "id": "a0000000-0000-4000-8000-000000000148",
     "orderDate": "2026-07-26",
-    "quantity": 50.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 50,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-07-26T10:00:00.000Z",
     "updatedAt": "2026-07-26T10:00:00.000Z",
@@ -1780,11 +1780,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_149",
+    "id": "a0000000-0000-4000-8000-000000000149",
     "orderDate": "2026-07-27",
-    "quantity": 50.0,
-    "buyingPrice": 48.0,
-    "sellingPrice": 55.0,
+    "quantity": 50,
+    "buyingPrice": 48,
+    "sellingPrice": 55,
     "notes": "Sufi Palace spoon",
     "createdAt": "2026-07-27T10:00:00.000Z",
     "updatedAt": "2026-07-27T10:00:00.000Z",
@@ -1792,10 +1792,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_150",
+    "id": "a0000000-0000-4000-8000-000000000150",
     "orderDate": "2026-07-27",
-    "quantity": 500.0,
-    "buyingPrice": 18.0,
+    "quantity": 500,
+    "buyingPrice": 18,
     "sellingPrice": 23.5,
     "notes": "Urban masala",
     "createdAt": "2026-07-27T10:00:00.000Z",
@@ -1804,11 +1804,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_151",
+    "id": "a0000000-0000-4000-8000-000000000151",
     "orderDate": "2026-07-28",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 70,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-07-28T10:00:00.000Z",
     "updatedAt": "2026-07-28T10:00:00.000Z",
@@ -1816,10 +1816,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_152",
+    "id": "a0000000-0000-4000-8000-000000000152",
     "orderDate": "2026-07-29",
-    "quantity": 250.0,
-    "buyingPrice": 16.0,
+    "quantity": 250,
+    "buyingPrice": 16,
     "sellingPrice": 19.5,
     "notes": "Sanjeev drolia",
     "createdAt": "2026-07-29T10:00:00.000Z",
@@ -1828,11 +1828,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_153",
+    "id": "a0000000-0000-4000-8000-000000000153",
     "orderDate": "2026-07-29",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 18.0,
+    "quantity": 60,
+    "buyingPrice": 13,
+    "sellingPrice": 18,
     "notes": "",
     "createdAt": "2026-07-29T10:00:00.000Z",
     "updatedAt": "2026-07-29T10:00:00.000Z",
@@ -1840,11 +1840,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_154",
+    "id": "a0000000-0000-4000-8000-000000000154",
     "orderDate": "2026-08-01",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-08-01T10:00:00.000Z",
     "updatedAt": "2026-08-01T10:00:00.000Z",
@@ -1852,10 +1852,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_155",
+    "id": "a0000000-0000-4000-8000-000000000155",
     "orderDate": "2026-08-03",
-    "quantity": 100.0,
-    "buyingPrice": 16.0,
+    "quantity": 100,
+    "buyingPrice": 16,
     "sellingPrice": 18.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-08-03T10:00:00.000Z",
@@ -1864,11 +1864,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_156",
+    "id": "a0000000-0000-4000-8000-000000000156",
     "orderDate": "2026-08-03",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 15.0,
+    "quantity": 30,
+    "buyingPrice": 13,
+    "sellingPrice": 15,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-08-03T10:00:00.000Z",
     "updatedAt": "2026-08-03T10:00:00.000Z",
@@ -1876,11 +1876,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_157",
+    "id": "a0000000-0000-4000-8000-000000000157",
     "orderDate": "2026-08-04",
-    "quantity": 75.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 75,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-08-04T10:00:00.000Z",
     "updatedAt": "2026-08-04T10:00:00.000Z",
@@ -1888,10 +1888,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_158",
+    "id": "a0000000-0000-4000-8000-000000000158",
     "orderDate": "2026-08-04",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
+    "quantity": 30,
+    "buyingPrice": 13,
     "sellingPrice": 16.5,
     "notes": "Chef maxilogist",
     "createdAt": "2026-08-04T10:00:00.000Z",
@@ -1900,11 +1900,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_159",
+    "id": "a0000000-0000-4000-8000-000000000159",
     "orderDate": "2026-08-06",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 19,
     "notes": "Hotel saad",
     "createdAt": "2026-08-06T10:00:00.000Z",
     "updatedAt": "2026-08-06T10:00:00.000Z",
@@ -1912,11 +1912,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_160",
+    "id": "a0000000-0000-4000-8000-000000000160",
     "orderDate": "2026-08-08",
-    "quantity": 99.0,
-    "buyingPrice": 25.0,
-    "sellingPrice": 37.0,
+    "quantity": 99,
+    "buyingPrice": 25,
+    "sellingPrice": 37,
     "notes": "Chef maxilogist napkin",
     "createdAt": "2026-08-08T10:00:00.000Z",
     "updatedAt": "2026-08-08T10:00:00.000Z",
@@ -1924,11 +1924,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_161",
+    "id": "a0000000-0000-4000-8000-000000000161",
     "orderDate": "2026-08-11",
-    "quantity": 99.0,
-    "buyingPrice": 25.0,
-    "sellingPrice": 37.0,
+    "quantity": 99,
+    "buyingPrice": 25,
+    "sellingPrice": 37,
     "notes": "Chef maxilogist napkin",
     "createdAt": "2026-08-11T10:00:00.000Z",
     "updatedAt": "2026-08-11T10:00:00.000Z",
@@ -1936,11 +1936,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_162",
+    "id": "a0000000-0000-4000-8000-000000000162",
     "orderDate": "2026-08-12",
-    "quantity": 75.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 75,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-08-12T10:00:00.000Z",
     "updatedAt": "2026-08-12T10:00:00.000Z",
@@ -1948,10 +1948,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_163",
+    "id": "a0000000-0000-4000-8000-000000000163",
     "orderDate": "2026-08-12",
-    "quantity": 100.0,
-    "buyingPrice": 13.0,
+    "quantity": 100,
+    "buyingPrice": 13,
     "sellingPrice": 16.5,
     "notes": "Jamuna banquet",
     "createdAt": "2026-08-12T10:00:00.000Z",
@@ -1960,11 +1960,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_164",
+    "id": "a0000000-0000-4000-8000-000000000164",
     "orderDate": "2026-08-13",
-    "quantity": 100.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 23.0,
+    "quantity": 100,
+    "buyingPrice": 18,
+    "sellingPrice": 23,
     "notes": "Aami bengali",
     "createdAt": "2026-08-13T10:00:00.000Z",
     "updatedAt": "2026-08-13T10:00:00.000Z",
@@ -1972,11 +1972,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_165",
+    "id": "a0000000-0000-4000-8000-000000000165",
     "orderDate": "2026-08-13",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 18.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 18,
     "notes": "Sandwich bastalla",
     "createdAt": "2026-08-13T10:00:00.000Z",
     "updatedAt": "2026-08-13T10:00:00.000Z",
@@ -1984,10 +1984,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_166",
+    "id": "a0000000-0000-4000-8000-000000000166",
     "orderDate": "2026-08-14",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
+    "quantity": 50,
+    "buyingPrice": 13,
     "sellingPrice": 16.5,
     "notes": "Chef maxilogist",
     "createdAt": "2026-08-14T10:00:00.000Z",
@@ -1996,10 +1996,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_167",
+    "id": "a0000000-0000-4000-8000-000000000167",
     "orderDate": "2026-08-14",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-08-14T10:00:00.000Z",
@@ -2008,11 +2008,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_168",
+    "id": "a0000000-0000-4000-8000-000000000168",
     "orderDate": "2026-08-15",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-08-15T10:00:00.000Z",
     "updatedAt": "2026-08-15T10:00:00.000Z",
@@ -2020,11 +2020,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_169",
+    "id": "a0000000-0000-4000-8000-000000000169",
     "orderDate": "2026-08-17",
-    "quantity": 50.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 50,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-08-17T10:00:00.000Z",
     "updatedAt": "2026-08-17T10:00:00.000Z",
@@ -2032,11 +2032,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_170",
+    "id": "a0000000-0000-4000-8000-000000000170",
     "orderDate": "2026-08-19",
-    "quantity": 13.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 13,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Pepper",
     "createdAt": "2026-08-19T10:00:00.000Z",
     "updatedAt": "2026-08-19T10:00:00.000Z",
@@ -2044,11 +2044,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_171",
+    "id": "a0000000-0000-4000-8000-000000000171",
     "orderDate": "2026-08-19",
-    "quantity": 75.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 75,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-08-19T10:00:00.000Z",
     "updatedAt": "2026-08-19T10:00:00.000Z",
@@ -2056,10 +2056,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_172",
+    "id": "a0000000-0000-4000-8000-000000000172",
     "orderDate": "2026-08-20",
-    "quantity": 50.0,
-    "buyingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-08-20T10:00:00.000Z",
@@ -2068,11 +2068,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_173",
+    "id": "a0000000-0000-4000-8000-000000000173",
     "orderDate": "2026-08-23",
-    "quantity": 47.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 47,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Machua",
     "createdAt": "2026-08-23T10:00:00.000Z",
     "updatedAt": "2026-08-23T10:00:00.000Z",
@@ -2080,11 +2080,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_174",
+    "id": "a0000000-0000-4000-8000-000000000174",
     "orderDate": "2026-08-25",
-    "quantity": 10.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 15.0,
+    "quantity": 10,
+    "buyingPrice": 13,
+    "sellingPrice": 15,
     "notes": "Bhai bhai",
     "createdAt": "2026-08-25T10:00:00.000Z",
     "updatedAt": "2026-08-25T10:00:00.000Z",
@@ -2092,11 +2092,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_175",
+    "id": "a0000000-0000-4000-8000-000000000175",
     "orderDate": "2026-08-26",
-    "quantity": 75.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 75,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-08-26T10:00:00.000Z",
     "updatedAt": "2026-08-26T10:00:00.000Z",
@@ -2104,11 +2104,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_176",
+    "id": "a0000000-0000-4000-8000-000000000176",
     "orderDate": "2026-08-26",
-    "quantity": 50.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 24.0,
+    "quantity": 50,
+    "buyingPrice": 15,
+    "sellingPrice": 24,
     "notes": "Chef maxilogist tissue roll",
     "createdAt": "2026-08-26T10:00:00.000Z",
     "updatedAt": "2026-08-26T10:00:00.000Z",
@@ -2116,11 +2116,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_177",
+    "id": "a0000000-0000-4000-8000-000000000177",
     "orderDate": "2026-08-26",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-08-26T10:00:00.000Z",
     "updatedAt": "2026-08-26T10:00:00.000Z",
@@ -2128,11 +2128,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_178",
+    "id": "a0000000-0000-4000-8000-000000000178",
     "orderDate": "2026-08-27",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-08-27T10:00:00.000Z",
     "updatedAt": "2026-08-27T10:00:00.000Z",
@@ -2140,11 +2140,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_179",
+    "id": "a0000000-0000-4000-8000-000000000179",
     "orderDate": "2026-08-27",
-    "quantity": 50.0,
-    "buyingPrice": 20.0,
-    "sellingPrice": 25.0,
+    "quantity": 50,
+    "buyingPrice": 20,
+    "sellingPrice": 25,
     "notes": "Zuca( toilet tissue)",
     "createdAt": "2026-08-27T10:00:00.000Z",
     "updatedAt": "2026-08-27T10:00:00.000Z",
@@ -2152,10 +2152,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_180",
+    "id": "a0000000-0000-4000-8000-000000000180",
     "orderDate": "2026-08-28",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
+    "quantity": 50,
+    "buyingPrice": 13,
     "sellingPrice": 16.5,
     "notes": "Chef maxilogist",
     "createdAt": "2026-08-28T10:00:00.000Z",
@@ -2164,10 +2164,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_181",
+    "id": "a0000000-0000-4000-8000-000000000181",
     "orderDate": "2026-08-31",
-    "quantity": 20.0,
-    "buyingPrice": 16.0,
+    "quantity": 20,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-08-31T10:00:00.000Z",
@@ -2176,11 +2176,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_182",
+    "id": "a0000000-0000-4000-8000-000000000182",
     "orderDate": "2026-08-31",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 18.0,
+    "quantity": 60,
+    "buyingPrice": 13,
+    "sellingPrice": 18,
     "notes": "Sandwich bastalla",
     "createdAt": "2026-08-31T10:00:00.000Z",
     "updatedAt": "2026-08-31T10:00:00.000Z",
@@ -2188,11 +2188,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_183",
+    "id": "a0000000-0000-4000-8000-000000000183",
     "orderDate": "2026-09-03",
-    "quantity": 140.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 140,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Sanjeev drolia bangur",
     "createdAt": "2026-09-03T10:00:00.000Z",
     "updatedAt": "2026-09-03T10:00:00.000Z",
@@ -2200,11 +2200,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_184",
+    "id": "a0000000-0000-4000-8000-000000000184",
     "orderDate": "2026-09-04",
-    "quantity": 20.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 20,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-09-04T10:00:00.000Z",
     "updatedAt": "2026-09-04T10:00:00.000Z",
@@ -2212,10 +2212,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_185",
+    "id": "a0000000-0000-4000-8000-000000000185",
     "orderDate": "2026-09-06",
-    "quantity": 100.0,
-    "buyingPrice": 16.0,
+    "quantity": 100,
+    "buyingPrice": 16,
     "sellingPrice": 18.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-09-06T10:00:00.000Z",
@@ -2224,11 +2224,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_186",
+    "id": "a0000000-0000-4000-8000-000000000186",
     "orderDate": "2026-09-06",
-    "quantity": 30.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 30,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-09-06T10:00:00.000Z",
     "updatedAt": "2026-09-06T10:00:00.000Z",
@@ -2236,11 +2236,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_187",
+    "id": "a0000000-0000-4000-8000-000000000187",
     "orderDate": "2026-09-08",
-    "quantity": 50.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-09-08T10:00:00.000Z",
     "updatedAt": "2026-09-08T10:00:00.000Z",
@@ -2248,11 +2248,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_188",
+    "id": "a0000000-0000-4000-8000-000000000188",
     "orderDate": "2026-09-08",
-    "quantity": 10.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 10,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Karla",
     "createdAt": "2026-09-08T10:00:00.000Z",
     "updatedAt": "2026-09-08T10:00:00.000Z",
@@ -2260,11 +2260,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_189",
+    "id": "a0000000-0000-4000-8000-000000000189",
     "orderDate": "2026-09-09",
-    "quantity": 200.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 16.0,
+    "quantity": 200,
+    "buyingPrice": 12,
+    "sellingPrice": 16,
     "notes": "Rajasthan guest House",
     "createdAt": "2026-09-09T10:00:00.000Z",
     "updatedAt": "2026-09-09T10:00:00.000Z",
@@ -2272,10 +2272,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_190",
+    "id": "a0000000-0000-4000-8000-000000000190",
     "orderDate": "2026-09-12",
-    "quantity": 50.0,
-    "buyingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 19,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2284,10 +2284,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_191",
+    "id": "a0000000-0000-4000-8000-000000000191",
     "orderDate": "2026-09-12",
-    "quantity": 60.0,
-    "buyingPrice": 19.0,
+    "quantity": 60,
+    "buyingPrice": 19,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2296,10 +2296,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_192",
+    "id": "a0000000-0000-4000-8000-000000000192",
     "orderDate": "2026-09-12",
-    "quantity": 50.0,
-    "buyingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 19,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2308,11 +2308,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_193",
+    "id": "a0000000-0000-4000-8000-000000000193",
     "orderDate": "2026-09-12",
-    "quantity": 60.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 24.0,
+    "quantity": 60,
+    "buyingPrice": 18,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-09-12T10:00:00.000Z",
     "updatedAt": "2026-09-12T10:00:00.000Z",
@@ -2320,10 +2320,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_194",
+    "id": "a0000000-0000-4000-8000-000000000194",
     "orderDate": "2026-09-12",
-    "quantity": 50.0,
-    "buyingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 19,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2332,10 +2332,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_195",
+    "id": "a0000000-0000-4000-8000-000000000195",
     "orderDate": "2026-09-12",
-    "quantity": 100.0,
-    "buyingPrice": 18.0,
+    "quantity": 100,
+    "buyingPrice": 18,
     "sellingPrice": 23.5,
     "notes": "Urban masala",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2344,10 +2344,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_196",
+    "id": "a0000000-0000-4000-8000-000000000196",
     "orderDate": "2026-09-12",
-    "quantity": 50.0,
-    "buyingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 19,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2356,10 +2356,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_197",
+    "id": "a0000000-0000-4000-8000-000000000197",
     "orderDate": "2026-09-12",
-    "quantity": 100.0,
-    "buyingPrice": 19.0,
+    "quantity": 100,
+    "buyingPrice": 19,
     "sellingPrice": 23.5,
     "notes": "Gupta brother",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2368,10 +2368,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_198",
+    "id": "a0000000-0000-4000-8000-000000000198",
     "orderDate": "2026-09-12",
-    "quantity": 50.0,
-    "buyingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 19,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2380,11 +2380,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_199",
+    "id": "a0000000-0000-4000-8000-000000000199",
     "orderDate": "2026-09-12",
-    "quantity": 60.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 60,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-09-12T10:00:00.000Z",
     "updatedAt": "2026-09-12T10:00:00.000Z",
@@ -2392,11 +2392,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_200",
+    "id": "a0000000-0000-4000-8000-000000000200",
     "orderDate": "2026-09-12",
-    "quantity": 210.0,
-    "buyingPrice": 18.0,
-    "sellingPrice": 23.0,
+    "quantity": 210,
+    "buyingPrice": 18,
+    "sellingPrice": 23,
     "notes": "Shiraj restaurant",
     "createdAt": "2026-09-12T10:00:00.000Z",
     "updatedAt": "2026-09-12T10:00:00.000Z",
@@ -2404,10 +2404,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_201",
+    "id": "a0000000-0000-4000-8000-000000000201",
     "orderDate": "2026-09-12",
-    "quantity": 50.0,
-    "buyingPrice": 19.0,
+    "quantity": 50,
+    "buyingPrice": 19,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-09-12T10:00:00.000Z",
@@ -2416,11 +2416,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_202",
+    "id": "a0000000-0000-4000-8000-000000000202",
     "orderDate": "2026-09-12",
-    "quantity": 50.0,
-    "buyingPrice": 12.0,
-    "sellingPrice": 13.0,
+    "quantity": 50,
+    "buyingPrice": 12,
+    "sellingPrice": 13,
     "notes": "Aanand",
     "createdAt": "2026-09-12T10:00:00.000Z",
     "updatedAt": "2026-09-12T10:00:00.000Z",
@@ -2428,10 +2428,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_203",
+    "id": "a0000000-0000-4000-8000-000000000203",
     "orderDate": "2026-09-13",
-    "quantity": 30.0,
-    "buyingPrice": 16.0,
+    "quantity": 30,
+    "buyingPrice": 16,
     "sellingPrice": 21.75,
     "notes": "Kaka tea",
     "createdAt": "2026-09-13T10:00:00.000Z",
@@ -2440,11 +2440,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_204",
+    "id": "a0000000-0000-4000-8000-000000000204",
     "orderDate": "2026-09-15",
-    "quantity": 110.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 110,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Nasta",
     "createdAt": "2026-09-15T10:00:00.000Z",
     "updatedAt": "2026-09-15T10:00:00.000Z",
@@ -2452,11 +2452,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_205",
+    "id": "a0000000-0000-4000-8000-000000000205",
     "orderDate": "2026-09-15",
-    "quantity": 9.0,
-    "buyingPrice": 30.0,
-    "sellingPrice": 43.0,
+    "quantity": 9,
+    "buyingPrice": 30,
+    "sellingPrice": 43,
     "notes": "Shiraj restaurant ( straw)",
     "createdAt": "2026-09-15T10:00:00.000Z",
     "updatedAt": "2026-09-15T10:00:00.000Z",
@@ -2464,11 +2464,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_206",
+    "id": "a0000000-0000-4000-8000-000000000206",
     "orderDate": "2026-09-15",
-    "quantity": 10.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 10,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Pepper",
     "createdAt": "2026-09-15T10:00:00.000Z",
     "updatedAt": "2026-09-15T10:00:00.000Z",
@@ -2476,11 +2476,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_207",
+    "id": "a0000000-0000-4000-8000-000000000207",
     "orderDate": "2026-09-17",
-    "quantity": 120.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 120,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Sanjeev drolia bangur",
     "createdAt": "2026-09-17T10:00:00.000Z",
     "updatedAt": "2026-09-17T10:00:00.000Z",
@@ -2488,11 +2488,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_208",
+    "id": "a0000000-0000-4000-8000-000000000208",
     "orderDate": "2026-09-17",
-    "quantity": 132.0,
-    "buyingPrice": 25.0,
-    "sellingPrice": 37.0,
+    "quantity": 132,
+    "buyingPrice": 25,
+    "sellingPrice": 37,
     "notes": "Chef maxilogist (napkin)",
     "createdAt": "2026-09-17T10:00:00.000Z",
     "updatedAt": "2026-09-17T10:00:00.000Z",
@@ -2500,11 +2500,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_209",
+    "id": "a0000000-0000-4000-8000-000000000209",
     "orderDate": "2026-09-17",
-    "quantity": 75.0,
-    "buyingPrice": 16.0,
-    "sellingPrice": 19.0,
+    "quantity": 75,
+    "buyingPrice": 16,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-09-17T10:00:00.000Z",
     "updatedAt": "2026-09-17T10:00:00.000Z",
@@ -2512,10 +2512,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_210",
+    "id": "a0000000-0000-4000-8000-000000000210",
     "orderDate": "2026-09-18",
-    "quantity": 60.0,
-    "buyingPrice": 18.0,
+    "quantity": 60,
+    "buyingPrice": 18,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-09-18T10:00:00.000Z",
@@ -2524,11 +2524,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_211",
+    "id": "a0000000-0000-4000-8000-000000000211",
     "orderDate": "2026-09-18",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 20.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 20,
     "notes": "Hotel saad",
     "createdAt": "2026-09-18T10:00:00.000Z",
     "updatedAt": "2026-09-18T10:00:00.000Z",
@@ -2536,10 +2536,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_212",
+    "id": "a0000000-0000-4000-8000-000000000212",
     "orderDate": "2026-09-18",
-    "quantity": 100.0,
-    "buyingPrice": 13.0,
+    "quantity": 100,
+    "buyingPrice": 13,
     "sellingPrice": 17.5,
     "notes": "Jamuna banquet",
     "createdAt": "2026-09-18T10:00:00.000Z",
@@ -2548,11 +2548,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_213",
+    "id": "a0000000-0000-4000-8000-000000000213",
     "orderDate": "2026-09-19",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Rajasthan bhojnalaya",
     "createdAt": "2026-09-19T10:00:00.000Z",
     "updatedAt": "2026-09-19T10:00:00.000Z",
@@ -2560,11 +2560,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_214",
+    "id": "a0000000-0000-4000-8000-000000000214",
     "orderDate": "2026-09-21",
-    "quantity": 25.0,
-    "buyingPrice": 16.0,
-    "sellingPrice": 19.0,
+    "quantity": 25,
+    "buyingPrice": 16,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-09-21T10:00:00.000Z",
     "updatedAt": "2026-09-21T10:00:00.000Z",
@@ -2572,11 +2572,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_215",
+    "id": "a0000000-0000-4000-8000-000000000215",
     "orderDate": "2026-09-21",
-    "quantity": 184.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 17.0,
+    "quantity": 184,
+    "buyingPrice": 14,
+    "sellingPrice": 17,
     "notes": "Aanand restaurant",
     "createdAt": "2026-09-21T10:00:00.000Z",
     "updatedAt": "2026-09-21T10:00:00.000Z",
@@ -2584,11 +2584,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_216",
+    "id": "a0000000-0000-4000-8000-000000000216",
     "orderDate": "2026-09-22",
-    "quantity": 44.0,
-    "buyingPrice": 50.0,
-    "sellingPrice": 55.0,
+    "quantity": 44,
+    "buyingPrice": 50,
+    "sellingPrice": 55,
     "notes": "Sufi Palace ( fork)",
     "createdAt": "2026-09-22T10:00:00.000Z",
     "updatedAt": "2026-09-22T10:00:00.000Z",
@@ -2596,11 +2596,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_217",
+    "id": "a0000000-0000-4000-8000-000000000217",
     "orderDate": "2026-09-23",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "New nasta",
     "createdAt": "2026-09-23T10:00:00.000Z",
     "updatedAt": "2026-09-23T10:00:00.000Z",
@@ -2608,11 +2608,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_218",
+    "id": "a0000000-0000-4000-8000-000000000218",
     "orderDate": "2026-09-24",
-    "quantity": 15.0,
-    "buyingPrice": 40.0,
-    "sellingPrice": 53.0,
+    "quantity": 15,
+    "buyingPrice": 40,
+    "sellingPrice": 53,
     "notes": "Shiraj restaurant (spoon)",
     "createdAt": "2026-09-24T10:00:00.000Z",
     "updatedAt": "2026-09-24T10:00:00.000Z",
@@ -2620,11 +2620,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_219",
+    "id": "a0000000-0000-4000-8000-000000000219",
     "orderDate": "2026-09-25",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 70,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-09-25T10:00:00.000Z",
     "updatedAt": "2026-09-25T10:00:00.000Z",
@@ -2632,11 +2632,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_220",
+    "id": "a0000000-0000-4000-8000-000000000220",
     "orderDate": "2026-09-26",
-    "quantity": 120.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 120,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Sanjeev drolia bangur",
     "createdAt": "2026-09-26T10:00:00.000Z",
     "updatedAt": "2026-09-26T10:00:00.000Z",
@@ -2644,9 +2644,9 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_221",
+    "id": "a0000000-0000-4000-8000-000000000221",
     "orderDate": "2026-09-27",
-    "quantity": 45.0,
+    "quantity": 45,
     "buyingPrice": 14.5,
     "sellingPrice": 18.5,
     "notes": "",
@@ -2656,10 +2656,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_222",
+    "id": "a0000000-0000-4000-8000-000000000222",
     "orderDate": "2026-09-27",
-    "quantity": 45.0,
-    "buyingPrice": 13.0,
+    "quantity": 45,
+    "buyingPrice": 13,
     "sellingPrice": 18.5,
     "notes": "Cafe florista",
     "createdAt": "2026-09-27T10:00:00.000Z",
@@ -2668,11 +2668,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_223",
+    "id": "a0000000-0000-4000-8000-000000000223",
     "orderDate": "2026-09-28",
-    "quantity": 35.0,
-    "buyingPrice": 50.0,
-    "sellingPrice": 55.0,
+    "quantity": 35,
+    "buyingPrice": 50,
+    "sellingPrice": 55,
     "notes": "Sufi Palace ( spoon)",
     "createdAt": "2026-09-28T10:00:00.000Z",
     "updatedAt": "2026-09-28T10:00:00.000Z",
@@ -2680,11 +2680,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_224",
+    "id": "a0000000-0000-4000-8000-000000000224",
     "orderDate": "2026-09-28",
-    "quantity": 35.0,
-    "buyingPrice": 45.0,
-    "sellingPrice": 55.0,
+    "quantity": 35,
+    "buyingPrice": 45,
+    "sellingPrice": 55,
     "notes": "Sufi Palace spoon",
     "createdAt": "2026-09-28T10:00:00.000Z",
     "updatedAt": "2026-09-28T10:00:00.000Z",
@@ -2692,11 +2692,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_225",
+    "id": "a0000000-0000-4000-8000-000000000225",
     "orderDate": "2026-09-28",
-    "quantity": 300.0,
+    "quantity": 300,
     "buyingPrice": 14.3,
-    "sellingPrice": 16.0,
+    "sellingPrice": 16,
     "notes": "Veg dhaba",
     "createdAt": "2026-09-28T10:00:00.000Z",
     "updatedAt": "2026-09-28T10:00:00.000Z",
@@ -2704,11 +2704,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_226",
+    "id": "a0000000-0000-4000-8000-000000000226",
     "orderDate": "2026-09-28",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Veg dhaba",
     "createdAt": "2026-09-28T10:00:00.000Z",
     "updatedAt": "2026-09-28T10:00:00.000Z",
@@ -2716,11 +2716,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_227",
+    "id": "a0000000-0000-4000-8000-000000000227",
     "orderDate": "2026-09-29",
-    "quantity": 30.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 30,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-09-29T10:00:00.000Z",
     "updatedAt": "2026-09-29T10:00:00.000Z",
@@ -2728,11 +2728,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_228",
+    "id": "a0000000-0000-4000-8000-000000000228",
     "orderDate": "2026-09-29",
-    "quantity": 44.0,
-    "buyingPrice": 47.0,
-    "sellingPrice": 55.0,
+    "quantity": 44,
+    "buyingPrice": 47,
+    "sellingPrice": 55,
     "notes": "Sufi Palace fork",
     "createdAt": "2026-09-29T10:00:00.000Z",
     "updatedAt": "2026-09-29T10:00:00.000Z",
@@ -2740,11 +2740,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_229",
+    "id": "a0000000-0000-4000-8000-000000000229",
     "orderDate": "2026-10-01",
-    "quantity": 10.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 10,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Pepper",
     "createdAt": "2026-10-01T10:00:00.000Z",
     "updatedAt": "2026-10-01T10:00:00.000Z",
@@ -2752,11 +2752,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_230",
+    "id": "a0000000-0000-4000-8000-000000000230",
     "orderDate": "2026-10-01",
-    "quantity": 10.0,
+    "quantity": 10,
     "buyingPrice": 14.5,
-    "sellingPrice": 17.0,
+    "sellingPrice": 17,
     "notes": "Pepper",
     "createdAt": "2026-10-01T10:00:00.000Z",
     "updatedAt": "2026-10-01T10:00:00.000Z",
@@ -2764,10 +2764,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_231",
+    "id": "a0000000-0000-4000-8000-000000000231",
     "orderDate": "2026-10-02",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
+    "quantity": 70,
+    "buyingPrice": 15,
     "sellingPrice": 20.5,
     "notes": "Karla",
     "createdAt": "2026-10-02T10:00:00.000Z",
@@ -2776,11 +2776,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_232",
+    "id": "a0000000-0000-4000-8000-000000000232",
     "orderDate": "2026-10-02",
-    "quantity": 168.0,
+    "quantity": 168,
     "buyingPrice": 14.75,
-    "sellingPrice": 17.0,
+    "sellingPrice": 17,
     "notes": "Anand",
     "createdAt": "2026-10-02T10:00:00.000Z",
     "updatedAt": "2026-10-02T10:00:00.000Z",
@@ -2788,11 +2788,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_233",
+    "id": "a0000000-0000-4000-8000-000000000233",
     "orderDate": "2026-10-02",
-    "quantity": 60.0,
+    "quantity": 60,
     "buyingPrice": 14.5,
-    "sellingPrice": 17.0,
+    "sellingPrice": 17,
     "notes": "Rajasthan bhojnalaya",
     "createdAt": "2026-10-02T10:00:00.000Z",
     "updatedAt": "2026-10-02T10:00:00.000Z",
@@ -2800,11 +2800,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_234",
+    "id": "a0000000-0000-4000-8000-000000000234",
     "orderDate": "2026-10-02",
-    "quantity": 70.0,
-    "buyingPrice": 15.0,
-    "sellingPrice": 19.0,
+    "quantity": 70,
+    "buyingPrice": 15,
+    "sellingPrice": 19,
     "notes": "Karla",
     "createdAt": "2026-10-02T10:00:00.000Z",
     "updatedAt": "2026-10-02T10:00:00.000Z",
@@ -2812,11 +2812,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_235",
+    "id": "a0000000-0000-4000-8000-000000000235",
     "orderDate": "2026-10-02",
-    "quantity": 50.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 50,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Rajasthan bhojnalaya",
     "createdAt": "2026-10-02T10:00:00.000Z",
     "updatedAt": "2026-10-02T10:00:00.000Z",
@@ -2824,11 +2824,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_236",
+    "id": "a0000000-0000-4000-8000-000000000236",
     "orderDate": "2026-10-04",
-    "quantity": 30.0,
-    "buyingPrice": 32.0,
-    "sellingPrice": 43.0,
+    "quantity": 30,
+    "buyingPrice": 32,
+    "sellingPrice": 43,
     "notes": "Shiraj restaurant (straw)",
     "createdAt": "2026-10-04T10:00:00.000Z",
     "updatedAt": "2026-10-04T10:00:00.000Z",
@@ -2836,9 +2836,9 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_237",
+    "id": "a0000000-0000-4000-8000-000000000237",
     "orderDate": "2026-10-04",
-    "quantity": 50.0,
+    "quantity": 50,
     "buyingPrice": 14.5,
     "sellingPrice": 19.5,
     "notes": "Mexilogist",
@@ -2848,11 +2848,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_238",
+    "id": "a0000000-0000-4000-8000-000000000238",
     "orderDate": "2026-10-04",
-    "quantity": 30.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 16.0,
+    "quantity": 30,
+    "buyingPrice": 14,
+    "sellingPrice": 16,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-10-04T10:00:00.000Z",
     "updatedAt": "2026-10-04T10:00:00.000Z",
@@ -2860,11 +2860,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_239",
+    "id": "a0000000-0000-4000-8000-000000000239",
     "orderDate": "2026-10-04",
-    "quantity": 500.0,
-    "buyingPrice": 21.0,
-    "sellingPrice": 24.0,
+    "quantity": 500,
+    "buyingPrice": 21,
+    "sellingPrice": 24,
     "notes": "Siraj",
     "createdAt": "2026-10-04T10:00:00.000Z",
     "updatedAt": "2026-10-04T10:00:00.000Z",
@@ -2872,11 +2872,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_240",
+    "id": "a0000000-0000-4000-8000-000000000240",
     "orderDate": "2026-10-04",
-    "quantity": 30.0,
+    "quantity": 30,
     "buyingPrice": 14.3,
-    "sellingPrice": 16.0,
+    "sellingPrice": 16,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-10-04T10:00:00.000Z",
     "updatedAt": "2026-10-04T10:00:00.000Z",
@@ -2884,11 +2884,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_241",
+    "id": "a0000000-0000-4000-8000-000000000241",
     "orderDate": "2026-10-04",
-    "quantity": 30.0,
-    "buyingPrice": 28.0,
-    "sellingPrice": 43.0,
+    "quantity": 30,
+    "buyingPrice": 28,
+    "sellingPrice": 43,
     "notes": "Siraj (straw)",
     "createdAt": "2026-10-04T10:00:00.000Z",
     "updatedAt": "2026-10-04T10:00:00.000Z",
@@ -2896,10 +2896,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_242",
+    "id": "a0000000-0000-4000-8000-000000000242",
     "orderDate": "2026-10-04",
-    "quantity": 60.0,
-    "buyingPrice": 21.0,
+    "quantity": 60,
+    "buyingPrice": 21,
     "sellingPrice": 24.5,
     "notes": "Mark hotel",
     "createdAt": "2026-10-04T10:00:00.000Z",
@@ -2908,10 +2908,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_243",
+    "id": "a0000000-0000-4000-8000-000000000243",
     "orderDate": "2026-10-04",
-    "quantity": 500.0,
-    "buyingPrice": 21.0,
+    "quantity": 500,
+    "buyingPrice": 21,
     "sellingPrice": 23.5,
     "notes": "Urban masala",
     "createdAt": "2026-10-04T10:00:00.000Z",
@@ -2920,10 +2920,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_244",
+    "id": "a0000000-0000-4000-8000-000000000244",
     "orderDate": "2026-10-05",
-    "quantity": 100.0,
-    "buyingPrice": 16.0,
+    "quantity": 100,
+    "buyingPrice": 16,
     "sellingPrice": 18.5,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-10-05T10:00:00.000Z",
@@ -2932,11 +2932,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_245",
+    "id": "a0000000-0000-4000-8000-000000000245",
     "orderDate": "2026-10-06",
-    "quantity": 50.0,
+    "quantity": 50,
     "buyingPrice": 14.5,
-    "sellingPrice": 20.0,
+    "sellingPrice": 20,
     "notes": "Sanjeev drolia bangur",
     "createdAt": "2026-10-06T10:00:00.000Z",
     "updatedAt": "2026-10-06T10:00:00.000Z",
@@ -2944,11 +2944,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_246",
+    "id": "a0000000-0000-4000-8000-000000000246",
     "orderDate": "2026-10-08",
-    "quantity": 70.0,
-    "buyingPrice": 16.0,
-    "sellingPrice": 20.0,
+    "quantity": 70,
+    "buyingPrice": 16,
+    "sellingPrice": 20,
     "notes": "KarlA",
     "createdAt": "2026-10-08T10:00:00.000Z",
     "updatedAt": "2026-10-08T10:00:00.000Z",
@@ -2956,11 +2956,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_247",
+    "id": "a0000000-0000-4000-8000-000000000247",
     "orderDate": "2026-10-08",
-    "quantity": 70.0,
-    "buyingPrice": 17.0,
-    "sellingPrice": 20.0,
+    "quantity": 70,
+    "buyingPrice": 17,
+    "sellingPrice": 20,
     "notes": "Karla",
     "createdAt": "2026-10-08T10:00:00.000Z",
     "updatedAt": "2026-10-08T10:00:00.000Z",
@@ -2968,11 +2968,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_248",
+    "id": "a0000000-0000-4000-8000-000000000248",
     "orderDate": "2026-10-09",
-    "quantity": 60.0,
+    "quantity": 60,
     "buyingPrice": 14.5,
-    "sellingPrice": 17.0,
+    "sellingPrice": 17,
     "notes": "Agarwala pav bhaji",
     "createdAt": "2026-10-09T10:00:00.000Z",
     "updatedAt": "2026-10-09T10:00:00.000Z",
@@ -2980,11 +2980,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_249",
+    "id": "a0000000-0000-4000-8000-000000000249",
     "orderDate": "2026-10-09",
-    "quantity": 60.0,
-    "buyingPrice": 19.0,
-    "sellingPrice": 24.0,
+    "quantity": 60,
+    "buyingPrice": 19,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-10-09T10:00:00.000Z",
     "updatedAt": "2026-10-09T10:00:00.000Z",
@@ -2992,11 +2992,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_250",
+    "id": "a0000000-0000-4000-8000-000000000250",
     "orderDate": "2026-10-09",
-    "quantity": 60.0,
-    "buyingPrice": 20.0,
-    "sellingPrice": 24.0,
+    "quantity": 60,
+    "buyingPrice": 20,
+    "sellingPrice": 24,
     "notes": "Gupta brother Ballygunge",
     "createdAt": "2026-10-09T10:00:00.000Z",
     "updatedAt": "2026-10-09T10:00:00.000Z",
@@ -3004,11 +3004,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_251",
+    "id": "a0000000-0000-4000-8000-000000000251",
     "orderDate": "2026-10-09",
-    "quantity": 60.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 17.0,
+    "quantity": 60,
+    "buyingPrice": 14,
+    "sellingPrice": 17,
     "notes": "Agarwala pav bhaji",
     "createdAt": "2026-10-09T10:00:00.000Z",
     "updatedAt": "2026-10-09T10:00:00.000Z",
@@ -3016,11 +3016,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_252",
+    "id": "a0000000-0000-4000-8000-000000000252",
     "orderDate": "2026-10-09",
-    "quantity": 1000.0,
-    "buyingPrice": 20.0,
-    "sellingPrice": 23.0,
+    "quantity": 1000,
+    "buyingPrice": 20,
+    "sellingPrice": 23,
     "notes": "Sufi Palace",
     "createdAt": "2026-10-09T10:00:00.000Z",
     "updatedAt": "2026-10-09T10:00:00.000Z",
@@ -3028,11 +3028,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_253",
+    "id": "a0000000-0000-4000-8000-000000000253",
     "orderDate": "2026-10-09",
-    "quantity": 1000.0,
-    "buyingPrice": 20.0,
-    "sellingPrice": 23.0,
+    "quantity": 1000,
+    "buyingPrice": 20,
+    "sellingPrice": 23,
     "notes": "Sufi Palace",
     "createdAt": "2026-10-09T10:00:00.000Z",
     "updatedAt": "2026-10-09T10:00:00.000Z",
@@ -3040,11 +3040,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_254",
+    "id": "a0000000-0000-4000-8000-000000000254",
     "orderDate": "2026-10-10",
-    "quantity": 200.0,
-    "buyingPrice": 20.0,
-    "sellingPrice": 23.0,
+    "quantity": 200,
+    "buyingPrice": 20,
+    "sellingPrice": 23,
     "notes": "Choudhary and company",
     "createdAt": "2026-10-10T10:00:00.000Z",
     "updatedAt": "2026-10-10T10:00:00.000Z",
@@ -3052,11 +3052,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_255",
+    "id": "a0000000-0000-4000-8000-000000000255",
     "orderDate": "2026-10-10",
-    "quantity": 60.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 17.0,
+    "quantity": 60,
+    "buyingPrice": 14,
+    "sellingPrice": 17,
     "notes": "Pepper",
     "createdAt": "2026-10-10T10:00:00.000Z",
     "updatedAt": "2026-10-10T10:00:00.000Z",
@@ -3064,11 +3064,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_256",
+    "id": "a0000000-0000-4000-8000-000000000256",
     "orderDate": "2026-10-10",
-    "quantity": 200.0,
-    "buyingPrice": 19.0,
-    "sellingPrice": 23.0,
+    "quantity": 200,
+    "buyingPrice": 19,
+    "sellingPrice": 23,
     "notes": "Choudhary and company",
     "createdAt": "2026-10-10T10:00:00.000Z",
     "updatedAt": "2026-10-10T10:00:00.000Z",
@@ -3076,11 +3076,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_257",
+    "id": "a0000000-0000-4000-8000-000000000257",
     "orderDate": "2026-10-10",
-    "quantity": 210.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 16.0,
+    "quantity": 210,
+    "buyingPrice": 13,
+    "sellingPrice": 16,
     "notes": "Peturam restaurant Ultadanga",
     "createdAt": "2026-10-10T10:00:00.000Z",
     "updatedAt": "2026-10-10T10:00:00.000Z",
@@ -3088,11 +3088,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_258",
+    "id": "a0000000-0000-4000-8000-000000000258",
     "orderDate": "2026-10-11",
-    "quantity": 60.0,
-    "buyingPrice": 17.0,
-    "sellingPrice": 20.0,
+    "quantity": 60,
+    "buyingPrice": 17,
+    "sellingPrice": 20,
     "notes": "Karla",
     "createdAt": "2026-10-11T10:00:00.000Z",
     "updatedAt": "2026-10-11T10:00:00.000Z",
@@ -3100,11 +3100,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_259",
+    "id": "a0000000-0000-4000-8000-000000000259",
     "orderDate": "2026-10-11",
-    "quantity": 60.0,
-    "buyingPrice": 16.0,
-    "sellingPrice": 20.0,
+    "quantity": 60,
+    "buyingPrice": 16,
+    "sellingPrice": 20,
     "notes": "Karla",
     "createdAt": "2026-10-11T10:00:00.000Z",
     "updatedAt": "2026-10-11T10:00:00.000Z",
@@ -3112,11 +3112,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_260",
+    "id": "a0000000-0000-4000-8000-000000000260",
     "orderDate": "2026-10-13",
-    "quantity": 40.0,
-    "buyingPrice": 13.0,
-    "sellingPrice": 17.0,
+    "quantity": 40,
+    "buyingPrice": 13,
+    "sellingPrice": 17,
     "notes": "Rajasthan bhojnalaya",
     "createdAt": "2026-10-13T10:00:00.000Z",
     "updatedAt": "2026-10-13T10:00:00.000Z",
@@ -3124,11 +3124,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_261",
+    "id": "a0000000-0000-4000-8000-000000000261",
     "orderDate": "2026-10-13",
-    "quantity": 120.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 17.0,
+    "quantity": 120,
+    "buyingPrice": 14,
+    "sellingPrice": 17,
     "notes": "Rajasthan bhojnalaya",
     "createdAt": "2026-10-13T10:00:00.000Z",
     "updatedAt": "2026-10-13T10:00:00.000Z",
@@ -3136,11 +3136,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_262",
+    "id": "a0000000-0000-4000-8000-000000000262",
     "orderDate": "2026-10-14",
-    "quantity": 160.0,
-    "buyingPrice": 17.0,
-    "sellingPrice": 20.0,
+    "quantity": 160,
+    "buyingPrice": 17,
+    "sellingPrice": 20,
     "notes": "Karla",
     "createdAt": "2026-10-14T10:00:00.000Z",
     "updatedAt": "2026-10-14T10:00:00.000Z",
@@ -3148,11 +3148,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_263",
+    "id": "a0000000-0000-4000-8000-000000000263",
     "orderDate": "2026-10-15",
-    "quantity": 10.0,
-    "buyingPrice": 42.0,
-    "sellingPrice": 53.0,
+    "quantity": 10,
+    "buyingPrice": 42,
+    "sellingPrice": 53,
     "notes": "Shiraj restaurant (fork)",
     "createdAt": "2026-10-15T10:00:00.000Z",
     "updatedAt": "2026-10-15T10:00:00.000Z",
@@ -3160,11 +3160,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_264",
+    "id": "a0000000-0000-4000-8000-000000000264",
     "orderDate": "2026-10-16",
-    "quantity": 160.0,
-    "buyingPrice": 17.0,
-    "sellingPrice": 20.0,
+    "quantity": 160,
+    "buyingPrice": 17,
+    "sellingPrice": 20,
     "notes": "Karla",
     "createdAt": "2026-10-16T10:00:00.000Z",
     "updatedAt": "2026-10-16T10:00:00.000Z",
@@ -3172,10 +3172,10 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_265",
+    "id": "a0000000-0000-4000-8000-000000000265",
     "orderDate": "2026-10-20",
-    "quantity": 70.0,
-    "buyingPrice": 14.0,
+    "quantity": 70,
+    "buyingPrice": 14,
     "sellingPrice": 16.5,
     "notes": "Chef maxilogist",
     "createdAt": "2026-10-20T10:00:00.000Z",
@@ -3184,11 +3184,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_266",
+    "id": "a0000000-0000-4000-8000-000000000266",
     "orderDate": "2026-10-23",
-    "quantity": 100.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 17.0,
+    "quantity": 100,
+    "buyingPrice": 14,
+    "sellingPrice": 17,
     "notes": "Nasta",
     "createdAt": "2026-10-23T10:00:00.000Z",
     "updatedAt": "2026-10-23T10:00:00.000Z",
@@ -3196,11 +3196,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_267",
+    "id": "a0000000-0000-4000-8000-000000000267",
     "orderDate": "2026-10-24",
-    "quantity": 30.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 16.0,
+    "quantity": 30,
+    "buyingPrice": 14,
+    "sellingPrice": 16,
     "notes": "Aami bengali diamond city",
     "createdAt": "2026-10-24T10:00:00.000Z",
     "updatedAt": "2026-10-24T10:00:00.000Z",
@@ -3208,11 +3208,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_268",
+    "id": "a0000000-0000-4000-8000-000000000268",
     "orderDate": "2026-10-24",
-    "quantity": 100.0,
-    "buyingPrice": 16.0,
-    "sellingPrice": 19.0,
+    "quantity": 100,
+    "buyingPrice": 16,
+    "sellingPrice": 19,
     "notes": "Aami bengali park Street",
     "createdAt": "2026-10-24T10:00:00.000Z",
     "updatedAt": "2026-10-24T10:00:00.000Z",
@@ -3220,11 +3220,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_269",
+    "id": "a0000000-0000-4000-8000-000000000269",
     "orderDate": "2026-10-24",
-    "quantity": 10.0,
-    "buyingPrice": 14.0,
-    "sellingPrice": 15.0,
+    "quantity": 10,
+    "buyingPrice": 14,
+    "sellingPrice": 15,
     "notes": "Bhai bhai",
     "createdAt": "2026-10-24T10:00:00.000Z",
     "updatedAt": "2026-10-24T10:00:00.000Z",
@@ -3232,11 +3232,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_270",
+    "id": "a0000000-0000-4000-8000-000000000270",
     "orderDate": "2026-10-25",
-    "quantity": 7.0,
-    "buyingPrice": 24.0,
-    "sellingPrice": 28.0,
+    "quantity": 7,
+    "buyingPrice": 24,
+    "sellingPrice": 28,
     "notes": "Chef maxilogist",
     "createdAt": "2026-10-25T10:00:00.000Z",
     "updatedAt": "2026-10-25T10:00:00.000Z",
@@ -3244,11 +3244,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_271",
+    "id": "a0000000-0000-4000-8000-000000000271",
     "orderDate": "2026-10-28",
-    "quantity": 20.0,
-    "buyingPrice": 50.0,
-    "sellingPrice": 55.0,
+    "quantity": 20,
+    "buyingPrice": 50,
+    "sellingPrice": 55,
     "notes": "Sufi Palace",
     "createdAt": "2026-10-28T10:00:00.000Z",
     "updatedAt": "2026-10-28T10:00:00.000Z",
@@ -3256,11 +3256,11 @@ export const SEED_ORDERS = [
     "syncState": "local"
   },
   {
-    "id": "ord_272",
+    "id": "a0000000-0000-4000-8000-000000000272",
     "orderDate": "2026-10-28",
-    "quantity": 10.0,
-    "buyingPrice": 50.0,
-    "sellingPrice": 55.0,
+    "quantity": 10,
+    "buyingPrice": 50,
+    "sellingPrice": 55,
     "notes": "Sufi Palace fork",
     "createdAt": "2026-10-28T10:00:00.000Z",
     "updatedAt": "2026-10-28T10:00:00.000Z",
@@ -3271,9 +3271,9 @@ export const SEED_ORDERS = [
 
 export const SEED_PETROL = [
   {
-    "id": "pet_001",
+    "id": "b0000000-0000-4000-8000-000000000001",
     "expenseDate": "2026-01-15",
-    "amount": 1500.0,
+    "amount": 1500,
     "notes": "",
     "createdAt": "2026-01-15T10:00:00.000Z",
     "updatedAt": "2026-01-15T10:00:00.000Z",
@@ -3281,9 +3281,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_002",
+    "id": "b0000000-0000-4000-8000-000000000002",
     "expenseDate": "2026-03-15",
-    "amount": 1500.0,
+    "amount": 1500,
     "notes": "",
     "createdAt": "2026-03-15T10:00:00.000Z",
     "updatedAt": "2026-03-15T10:00:00.000Z",
@@ -3291,9 +3291,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_003",
+    "id": "b0000000-0000-4000-8000-000000000003",
     "expenseDate": "2026-05-15",
-    "amount": 1500.0,
+    "amount": 1500,
     "notes": "",
     "createdAt": "2026-05-15T10:00:00.000Z",
     "updatedAt": "2026-05-15T10:00:00.000Z",
@@ -3301,9 +3301,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_004",
+    "id": "b0000000-0000-4000-8000-000000000004",
     "expenseDate": "2026-07-15",
-    "amount": 1500.0,
+    "amount": 1500,
     "notes": "",
     "createdAt": "2026-07-15T10:00:00.000Z",
     "updatedAt": "2026-07-15T10:00:00.000Z",
@@ -3311,9 +3311,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_005",
+    "id": "b0000000-0000-4000-8000-000000000005",
     "expenseDate": "2026-08-15",
-    "amount": 1500.0,
+    "amount": 1500,
     "notes": "",
     "createdAt": "2026-08-15T10:00:00.000Z",
     "updatedAt": "2026-08-15T10:00:00.000Z",
@@ -3321,9 +3321,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_006",
+    "id": "b0000000-0000-4000-8000-000000000006",
     "expenseDate": "2026-09-13",
-    "amount": 8500.0,
+    "amount": 8500,
     "notes": "Logo cost",
     "createdAt": "2026-09-13T10:00:00.000Z",
     "updatedAt": "2026-09-13T10:00:00.000Z",
@@ -3331,9 +3331,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_007",
+    "id": "b0000000-0000-4000-8000-000000000007",
     "expenseDate": "2026-09-13",
-    "amount": 1500.0,
+    "amount": 1500,
     "notes": "",
     "createdAt": "2026-09-13T10:00:00.000Z",
     "updatedAt": "2026-09-13T10:00:00.000Z",
@@ -3341,9 +3341,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_008",
+    "id": "b0000000-0000-4000-8000-000000000008",
     "expenseDate": "2026-09-20",
-    "amount": 500.0,
+    "amount": 500,
     "notes": "",
     "createdAt": "2026-09-20T10:00:00.000Z",
     "updatedAt": "2026-09-20T10:00:00.000Z",
@@ -3351,9 +3351,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_009",
+    "id": "b0000000-0000-4000-8000-000000000009",
     "expenseDate": "2026-09-24",
-    "amount": 300.0,
+    "amount": 300,
     "notes": "",
     "createdAt": "2026-09-24T10:00:00.000Z",
     "updatedAt": "2026-09-24T10:00:00.000Z",
@@ -3361,9 +3361,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_010",
+    "id": "b0000000-0000-4000-8000-000000000010",
     "expenseDate": "2026-09-28",
-    "amount": 500.0,
+    "amount": 500,
     "notes": "",
     "createdAt": "2026-09-28T10:00:00.000Z",
     "updatedAt": "2026-09-28T10:00:00.000Z",
@@ -3371,9 +3371,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_011",
+    "id": "b0000000-0000-4000-8000-000000000011",
     "expenseDate": "2026-10-02",
-    "amount": 250.0,
+    "amount": 250,
     "notes": "",
     "createdAt": "2026-10-02T10:00:00.000Z",
     "updatedAt": "2026-10-02T10:00:00.000Z",
@@ -3381,9 +3381,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_012",
+    "id": "b0000000-0000-4000-8000-000000000012",
     "expenseDate": "2026-10-17",
-    "amount": 500.0,
+    "amount": 500,
     "notes": "Petrol",
     "createdAt": "2026-10-17T10:00:00.000Z",
     "updatedAt": "2026-10-17T10:00:00.000Z",
@@ -3391,9 +3391,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_013",
+    "id": "b0000000-0000-4000-8000-000000000013",
     "expenseDate": "2026-10-19",
-    "amount": 500.0,
+    "amount": 500,
     "notes": "Petrol",
     "createdAt": "2026-10-19T10:00:00.000Z",
     "updatedAt": "2026-10-19T10:00:00.000Z",
@@ -3401,9 +3401,9 @@ export const SEED_PETROL = [
     "syncState": "local"
   },
   {
-    "id": "pet_014",
+    "id": "b0000000-0000-4000-8000-000000000014",
     "expenseDate": "2026-10-30",
-    "amount": 500.0,
+    "amount": 500,
     "notes": "Petrol",
     "createdAt": "2026-10-30T10:00:00.000Z",
     "updatedAt": "2026-10-30T10:00:00.000Z",
@@ -3414,9 +3414,9 @@ export const SEED_PETROL = [
 
 export const SEED_MANUFACTURER_PAYMENTS = [
   {
-    "id": "mfg_001",
+    "id": "c0000000-0000-4000-8000-000000000001",
     "paymentDate": "2026-09-09",
-    "amount": 7055.0,
+    "amount": 7055,
     "notes": "Gupta ji",
     "createdAt": "2026-09-09T10:00:00.000Z",
     "updatedAt": "2026-09-09T10:00:00.000Z",
@@ -3424,9 +3424,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_002",
+    "id": "c0000000-0000-4000-8000-000000000002",
     "paymentDate": "2026-09-13",
-    "amount": 211054.0,
+    "amount": 211054,
     "notes": "",
     "createdAt": "2026-09-13T10:00:00.000Z",
     "updatedAt": "2026-09-13T10:00:00.000Z",
@@ -3434,9 +3434,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_003",
+    "id": "c0000000-0000-4000-8000-000000000003",
     "paymentDate": "2026-09-20",
-    "amount": 2500.0,
+    "amount": 2500,
     "notes": "",
     "createdAt": "2026-09-20T10:00:00.000Z",
     "updatedAt": "2026-09-20T10:00:00.000Z",
@@ -3444,9 +3444,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_004",
+    "id": "c0000000-0000-4000-8000-000000000004",
     "paymentDate": "2026-09-21",
-    "amount": 2000.0,
+    "amount": 2000,
     "notes": "",
     "createdAt": "2026-09-21T10:00:00.000Z",
     "updatedAt": "2026-09-21T10:00:00.000Z",
@@ -3454,9 +3454,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_005",
+    "id": "c0000000-0000-4000-8000-000000000005",
     "paymentDate": "2026-09-24",
-    "amount": 2000.0,
+    "amount": 2000,
     "notes": "Gupta ji",
     "createdAt": "2026-09-24T10:00:00.000Z",
     "updatedAt": "2026-09-24T10:00:00.000Z",
@@ -3464,9 +3464,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_006",
+    "id": "c0000000-0000-4000-8000-000000000006",
     "paymentDate": "2026-09-25",
-    "amount": 2500.0,
+    "amount": 2500,
     "notes": "",
     "createdAt": "2026-09-25T10:00:00.000Z",
     "updatedAt": "2026-09-25T10:00:00.000Z",
@@ -3474,9 +3474,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_007",
+    "id": "c0000000-0000-4000-8000-000000000007",
     "paymentDate": "2026-09-29",
-    "amount": 2786.0,
+    "amount": 2786,
     "notes": "Gupta ji",
     "createdAt": "2026-09-29T10:00:00.000Z",
     "updatedAt": "2026-09-29T10:00:00.000Z",
@@ -3484,9 +3484,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_008",
+    "id": "c0000000-0000-4000-8000-000000000008",
     "paymentDate": "2026-10-03",
-    "amount": 1000.0,
+    "amount": 1000,
     "notes": "",
     "createdAt": "2026-10-03T10:00:00.000Z",
     "updatedAt": "2026-10-03T10:00:00.000Z",
@@ -3494,9 +3494,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_009",
+    "id": "c0000000-0000-4000-8000-000000000009",
     "paymentDate": "2026-10-04",
-    "amount": 1500.0,
+    "amount": 1500,
     "notes": "",
     "createdAt": "2026-10-04T10:00:00.000Z",
     "updatedAt": "2026-10-04T10:00:00.000Z",
@@ -3504,9 +3504,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_010",
+    "id": "c0000000-0000-4000-8000-000000000010",
     "paymentDate": "2026-10-04",
-    "amount": 500.0,
+    "amount": 500,
     "notes": "",
     "createdAt": "2026-10-04T10:00:00.000Z",
     "updatedAt": "2026-10-04T10:00:00.000Z",
@@ -3514,9 +3514,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_011",
+    "id": "c0000000-0000-4000-8000-000000000011",
     "paymentDate": "2026-10-04",
-    "amount": 500.0,
+    "amount": 500,
     "notes": "",
     "createdAt": "2026-10-04T10:00:00.000Z",
     "updatedAt": "2026-10-04T10:00:00.000Z",
@@ -3524,9 +3524,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_012",
+    "id": "c0000000-0000-4000-8000-000000000012",
     "paymentDate": "2026-10-10",
-    "amount": 3000.0,
+    "amount": 3000,
     "notes": "",
     "createdAt": "2026-10-10T10:00:00.000Z",
     "updatedAt": "2026-10-10T10:00:00.000Z",
@@ -3534,9 +3534,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_013",
+    "id": "c0000000-0000-4000-8000-000000000013",
     "paymentDate": "2026-10-10",
-    "amount": 5000.0,
+    "amount": 5000,
     "notes": "",
     "createdAt": "2026-10-10T10:00:00.000Z",
     "updatedAt": "2026-10-10T10:00:00.000Z",
@@ -3544,9 +3544,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_014",
+    "id": "c0000000-0000-4000-8000-000000000014",
     "paymentDate": "2026-10-14",
-    "amount": 2000.0,
+    "amount": 2000,
     "notes": "",
     "createdAt": "2026-10-14T10:00:00.000Z",
     "updatedAt": "2026-10-14T10:00:00.000Z",
@@ -3554,9 +3554,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_015",
+    "id": "c0000000-0000-4000-8000-000000000015",
     "paymentDate": "2026-10-22",
-    "amount": 2500.0,
+    "amount": 2500,
     "notes": "Gupta ji",
     "createdAt": "2026-10-22T10:00:00.000Z",
     "updatedAt": "2026-10-22T10:00:00.000Z",
@@ -3564,9 +3564,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_016",
+    "id": "c0000000-0000-4000-8000-000000000016",
     "paymentDate": "2026-10-23",
-    "amount": 6500.0,
+    "amount": 6500,
     "notes": "Gupta ji",
     "createdAt": "2026-10-23T10:00:00.000Z",
     "updatedAt": "2026-10-23T10:00:00.000Z",
@@ -3574,9 +3574,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_017",
+    "id": "c0000000-0000-4000-8000-000000000017",
     "paymentDate": "2026-10-24",
-    "amount": 2000.0,
+    "amount": 2000,
     "notes": "",
     "createdAt": "2026-10-24T10:00:00.000Z",
     "updatedAt": "2026-10-24T10:00:00.000Z",
@@ -3584,9 +3584,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_018",
+    "id": "c0000000-0000-4000-8000-000000000018",
     "paymentDate": "2026-10-27",
-    "amount": 11000.0,
+    "amount": 11000,
     "notes": "Gupta ji",
     "createdAt": "2026-10-27T10:00:00.000Z",
     "updatedAt": "2026-10-27T10:00:00.000Z",
@@ -3594,9 +3594,9 @@ export const SEED_MANUFACTURER_PAYMENTS = [
     "syncState": "local"
   },
   {
-    "id": "mfg_019",
+    "id": "c0000000-0000-4000-8000-000000000019",
     "paymentDate": "2026-10-27",
-    "amount": 3500.0,
+    "amount": 3500,
     "notes": "Gupta ji",
     "createdAt": "2026-10-27T10:00:00.000Z",
     "updatedAt": "2026-10-27T10:00:00.000Z",
@@ -3606,10 +3606,10 @@ export const SEED_MANUFACTURER_PAYMENTS = [
 ];
 
 export const SEED_METRICS = {
-  "totalSales": 473501.0,
+  "totalSales": 473501,
   "totalStockCost": 382642.5,
-  "totalPetrol": 20550.0,
+  "totalPetrol": 20550,
   "netProfit": 70308.5,
-  "totalPaidManufacturer": 268895.0,
+  "totalPaidManufacturer": 268895,
   "dueManufacturer": 113747.5
 };
