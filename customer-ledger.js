@@ -62,53 +62,57 @@ function extractItemNote(raw) {
  */
 const CANONICAL_MAPPINGS = [
   // Aami Bengali branches
-  { test: /^(?:aami|ami)\s+(?:bangla|bengali).*diamond\s*city/i, canonical: "Aami Bengali (Diamond City)" },
-  { test: /^(?:aami|ami)\s+(?:bangla|bengali).*park\s*street/i, canonical: "Aami Bengali (Park Street)" },
+  { test: /^(?:aami|ami)\s+(?:bangla|bengali).*diamond\s*city/i, canonical: "Aami Bengali Diamond City" },
+  { test: /^(?:aami|ami)\s+(?:bangla|bengali).*park\s*street/i, canonical: "Aami Bengali Park Street" },
   { test: /^(?:aami|ami)\s+(?:bangla|bengali)$/i, canonical: "Aami Bengali" },
 
   // Karla
   { test: /^karla$/i, canonical: "Karla" },
 
-  // Aanand Restaurant / Anand
-  { test: /^a*nand(\s+restaurant)?$/i, canonical: "Aanand Restaurant" },
+  // Aanand vs Aanand Restaurant
+  { test: /^a*nand$/i, canonical: "Aanand" },
+  { test: /^a*nand\s+restaurant$/i, canonical: "Aanand Restaurant" },
 
-  // Gupta Brothers Ballygunge
-  { test: /^gupta\s+brother(s)?(\s*\(?ballygunge\)?)?$/i, canonical: "Gupta Brothers (Ballygunge)" },
-
-  // Gupta Veg Kestopur
-  { test: /^gupta\s+veg(\s*\(?kestopur\)?)?$/i, canonical: "Gupta Veg (Kestopur)" },
+  // Gupta Brother Ballygunge vs Gupta Brother vs Gupta Veg Kestopur
+  { test: /^gupta\s+brother(s)?\s*\(?ballygunge\)?$/i, canonical: "Gupta Brother Ballygunge" },
+  { test: /^gupta\s+brother(s)?$/i, canonical: "Gupta Brother" },
+  { test: /^gupta\s+veg\s*\(?kestopur\)?$/i, canonical: "Gupta Veg Kestopur" },
 
   // Sufi Palace
   { test: /^sufi\s+palace$/i, canonical: "Sufi Palace" },
 
-  // Shiraj Restaurant / Siraj
-  { test: /^(?:shiraj|siraj)(\s+restaurant)?$/i, canonical: "Shiraj Restaurant" },
+  // Shiraj Restaurant vs Siraj
+  { test: /^shiraj(\s+restaurant)?$/i, canonical: "Shiraj Restaurant" },
+  { test: /^siraj$/i, canonical: "Siraj" },
 
-  // Chef Maxilogist / Mexilogist
-  { test: /^(?:chef\s+)?m[ae]xilogist$/i, canonical: "Chef Maxilogist" },
+  // Chef Maxilogist vs Mexilogist
+  { test: /^chef\s+m[ae]xilogist$/i, canonical: "Chef Maxilogist" },
+  { test: /^m[ae]xilogist$/i, canonical: "Mexilogist" },
 
-  // Sanjeev Drolia (Bangur)
-  { test: /^sanjeev\s+drolia(\s+bangur)?$/i, canonical: "Sanjeev Drolia (Bangur)" },
+  // Sanjeev Drolia vs Sanjeev Drolia Bangur
+  { test: /^sanjeev\s+drolia\s+bangur$/i, canonical: "Sanjeev Drolia Bangur" },
+  { test: /^sanjeev\s+drolia$/i, canonical: "Sanjeev Drolia" },
 
   // Rajasthan Guest House vs Rajasthan Bhojnalaya
   { test: /^rajasthan\s+guest\s*house$/i, canonical: "Rajasthan Guest House" },
   { test: /^rajasthan\s+bhojnalaya$/i, canonical: "Rajasthan Bhojnalaya" },
 
-  // New Nasta vs Nasta Kankurgachi
-  { test: /^nasta\s+ka[n]?kurgachi$/i, canonical: "Nasta (Kankurgachi)" },
-  { test: /^(?:new\s+nasta|nasta)$/i, canonical: "New Nasta" },
+  // Nasta vs New Nasta vs Nasta Kakurgachi
+  { test: /^nasta\s+ka[n]?kurgachi$/i, canonical: "Nasta Kakurgachi" },
+  { test: /^new\s+nasta$/i, canonical: "New Nasta" },
+  { test: /^nasta$/i, canonical: "Nasta" },
 
   // Zuca
   { test: /^zuca$/i, canonical: "Zuca" },
 
   // Peturam Restaurant Ultadanga
-  { test: /^peturam(\s+restaurant)?(\s+ultadanga)?$/i, canonical: "Peturam Restaurant (Ultadanga)" },
+  { test: /^peturam(\s+restaurant)?(\s+ultadanga)?$/i, canonical: "Peturam Restaurant Ultadanga" },
 
   // Sandwich Bastalla
   { test: /^sandwich\s+bastalla$/i, canonical: "Sandwich Bastalla" },
 
   // Zuddu Theatre Road
-  { test: /^zuddu(\s+theatre\s*road)?$/i, canonical: "Zuddu (Theatre Road)" },
+  { test: /^zuddu(\s+theatre\s*road)?$/i, canonical: "Zuddu Theatre Road" },
 
   // Choudhary and Company
   { test: /^choudhary(\s+(?:and|&)\s*co(?:mpany)?)?$/i, canonical: "Choudhary & Co" },

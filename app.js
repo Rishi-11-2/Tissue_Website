@@ -1,13 +1,13 @@
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js?v=20261101_3";
-import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js?v=20261101_3";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js?v=20261101_4";
+import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js?v=20261101_4";
 import {
   normalizeCustomer,
   groupOrdersByCustomer,
   calculateOrderFigures,
   getAvatarColor,
   getInitials,
-} from "./customer-ledger.js?v=20261101_3";
+} from "./customer-ledger.js?v=20261101_4";
 
 const DB_NAME = "tissue-ledger-db";
 const DB_VERSION = 3;
@@ -336,7 +336,7 @@ function isVisibleToCurrentLedger(record) {
 }
 
 const SEED_VERSION_KEY = "tissue_ledger_seed_version";
-const CURRENT_SEED_VERSION = "2026-11-01-v272-final";
+const CURRENT_SEED_VERSION = "2026-11-01-v272-exact-final";
 
 /**
  * Loads records from IndexedDB. If local database is empty or has older seed,
@@ -344,12 +344,20 @@ const CURRENT_SEED_VERSION = "2026-11-01-v272-final";
  * so there is NEVER any data loss!
  */
 async function loadLocalLedger() {
-  // First sanitize any legacy non-UUID IDs in IndexedDB
-  await Promise.all([
-    sanitizeStoreUuids(ORDER_STORE, "ord_", "a"),
-    sanitizeStoreUuids(PETROL_STORE, "pet_", "b"),
-    sanitizeStoreUuids(MANUFACTURER_PAYMENT_STORE, "mfg_", "c"),
-  ]);
+  const localSeedVersion = localStorage.getItem(SEED_VERSION_KEY);
+
+  // If local store has older data, different seed version, or collision, cleanly reset with official master ledger
+  if (localSeedVersion !== CURRENT_SEED_VERSION) {
+    await clearLocalStore(ORDER_STORE);
+    await clearLocalStore(PETROL_STORE);
+    await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
+
+    await saveLocalBatch(ORDER_STORE, SEED_ORDERS);
+    await saveLocalBatch(PETROL_STORE, SEED_PETROL);
+    await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, SEED_MANUFACTURER_PAYMENTS);
+
+    localStorage.setItem(SEED_VERSION_KEY, CURRENT_SEED_VERSION);
+  }
 
   const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([
     getAllLocal(ORDER_STORE),
@@ -357,42 +365,19 @@ async function loadLocalLedger() {
     getAllLocal(MANUFACTURER_PAYMENT_STORE),
   ]);
 
-  const localSeedVersion = localStorage.getItem(SEED_VERSION_KEY);
-
-  // If local store has older data or is empty, ensure the latest 272 master records are loaded
-  if (localSeedVersion !== CURRENT_SEED_VERSION || storedOrders.length === 0) {
-    if (!currentUser) {
-      const existingOrderIds = new Set(storedOrders.map((o) => o.id));
-      const ordersToInsert = SEED_ORDERS.filter((o) => !existingOrderIds.has(o.id));
-
-      const existingPetrolIds = new Set(storedPetrol.map((p) => p.id));
-      const petrolToInsert = SEED_PETROL.filter((p) => !existingPetrolIds.has(p.id));
-
-      const existingMfgIds = new Set(storedManufacturerPayments.map((m) => m.id));
-      const mfgToInsert = SEED_MANUFACTURER_PAYMENTS.filter((m) => !existingMfgIds.has(m.id));
-
-      if (storedOrders.length === 0) {
-        await saveLocalBatch(ORDER_STORE, SEED_ORDERS);
-        await saveLocalBatch(PETROL_STORE, SEED_PETROL);
-        await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, SEED_MANUFACTURER_PAYMENTS);
-      } else {
-        if (ordersToInsert.length > 0) await saveLocalBatch(ORDER_STORE, ordersToInsert);
-        if (petrolToInsert.length > 0) await saveLocalBatch(PETROL_STORE, petrolToInsert);
-        if (mfgToInsert.length > 0) await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, mfgToInsert);
-      }
-    }
-    localStorage.setItem(SEED_VERSION_KEY, CURRENT_SEED_VERSION);
+  // If store was empty, populate from master
+  if (storedOrders.length === 0) {
+    await saveLocalBatch(ORDER_STORE, SEED_ORDERS);
+    await saveLocalBatch(PETROL_STORE, SEED_PETROL);
+    await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, SEED_MANUFACTURER_PAYMENTS);
+    orders = [...SEED_ORDERS];
+    petrolExpenses = [...SEED_PETROL];
+    manufacturerPayments = [...SEED_MANUFACTURER_PAYMENTS];
+  } else {
+    orders = storedOrders.filter(isVisibleToCurrentLedger);
+    petrolExpenses = storedPetrol.filter(isVisibleToCurrentLedger);
+    manufacturerPayments = storedManufacturerPayments.filter(isVisibleToCurrentLedger);
   }
-
-  const [currentOrders, currentPetrol, currentMfg] = await Promise.all([
-    getAllLocal(ORDER_STORE),
-    getAllLocal(PETROL_STORE),
-    getAllLocal(MANUFACTURER_PAYMENT_STORE),
-  ]);
-
-  orders = currentOrders.filter(isVisibleToCurrentLedger);
-  petrolExpenses = currentPetrol.filter(isVisibleToCurrentLedger);
-  manufacturerPayments = currentMfg.filter(isVisibleToCurrentLedger);
 
   updateCustomerDatalist();
   render();
@@ -573,10 +558,10 @@ function renderCustomersView() {
       // Mini-table of transactions inside this customer
       const drawerRows = group.orders
         .map((ord) => {
-          const itemTag = ord.itemDetail ? `<span class="item-chip" style="margin-left: 6px;">${escapeHtml(ord.itemDetail)}</span>` : "";
+          const noteHtml = ord.notes ? `<div style="font-size: 0.8rem; color: var(--color-slate-500); margin-top: 2px;">${escapeHtml(ord.notes)}</div>` : "";
           const netClass = ord.net < 0 ? "net-negative" : "net";
           return `<tr>
-            <td><strong>${displayDate(ord.orderDate)}</strong>${itemTag}</td>
+            <td><strong>${displayDate(ord.orderDate)}</strong>${noteHtml}</td>
             <td class="numeric">${formatNumber.format(ord.quantity)}</td>
             <td class="numeric">${formatCurrency.format(ord.sellingPrice)}</td>
             <td class="numeric"><strong>${formatCurrency.format(ord.sales)}</strong></td>
@@ -670,14 +655,12 @@ function renderOrders() {
   elements.ordersBody.innerHTML = visibleOrders
     .map((order) => {
       const figures = calculateOrderFigures(order);
-      const { customer, item } = normalizeCustomer(order.notes);
-      const noteDisplay = item || order.notes ? `<span class="order-note" title="${escapeHtml(order.notes)}">${escapeHtml(item || order.notes)}</span>` : "";
+      const noteDisplay = order.notes ? `<span class="order-note" title="${escapeHtml(order.notes)}">${escapeHtml(order.notes)}</span>` : "";
       const netClass = figures.net < 0 ? "net-negative" : "net";
 
       return `<tr>
         <td>
           <span class="order-date">${displayDate(order.orderDate)}</span>
-          <span class="customer-pill">${escapeHtml(customer)}</span>
           ${noteDisplay}
         </td>
         <td class="numeric">${formatNumber.format(figures.quantity)}</td>
@@ -1468,10 +1451,8 @@ function exportExcel() {
     .sort((a, b) => a.orderDate.localeCompare(b.orderDate))
     .map((order) => {
       const figures = calculateOrderFigures(order);
-      const { customer } = normalizeCustomer(order.notes);
       return {
         Date: excelDate(order.orderDate),
-        Customer: customer,
         "Quantity Sold": figures.quantity,
         "Buying Price / Unit": figures.buyingPrice,
         "Selling Price / Unit": figures.sellingPrice,
