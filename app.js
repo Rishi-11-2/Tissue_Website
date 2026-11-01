@@ -1,13 +1,13 @@
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js?v=20261101_4";
-import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js?v=20261101_4";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js?v=20261101_5";
+import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js?v=20261101_5";
 import {
   normalizeCustomer,
   groupOrdersByCustomer,
   calculateOrderFigures,
   getAvatarColor,
   getInitials,
-} from "./customer-ledger.js?v=20261101_4";
+} from "./customer-ledger.js?v=20261101_5";
 
 const DB_NAME = "tissue-ledger-db";
 const DB_VERSION = 3;
@@ -149,6 +149,8 @@ const elements = {
   downloadExcelBtn: document.querySelector("#download-excel-btn"),
   importJsonFile: document.querySelector("#import-json-file"),
   reloadSeedDataBtn: document.querySelector("#reload-seed-data-btn"),
+  overwriteCloudButton: document.querySelector("#overwrite-cloud-button"),
+  modalOverwriteCloudBtn: document.querySelector("#modal-overwrite-cloud-btn"),
 };
 
 // Application State
@@ -160,7 +162,7 @@ let currentUser = null;
 let isSyncing = false;
 let pendingEmail = "";
 let toastTimer;
-let activeTab = "customers";
+let activeTab = "orders";
 const expandedCustomerCards = new Set();
 
 function todayISO() {
@@ -961,11 +963,15 @@ async function upsertRemote(kind, record) {
 
 async function upsertRemoteBatch(kind, records) {
   if (!records.length) return;
-  const payloads = records.map((rec) => payloadForKind(kind, rec));
-  const { error } = await supabase.from(tableForKind(kind)).upsert(payloads, { onConflict: "id" });
-  if (error) {
-    console.error(`Remote batch upsert failed for ${kind}:`, error);
-    throw error;
+  const CHUNK_SIZE = 50;
+  for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+    const chunk = records.slice(i, i + CHUNK_SIZE);
+    const payloads = chunk.map((rec) => payloadForKind(kind, rec));
+    const { error } = await supabase.from(tableForKind(kind)).upsert(payloads, { onConflict: "id" });
+    if (error) {
+      console.error(`Remote batch upsert failed for ${kind}:`, error);
+      throw error;
+    }
   }
 }
 
@@ -1237,6 +1243,90 @@ async function syncPendingRecords(kind, ownerId, remoteExistingIds = new Set()) 
   }
 }
 
+async function overwriteCloudWithMasterData({ showResult = true } = {}) {
+  if (!supabase || !currentUser) {
+    if (showResult) showToast("Sign in with email first to sync with Supabase cloud.");
+    return;
+  }
+
+  isSyncing = true;
+  elements.syncNowButton.disabled = true;
+  if (elements.overwriteCloudButton) elements.overwriteCloudButton.disabled = true;
+  if (elements.modalOverwriteCloudBtn) elements.modalOverwriteCloudBtn.disabled = true;
+  elements.syncStatusLabel.textContent = "Updating cloud…";
+  setSyncMessage("Clearing old cloud records and uploading 272 master orders from Excel…");
+
+  try {
+    // 1. Delete all existing remote data for this user in Supabase
+    const [delOrders, delPetrol, delMfg] = await Promise.all([
+      supabase.from("orders").delete().eq("user_id", currentUser.id),
+      supabase.from("petrol_expenses").delete().eq("user_id", currentUser.id),
+      supabase.from("manufacturer_payments").delete().eq("user_id", currentUser.id),
+    ]);
+
+    if (delOrders.error) console.error("Error clearing remote orders:", delOrders.error);
+    if (delPetrol.error) console.error("Error clearing remote petrol:", delPetrol.error);
+    if (delMfg.error) console.error("Error clearing remote mfg payments:", delMfg.error);
+
+    // 2. Prepare master 272 orders, 14 petrol, 19 manufacturer payments with this user's id
+    const masterOrders = SEED_ORDERS.map((o) => ({
+      ...o,
+      userId: currentUser.id,
+      syncState: "synced",
+    }));
+    const masterPetrol = SEED_PETROL.map((p) => ({
+      ...p,
+      userId: currentUser.id,
+      syncState: "synced",
+    }));
+    const masterMfg = SEED_MANUFACTURER_PAYMENTS.map((m) => ({
+      ...m,
+      userId: currentUser.id,
+      syncState: "synced",
+    }));
+
+    // 3. Upload to Supabase in chunks
+    await upsertRemoteBatch("order", masterOrders);
+    await upsertRemoteBatch("petrol", masterPetrol);
+    await upsertRemoteBatch("manufacturerPayment", masterMfg);
+
+    // 4. Overwrite local storage so local and cloud match 100%
+    await Promise.all([
+      clearLocalStore(ORDER_STORE),
+      clearLocalStore(PETROL_STORE),
+      clearLocalStore(MANUFACTURER_PAYMENT_STORE),
+    ]);
+
+    await Promise.all([
+      saveLocalBatch(ORDER_STORE, masterOrders),
+      saveLocalBatch(PETROL_STORE, masterPetrol),
+      saveLocalBatch(MANUFACTURER_PAYMENT_STORE, masterMfg),
+    ]);
+
+    orders = [...masterOrders];
+    petrolExpenses = [...masterPetrol];
+    manufacturerPayments = [...masterMfg];
+
+    localStorage.setItem(SEED_VERSION_KEY, CURRENT_SEED_VERSION);
+    updateCustomerDatalist();
+    render();
+
+    setSyncMessage("Cloud & local ledger successfully populated with all 272 master orders from Excel.");
+    if (showResult) showToast("Supabase reset & populated with 272 Excel orders!");
+  } catch (error) {
+    console.error("Cloud overwrite failed:", error);
+    const detail = error?.message || error?.details || "Failed to overwrite cloud data.";
+    setSyncMessage(`Cloud reset: ${detail}`, true);
+    if (showResult) showToast(`Cloud reset error: ${detail}`);
+  } finally {
+    isSyncing = false;
+    elements.syncNowButton.disabled = false;
+    if (elements.overwriteCloudButton) elements.overwriteCloudButton.disabled = false;
+    if (elements.modalOverwriteCloudBtn) elements.modalOverwriteCloudBtn.disabled = false;
+    updateSyncUi();
+  }
+}
+
 async function syncFromCloud({ showResult = false } = {}) {
   if (!supabase || !currentUser || isSyncing) return;
   isSyncing = true;
@@ -1259,6 +1349,14 @@ async function syncFromCloud({ showResult = false } = {}) {
       const err = ordersError || petrolError || manufacturerError;
       console.error("Supabase select error:", err);
       throw err;
+    }
+
+    // Auto-repair check: If remote Supabase has outdated/corrupted data (fewer than 272 orders)
+    if (remoteOrders && remoteOrders.length < 272) {
+      console.warn(`Remote cloud has ${remoteOrders.length} orders (< 272). Auto-upgrading cloud database with master Excel dataset...`);
+      isSyncing = false;
+      await overwriteCloudWithMasterData({ showResult });
+      return;
     }
 
     const normalizedOrders = (remoteOrders || []).map(remoteToOrder);
@@ -1605,6 +1703,16 @@ async function handleImportJson(event) {
 }
 
 async function handleReloadSeedData() {
+  if (currentUser) {
+    const shouldOverwriteCloud = globalThis.confirm(
+      "You are signed into Cloud Sync. Do you want to reload all 272 master orders from Excel and also push them to Supabase to overwrite your cloud database?"
+    );
+    if (!shouldOverwriteCloud) return;
+    await overwriteCloudWithMasterData({ showResult: true });
+    closeDataToolsModal();
+    return;
+  }
+
   if (
     !globalThis.confirm(
       "Reload the official 272 ledger orders, 14 petrol expenses, and 19 manufacturer payments into local storage?"
@@ -1725,6 +1833,17 @@ async function initialize() {
   elements.downloadExcelBtn.addEventListener("click", exportExcel);
   elements.importJsonFile.addEventListener("change", handleImportJson);
   elements.reloadSeedDataBtn.addEventListener("click", handleReloadSeedData);
+  elements.overwriteCloudButton?.addEventListener("click", () => {
+    if (globalThis.confirm("Clear all data in Supabase cloud and re-upload the master 272 orders from the Excel sheet?")) {
+      overwriteCloudWithMasterData({ showResult: true });
+    }
+  });
+  elements.modalOverwriteCloudBtn?.addEventListener("click", () => {
+    if (globalThis.confirm("Clear all data in Supabase cloud and re-upload the master 272 orders from the Excel sheet?")) {
+      overwriteCloudWithMasterData({ showResult: true });
+      closeDataToolsModal();
+    }
+  });
 
   // Auth & Cloud Sync
   elements.signInForm.addEventListener("submit", handleSignIn);
@@ -1760,6 +1879,7 @@ async function initialize() {
     showToast("Local storage unavailable in this browser.");
   }
 
+  switchTab("orders");
   await initializeCloudSync();
 }
 
