@@ -987,7 +987,7 @@ button {
    Order Entry & Main Ledgers
    ========================================================================== */
 
-.workspace, .fuel-workspace, .manufacturer-workspace {
+.workspace, .fuel-workspace, .manufacturer-workspace, .misc-workspace {
   display: grid;
   grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.6fr);
   gap: 24px;
@@ -1677,7 +1677,7 @@ footer {
   .customer-grid {
     grid-template-columns: 1fr;
   }
-  .workspace, .fuel-workspace, .manufacturer-workspace {
+  .workspace, .fuel-workspace, .manufacturer-workspace, .misc-workspace {
     grid-template-columns: 1fr;
   }
   .entry-panel {

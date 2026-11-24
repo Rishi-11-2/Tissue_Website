@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20261101_6" />
+    <link rel="stylesheet" href="styles.css?v=20261124_1" />
   </head>
   <body>
     <div class="page-shell">
@@ -111,7 +111,7 @@
             </div>
             <strong id="net-profit">₹0</strong>
             <div class="card-footer-info">
-              <span>Sales − Stock − Petrol</span>
+              <span>Sales − Stock − Petrol − Misc</span>
               <span id="petrol-deducted-badge">Petrol: ₹0</span>
             </div>
           </article>
@@ -159,6 +159,10 @@
             <button class="tab-button" id="tab-btn-petrol" type="button" role="tab" aria-selected="false" aria-controls="view-petrol">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V5c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v17"/><path d="M15 8h2a2 2 0 0 1 2 2v6a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.5a1.5 1.5 0 0 0-3 0"/></svg>
               Petrol Expenses <span class="tab-count" id="petrol-tab-count">14</span>
+            </button>
+            <button class="tab-button" id="tab-btn-misc" type="button" role="tab" aria-selected="false" aria-controls="view-misc">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              Miscellaneous <span class="tab-count" id="misc-tab-count">0</span>
             </button>
           </div>
           <div class="nav-actions">
@@ -482,6 +486,78 @@
             </section>
           </div>
         </section>
+
+        <!-- ===================================================================
+             VIEW 5: Miscellaneous Expenses Ledger
+             =================================================================== -->
+        <section class="tab-view hidden" id="view-misc" role="tabpanel" aria-labelledby="tab-btn-misc">
+          <div class="misc-workspace fuel-workspace" aria-label="Miscellaneous expense ledger">
+            <aside class="entry-panel misc-entry-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Other Expenses</p>
+                  <h2 id="misc-form-title">Add expense</h2>
+                </div>
+                <span class="panel-number">05</span>
+              </div>
+
+              <form id="misc-form" novalidate>
+                <input id="misc-id" type="hidden" />
+                <div class="form-row">
+                  <label for="misc-date">Expense date <span aria-hidden="true">*</span></label>
+                  <input id="misc-date" name="miscDate" type="date" required />
+                </div>
+                <div class="form-row">
+                  <label for="misc-amount">Amount <span aria-hidden="true">*</span></label>
+                  <div class="field-with-prefix">
+                    <span>₹</span>
+                    <input id="misc-amount" name="miscAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <label for="misc-notes">Description / Note <span class="optional">optional</span></label>
+                  <textarea id="misc-notes" name="miscNotes" maxlength="240" placeholder="Packaging, tape, labor, delivery, or other expense..."></textarea>
+                </div>
+                <div class="form-actions">
+                  <button class="button button-primary" id="save-misc-button" type="submit">Save expense</button>
+                  <button class="button button-ghost hidden" id="cancel-misc-edit" type="button">Cancel</button>
+                </div>
+                <p id="misc-form-message" class="form-message" role="status"></p>
+              </form>
+            </aside>
+
+            <section class="history-panel misc-history-panel">
+              <div class="panel-heading history-heading">
+                <div>
+                  <p class="eyebrow">Expense history</p>
+                  <h2>Miscellaneous expenses</h2>
+                </div>
+                <div class="expense-total">
+                  <span>Total misc</span>
+                  <strong id="total-misc-panel">₹0</strong>
+                </div>
+              </div>
+              <div class="table-wrap misc-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Description</th>
+                      <th>Cost</th>
+                      <th><span class="sr-only">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="misc-body"></tbody>
+                </table>
+                <div id="misc-empty-state" class="empty-state">
+                  <span class="empty-icon" aria-hidden="true">📦</span>
+                  <h3>No miscellaneous expenses yet</h3>
+                  <p>Add other business expenses here (packaging, tape, loading, etc.). They will be deducted from your net profit automatically.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
       </main>
 
       <!-- Site Footer -->
@@ -504,7 +580,7 @@
           <div class="tool-option-card">
             <div class="tool-option-info">
               <h4>Download Full JSON Backup</h4>
-              <p>Save all orders, fuel expenses, and manufacturer payments into a timestamped file on your device.</p>
+              <p>Save all orders, fuel expenses, manufacturer payments, and miscellaneous expenses into a timestamped file on your device.</p>
             </div>
             <button class="button button-primary button-sm" id="download-json-backup-btn" type="button">Download</button>
           </div>
@@ -512,7 +588,7 @@
           <div class="tool-option-card">
             <div class="tool-option-info">
               <h4>Download Excel Workbook (.xlsx)</h4>
-              <p>Export all 4 clean spreadsheets: Summary, Orders, Manufacturer, and Petrol.</p>
+              <p>Export all 5 clean spreadsheets: Summary, Orders, Manufacturer, Petrol, and Miscellaneous.</p>
             </div>
             <button class="button button-secondary button-sm" id="download-excel-btn" type="button">Export Excel</button>
           </div>
@@ -546,6 +622,6 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <!-- Scripts -->
-    <script type="module" src="app.js?v=20261101_6"></script>
+    <script type="module" src="app.js?v=20261124_1"></script>
   </body>
 </html>

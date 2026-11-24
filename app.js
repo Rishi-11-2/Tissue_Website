@@ -1,19 +1,20 @@
 import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm";
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js?v=20261101_6";
-import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js?v=20261101_6";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./supabase-config.js?v=20261124_1";
+import { SEED_ORDERS, SEED_PETROL, SEED_MANUFACTURER_PAYMENTS } from "./seed-data.js?v=20261124_1";
 import {
   normalizeCustomer,
   groupOrdersByCustomer,
   calculateOrderFigures,
   getAvatarColor,
   getInitials,
-} from "./customer-ledger.js?v=20261101_6";
+} from "./customer-ledger.js?v=20261124_1";
 
 const DB_NAME = "tissue-ledger-db";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const ORDER_STORE = "orders";
 const PETROL_STORE = "petrol-expenses";
 const MANUFACTURER_PAYMENT_STORE = "manufacturer-payments";
+const MISC_STORE = "misc-expenses";
 const CURRENCY = "INR";
 const cloudConfigured = Boolean(SUPABASE_URL?.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY?.trim());
 
@@ -96,6 +97,20 @@ const elements = {
   manufacturerPaymentsEmptyState: document.querySelector("#manufacturer-payments-empty-state"),
   totalManufacturerPaid: document.querySelector("#total-manufacturer-paid"),
 
+  // Miscellaneous Form & Table
+  miscForm: document.querySelector("#misc-form"),
+  miscFormTitle: document.querySelector("#misc-form-title"),
+  miscId: document.querySelector("#misc-id"),
+  miscDate: document.querySelector("#misc-date"),
+  miscAmount: document.querySelector("#misc-amount"),
+  miscNotes: document.querySelector("#misc-notes"),
+  saveMiscButton: document.querySelector("#save-misc-button"),
+  cancelMiscEdit: document.querySelector("#cancel-misc-edit"),
+  miscFormMessage: document.querySelector("#misc-form-message"),
+  miscBody: document.querySelector("#misc-body"),
+  miscEmptyState: document.querySelector("#misc-empty-state"),
+  totalMiscPanel: document.querySelector("#total-misc-panel"),
+
   // Cloud Sync
   accountButton: document.querySelector("#account-button"),
   syncStatusLabel: document.querySelector("#sync-status-label"),
@@ -121,16 +136,19 @@ const elements = {
   tabBtnOrders: document.querySelector("#tab-btn-orders"),
   tabBtnManufacturer: document.querySelector("#tab-btn-manufacturer"),
   tabBtnPetrol: document.querySelector("#tab-btn-petrol"),
+  tabBtnMisc: document.querySelector("#tab-btn-misc"),
   customersTabCount: document.querySelector("#customers-tab-count"),
   ordersTabCount: document.querySelector("#orders-tab-count"),
   mfgTabCount: document.querySelector("#mfg-tab-count"),
   petrolTabCount: document.querySelector("#petrol-tab-count"),
+  miscTabCount: document.querySelector("#misc-tab-count"),
 
   // Views
   viewCustomers: document.querySelector("#view-customers"),
   viewOrders: document.querySelector("#view-orders"),
   viewManufacturer: document.querySelector("#view-manufacturer"),
   viewPetrol: document.querySelector("#view-petrol"),
+  viewMisc: document.querySelector("#view-misc"),
 
   // Customer View specific
   customerSearch: document.querySelector("#customer-search"),
@@ -155,6 +173,7 @@ const elements = {
 let orders = [];
 let petrolExpenses = [];
 let manufacturerPayments = [];
+let miscExpenses = [];
 let supabase = null;
 let currentUser = null;
 let isSyncing = false;
@@ -216,6 +235,10 @@ function getDatabase() {
         if (!db.objectStoreNames.contains(MANUFACTURER_PAYMENT_STORE)) {
           const store = db.createObjectStore(MANUFACTURER_PAYMENT_STORE, { keyPath: "id" });
           store.createIndex("paymentDate", "paymentDate", { unique: false });
+        }
+        if (!db.objectStoreNames.contains(MISC_STORE)) {
+          const store = db.createObjectStore(MISC_STORE, { keyPath: "id" });
+          store.createIndex("expenseDate", "expenseDate", { unique: false });
         }
       };
       request.onsuccess = () => {
@@ -281,11 +304,21 @@ async function deleteLocalBatch(storeName, ids) {
 }
 
 function storeForKind(kind) {
-  return ({ order: ORDER_STORE, petrol: PETROL_STORE, manufacturerPayment: MANUFACTURER_PAYMENT_STORE })[kind];
+  return ({
+    order: ORDER_STORE,
+    petrol: PETROL_STORE,
+    manufacturerPayment: MANUFACTURER_PAYMENT_STORE,
+    misc: MISC_STORE,
+  })[kind];
 }
 
 function tableForKind(kind) {
-  return ({ order: "orders", petrol: "petrol_expenses", manufacturerPayment: "manufacturer_payments" })[kind];
+  return ({
+    order: "orders",
+    petrol: "petrol_expenses",
+    manufacturerPayment: "manufacturer_payments",
+    misc: "miscellaneous_expenses",
+  })[kind];
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -359,10 +392,11 @@ async function loadLocalLedger() {
     localStorage.setItem(SEED_VERSION_KEY, CURRENT_SEED_VERSION);
   }
 
-  const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([
+  const [storedOrders, storedPetrol, storedManufacturerPayments, storedMisc] = await Promise.all([
     getAllLocal(ORDER_STORE),
     getAllLocal(PETROL_STORE),
     getAllLocal(MANUFACTURER_PAYMENT_STORE),
+    getAllLocal(MISC_STORE).catch(() => []),
   ]);
 
   // If store was empty, populate from master
@@ -373,10 +407,12 @@ async function loadLocalLedger() {
     orders = [...SEED_ORDERS];
     petrolExpenses = [...SEED_PETROL];
     manufacturerPayments = [...SEED_MANUFACTURER_PAYMENTS];
+    miscExpenses = (storedMisc || []).filter(isVisibleToCurrentLedger);
   } else {
     orders = storedOrders.filter(isVisibleToCurrentLedger);
     petrolExpenses = storedPetrol.filter(isVisibleToCurrentLedger);
     manufacturerPayments = storedManufacturerPayments.filter(isVisibleToCurrentLedger);
+    miscExpenses = (storedMisc || []).filter(isVisibleToCurrentLedger);
   }
 
   updateCustomerDatalist();
@@ -487,8 +523,9 @@ function renderSummary() {
   );
 
   const petrolTotal = petrolExpenses.reduce((sum, exp) => sum + toNumber(exp.amount), 0);
+  const miscTotal = miscExpenses.reduce((sum, exp) => sum + toNumber(exp.amount), 0);
   const manufacturerPaid = manufacturerPayments.reduce((sum, pmt) => sum + toNumber(pmt.amount), 0);
-  const profit = orderTotals.sales - orderTotals.stock - petrolTotal;
+  const profit = orderTotals.sales - orderTotals.stock - petrolTotal - miscTotal;
   const manufacturerDue = orderTotals.stock - manufacturerPaid;
   const margin = orderTotals.sales > 0 ? (profit / orderTotals.sales) * 100 : 0;
   const avgOrder = orders.length > 0 ? orderTotals.sales / orders.length : 0;
@@ -500,10 +537,16 @@ function renderSummary() {
   elements.profitMargin.textContent = `${margin.toFixed(1)}% margin`;
   elements.totalPetrol.textContent = formatCurrency.format(petrolTotal);
   if (elements.totalPetrolPanel) elements.totalPetrolPanel.textContent = formatCurrency.format(petrolTotal);
+  if (elements.totalMiscPanel) elements.totalMiscPanel.textContent = formatCurrency.format(miscTotal);
   elements.totalManufacturerPaid.textContent = formatCurrency.format(manufacturerPaid);
 
   if (elements.avgOrderBadge) elements.avgOrderBadge.textContent = `Avg: ${formatCurrency.format(avgOrder)} / order`;
-  if (elements.petrolDeductedBadge) elements.petrolDeductedBadge.textContent = `Petrol: ${formatCurrency.format(petrolTotal)}`;
+  if (elements.petrolDeductedBadge) {
+    elements.petrolDeductedBadge.textContent =
+      miscTotal > 0
+        ? `Petrol: ${formatCurrency.format(petrolTotal)} | Misc: ${formatCurrency.format(miscTotal)}`
+        : `Petrol: ${formatCurrency.format(petrolTotal)}`;
+  }
   if (elements.mfgPaidSummaryBadge) elements.mfgPaidSummaryBadge.textContent = `Paid: ${formatCurrency.format(manufacturerPaid)}`;
   if (elements.petrolCountBadge) elements.petrolCountBadge.textContent = `${petrolExpenses.length} fuel entries`;
 
@@ -513,6 +556,7 @@ function renderSummary() {
   if (elements.ordersTabCount) elements.ordersTabCount.textContent = orders.length;
   if (elements.mfgTabCount) elements.mfgTabCount.textContent = manufacturerPayments.length;
   if (elements.petrolTabCount) elements.petrolTabCount.textContent = petrolExpenses.length;
+  if (elements.miscTabCount) elements.miscTabCount.textContent = miscExpenses.length;
 
   document.querySelector(".profit-card").classList.toggle("negative", profit < 0);
   document.querySelector(".due-card").classList.toggle("negative", manufacturerDue < 0);
@@ -728,12 +772,37 @@ function renderManufacturerPayments() {
   elements.manufacturerPaymentsEmptyState.classList.toggle("visible", payments.length === 0);
 }
 
+function renderMiscExpenses() {
+  const expenses = [...miscExpenses].sort(
+    (a, b) => b.expenseDate.localeCompare(a.expenseDate) || (b.createdAt || "").localeCompare(a.createdAt || "")
+  );
+
+  elements.miscBody.innerHTML = expenses
+    .map(
+      (expense) => `<tr>
+      <td><span class="order-date">${displayDate(expense.expenseDate)}</span></td>
+      <td>${expense.notes ? escapeHtml(expense.notes) : '<span class="order-note">No description</span>'}</td>
+      <td class="numeric">${formatCurrency.format(toNumber(expense.amount))}</td>
+      <td style="text-align: right;">
+        <span class="row-actions">
+          <button class="icon-button" type="button" data-misc-action="edit" data-id="${expense.id}" aria-label="Edit expense from ${displayDate(expense.expenseDate)}">${actionIcon("edit")}</button>
+          <button class="icon-button delete" type="button" data-misc-action="delete" data-id="${expense.id}" aria-label="Delete expense from ${displayDate(expense.expenseDate)}">${actionIcon("delete")}</button>
+        </span>
+      </td>
+    </tr>`
+    )
+    .join("");
+
+  elements.miscEmptyState.classList.toggle("visible", expenses.length === 0);
+}
+
 function render() {
   renderSummary();
   renderCustomersView();
   renderOrders();
   renderPetrolExpenses();
   renderManufacturerPayments();
+  renderMiscExpenses();
 }
 
 function renderPreview() {
@@ -781,6 +850,16 @@ function resetManufacturerPaymentForm() {
   setFormMessage(elements.manufacturerPaymentFormMessage, "");
 }
 
+function resetMiscForm() {
+  elements.miscForm.reset();
+  elements.miscId.value = "";
+  elements.miscDate.value = todayISO();
+  elements.miscFormTitle.textContent = "Add expense";
+  elements.saveMiscButton.textContent = "Save expense";
+  elements.cancelMiscEdit.classList.add("hidden");
+  setFormMessage(elements.miscFormMessage, "");
+}
+
 function switchTab(tabName) {
   activeTab = tabName;
   const tabs = [
@@ -788,6 +867,7 @@ function switchTab(tabName) {
     { name: "orders", btn: elements.tabBtnOrders, view: elements.viewOrders },
     { name: "manufacturer", btn: elements.tabBtnManufacturer, view: elements.viewManufacturer },
     { name: "petrol", btn: elements.tabBtnPetrol, view: elements.viewPetrol },
+    { name: "misc", btn: elements.tabBtnMisc, view: elements.viewMisc },
   ];
 
   tabs.forEach((tab) => {
@@ -858,6 +938,24 @@ function beginEditingManufacturerPayment(id) {
   elements.manufacturerPaymentDate.focus();
 }
 
+function beginEditingMisc(id) {
+  const expense = miscExpenses.find((item) => item.id === id);
+  if (!expense) return;
+  switchTab("misc");
+
+  elements.miscId.value = expense.id;
+  elements.miscDate.value = expense.expenseDate;
+  elements.miscAmount.value = expense.amount;
+  elements.miscNotes.value = expense.notes || "";
+  elements.miscFormTitle.textContent = "Edit expense";
+  elements.saveMiscButton.textContent = "Update expense";
+  elements.cancelMiscEdit.classList.remove("hidden");
+  setFormMessage(elements.miscFormMessage, "Editing this expense.");
+
+  document.querySelector(".misc-entry-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  elements.miscDate.focus();
+}
+
 function openOrderFormForCustomer(customerName) {
   switchTab("orders");
   resetOrderForm();
@@ -905,6 +1003,16 @@ function manufacturerPaymentToRemote(payment) {
   };
 }
 
+function miscToRemote(expense) {
+  return {
+    id: expense.id,
+    user_id: expense.userId,
+    expense_date: expense.expenseDate,
+    amount: expense.amount,
+    notes: expense.notes || null,
+  };
+}
+
 function remoteToOrder(row) {
   return {
     id: row.id,
@@ -946,8 +1054,26 @@ function remoteToManufacturerPayment(row) {
   };
 }
 
+function remoteToMisc(row) {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    expenseDate: row.expense_date,
+    amount: toNumber(row.amount),
+    notes: row.notes || "",
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || new Date().toISOString(),
+    syncState: "synced",
+  };
+}
+
 function payloadForKind(kind, record) {
-  return ({ order: orderToRemote, petrol: petrolToRemote, manufacturerPayment: manufacturerPaymentToRemote })[kind](record);
+  return ({
+    order: orderToRemote,
+    petrol: petrolToRemote,
+    manufacturerPayment: manufacturerPaymentToRemote,
+    misc: miscToRemote,
+  })[kind](record);
 }
 
 async function upsertRemote(kind, record) {
@@ -988,14 +1114,22 @@ async function saveRecord(kind, record) {
     return syncedRecord;
   } catch (error) {
     console.error("Cloud save failed", error);
+    if (kind === "misc" && (error?.code === "42P01" || error?.message?.includes("does not exist") || error?.details?.includes("does not exist"))) {
+      console.warn("Miscellaneous expense saved locally. (Run add-miscellaneous-expenses.sql in Supabase to sync to cloud).");
+      return localRecord;
+    }
     throw new Error("Saved locally, but cloud sync could not finish. Use Sync now after reconnecting.");
   }
 }
 
 async function deleteRecord(kind, record) {
   if (cloudConfigured && currentUser) {
-    const { error } = await supabase.from(tableForKind(kind)).delete().eq("id", record.id);
-    if (error) throw error;
+    try {
+      const { error } = await supabase.from(tableForKind(kind)).delete().eq("id", record.id);
+      if (error && kind !== "misc") throw error;
+    } catch (err) {
+      if (kind !== "misc") throw err;
+    }
   }
   await deleteLocal(storeForKind(kind), record.id);
 }
@@ -1107,6 +1241,38 @@ async function handleManufacturerPaymentSubmit(event) {
   }
 }
 
+async function handleMiscSubmit(event) {
+  event.preventDefault();
+  if (!canSaveCloudRecord(elements.miscFormMessage)) return;
+
+  if (!elements.miscDate.value || toNumber(elements.miscAmount.value) <= 0) {
+    setFormMessage(elements.miscFormMessage, "Please enter the expense date and an amount greater than zero.", true);
+    (!elements.miscDate.value ? elements.miscDate : elements.miscAmount).focus();
+    return;
+  }
+
+  const existing = miscExpenses.find((expense) => expense.id === elements.miscId.value);
+  const now = new Date().toISOString();
+  const expense = {
+    id: elements.miscId.value || crypto.randomUUID(),
+    expenseDate: elements.miscDate.value,
+    amount: toNumber(elements.miscAmount.value),
+    notes: elements.miscNotes.value.trim(),
+    createdAt: existing?.createdAt || now,
+    updatedAt: now,
+  };
+
+  try {
+    const saved = await saveRecord("misc", expense);
+    miscExpenses = miscExpenses.filter((item) => item.id !== saved.id).concat(saved);
+    render();
+    resetMiscForm();
+    showToast(existing ? "Expense updated." : "Expense saved.");
+  } catch (error) {
+    setFormMessage(elements.miscFormMessage, error.message || "The expense could not be saved.", true);
+  }
+}
+
 async function handleOrderAction(event) {
   const button = event.target.closest("button[data-order-action]");
   if (!button) return;
@@ -1168,6 +1334,27 @@ async function handleManufacturerPaymentAction(event) {
     showToast("Manufacturer payment deleted.");
   } catch {
     showToast("The manufacturer payment could not be deleted. Please try again.");
+  }
+}
+
+async function handleMiscAction(event) {
+  const button = event.target.closest("button[data-misc-action]");
+  if (!button) return;
+  const { miscAction: action, id } = button.dataset;
+
+  if (action === "edit") return beginEditingMisc(id);
+
+  const expense = miscExpenses.find((item) => item.id === id);
+  if (!expense || !globalThis.confirm(`Delete expense from ${displayDate(expense.expenseDate)}?`)) return;
+
+  try {
+    await deleteRecord("misc", expense);
+    miscExpenses = miscExpenses.filter((item) => item.id !== id);
+    render();
+    if (elements.miscId.value === id) resetMiscForm();
+    showToast("Expense deleted.");
+  } catch {
+    showToast("The expense could not be deleted. Please try again.");
   }
 }
 
@@ -1236,8 +1423,16 @@ async function syncPendingRecords(kind, ownerId, remoteExistingIds = new Set()) 
       await deleteLocalBatch(store, oldIdsToDelete);
     }
 
-    await upsertRemoteBatch(kind, updatedChunk);
-    await saveLocalBatch(store, updatedChunk);
+    try {
+      await upsertRemoteBatch(kind, updatedChunk);
+      await saveLocalBatch(store, updatedChunk);
+    } catch (err) {
+      if (kind === "misc") {
+        console.warn("Could not sync pending misc records to remote (table may not exist yet in Supabase):", err.message);
+        return;
+      }
+      throw err;
+    }
   }
 }
 
@@ -1249,14 +1444,32 @@ async function syncFromCloud({ showResult = false } = {}) {
 
   try {
     // 1. Fetch remote records from cloud first
+    const fetchRemoteMisc = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("miscellaneous_expenses")
+          .select("*")
+          .order("expense_date", { ascending: false });
+        if (error) {
+          console.warn("Supabase miscellaneous_expenses table notice:", error.message);
+          return { data: [], isMissing: true };
+        }
+        return { data: data || [], isMissing: false };
+      } catch {
+        return { data: [], isMissing: true };
+      }
+    };
+
     const [
       { data: remoteOrders, error: ordersError },
       { data: remotePetrol, error: petrolError },
       { data: remoteManufacturerPayments, error: manufacturerError },
+      miscResult,
     ] = await Promise.all([
       supabase.from("orders").select("*").order("order_date", { ascending: false }),
       supabase.from("petrol_expenses").select("*").order("expense_date", { ascending: false }),
       supabase.from("manufacturer_payments").select("*").order("payment_date", { ascending: false }),
+      fetchRemoteMisc(),
     ]);
 
     if (ordersError || petrolError || manufacturerError) {
@@ -1268,30 +1481,41 @@ async function syncFromCloud({ showResult = false } = {}) {
     const normalizedOrders = (remoteOrders || []).map(remoteToOrder);
     const normalizedPetrol = (remotePetrol || []).map(remoteToPetrol);
     const normalizedManufacturerPayments = (remoteManufacturerPayments || []).map(remoteToManufacturerPayment);
+    const normalizedMisc = (miscResult.data || []).map(remoteToMisc);
 
     const remoteOrderIds = new Set(normalizedOrders.map((rec) => rec.id));
     const remotePetrolIds = new Set(normalizedPetrol.map((rec) => rec.id));
     const remoteManufacturerIds = new Set(normalizedManufacturerPayments.map((rec) => rec.id));
+    const remoteMiscIds = new Set(normalizedMisc.map((rec) => rec.id));
 
     // 2. Sync local unsynced pending records in fast batches
-    await Promise.all([
+    const syncTasks = [
       syncPendingRecords("order", currentUser.id, remoteOrderIds),
       syncPendingRecords("petrol", currentUser.id, remotePetrolIds),
       syncPendingRecords("manufacturerPayment", currentUser.id, remoteManufacturerIds),
-    ]);
+    ];
+    if (!miscResult.isMissing) {
+      syncTasks.push(syncPendingRecords("misc", currentUser.id, remoteMiscIds));
+    }
+    await Promise.all(syncTasks);
 
     // 3. Save remote records locally in batch
-    await Promise.all([
+    const saveTasks = [
       saveLocalBatch(ORDER_STORE, normalizedOrders),
       saveLocalBatch(PETROL_STORE, normalizedPetrol),
       saveLocalBatch(MANUFACTURER_PAYMENT_STORE, normalizedManufacturerPayments),
-    ]);
+    ];
+    if (!miscResult.isMissing && normalizedMisc.length > 0) {
+      saveTasks.push(saveLocalBatch(MISC_STORE, normalizedMisc));
+    }
+    await Promise.all(saveTasks);
 
     // 4. Clean up any locally deleted records that belonged to this user
-    const [storedOrders, storedPetrol, storedManufacturerPayments] = await Promise.all([
+    const [storedOrders, storedPetrol, storedManufacturerPayments, storedMisc] = await Promise.all([
       getAllLocal(ORDER_STORE),
       getAllLocal(PETROL_STORE),
       getAllLocal(MANUFACTURER_PAYMENT_STORE),
+      getAllLocal(MISC_STORE).catch(() => []),
     ]);
 
     if (normalizedOrders.length > 0) {
@@ -1311,6 +1535,12 @@ async function syncFromCloud({ showResult = false } = {}) {
         .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remoteManufacturerIds.has(r.id))
         .map((r) => r.id);
       if (toDelete.length > 0) await deleteLocalBatch(MANUFACTURER_PAYMENT_STORE, toDelete);
+    }
+    if (!miscResult.isMissing && normalizedMisc.length > 0) {
+      const toDelete = (storedMisc || [])
+        .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remoteMiscIds.has(r.id))
+        .map((r) => r.id);
+      if (toDelete.length > 0) await deleteLocalBatch(MISC_STORE, toDelete);
     }
 
     await loadLocalLedger();
@@ -1483,6 +1713,14 @@ function exportExcel() {
       Note: pmt.notes || "",
     }));
 
+  const miscRows = [...miscExpenses]
+    .sort((a, b) => a.expenseDate.localeCompare(b.expenseDate))
+    .map((expense) => ({
+      Date: excelDate(expense.expenseDate),
+      "Expense Amount": toNumber(expense.amount),
+      Note: expense.notes || "",
+    }));
+
   const totals = orderRows.reduce(
     (res, row) => {
       res.sales += row["Sales Value"];
@@ -1493,8 +1731,9 @@ function exportExcel() {
   );
 
   totals.petrol = petrolRows.reduce((sum, row) => sum + row["Petrol Cost"], 0);
+  totals.misc = miscRows.reduce((sum, row) => sum + row["Expense Amount"], 0);
   totals.manufacturerPaid = manufacturerRows.reduce((sum, row) => sum + row["Amount Paid"], 0);
-  totals.net = totals.sales - totals.stock - totals.petrol;
+  totals.net = totals.sales - totals.stock - totals.petrol - totals.misc;
   totals.manufacturerDue = totals.stock - totals.manufacturerPaid;
 
   const summaryRows = [
@@ -1503,11 +1742,13 @@ function exportExcel() {
     ["Orders recorded", orders.length],
     ["Petrol expenses recorded", petrolExpenses.length],
     ["Manufacturer payments recorded", manufacturerPayments.length],
+    ["Miscellaneous expenses recorded", miscExpenses.length],
     [],
     ["Metric", "Amount (INR)"],
     ["Total sales", totals.sales],
     ["Total stock cost", totals.stock],
     ["Total petrol cost", totals.petrol],
+    ["Total miscellaneous cost", totals.misc],
     ["Net profit", totals.net],
     ["Total paid to manufacturer", totals.manufacturerPaid],
     ["Current due to manufacturer", totals.manufacturerDue],
@@ -1520,25 +1761,30 @@ function exportExcel() {
   const ordersSheet = XLSX.utils.json_to_sheet(orderRows);
   const petrolSheet = XLSX.utils.json_to_sheet(petrolRows);
   const manufacturerSheet = XLSX.utils.json_to_sheet(manufacturerRows);
+  const miscSheet = XLSX.utils.json_to_sheet(miscRows);
 
   summarySheet["!cols"] = [{ wch: 33 }, { wch: 58 }];
   ordersSheet["!cols"] = [{ wch: 14 }, { wch: 26 }, { wch: 14 }, { wch: 20 }, { wch: 20 }, { wch: 16 }, { wch: 16 }, { wch: 23 }, { wch: 32 }];
   petrolSheet["!cols"] = [{ wch: 14 }, { wch: 16 }, { wch: 42 }];
   manufacturerSheet["!cols"] = [{ wch: 14 }, { wch: 18 }, { wch: 42 }];
+  miscSheet["!cols"] = [{ wch: 14 }, { wch: 18 }, { wch: 42 }];
 
   for (let row = 2; row <= orderRows.length + 1; row += 1) if (ordersSheet[`A${row}`]) ordersSheet[`A${row}`].z = "dd-mmm-yyyy";
   for (let row = 2; row <= petrolRows.length + 1; row += 1) if (petrolSheet[`A${row}`]) petrolSheet[`A${row}`].z = "dd-mmm-yyyy";
   for (let row = 2; row <= manufacturerRows.length + 1; row += 1) if (manufacturerSheet[`A${row}`]) manufacturerSheet[`A${row}`].z = "dd-mmm-yyyy";
+  for (let row = 2; row <= miscRows.length + 1; row += 1) if (miscSheet[`A${row}`]) miscSheet[`A${row}`].z = "dd-mmm-yyyy";
 
   formatSheetCurrency(ordersSheet, ["D", "E", "F", "G", "H"], 2, orderRows.length + 1);
   formatSheetCurrency(petrolSheet, ["B"], 2, petrolRows.length + 1);
   formatSheetCurrency(manufacturerSheet, ["B"], 2, manufacturerRows.length + 1);
-  formatSheetCurrency(summarySheet, ["B"], 8, 13);
+  formatSheetCurrency(miscSheet, ["B"], 2, miscRows.length + 1);
+  formatSheetCurrency(summarySheet, ["B"], 9, 15);
 
   XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
   XLSX.utils.book_append_sheet(workbook, ordersSheet, "Order History");
   XLSX.utils.book_append_sheet(workbook, petrolSheet, "Petrol Expenses");
   XLSX.utils.book_append_sheet(workbook, manufacturerSheet, "Manufacturer Payments");
+  XLSX.utils.book_append_sheet(workbook, miscSheet, "Miscellaneous Expenses");
 
   XLSX.writeFile(workbook, `tissue-ledger-${todayISO()}.xlsx`, { compression: true });
   showToast("Excel workbook downloaded.");
@@ -1548,10 +1794,11 @@ function exportExcel() {
 function downloadJsonBackup() {
   const backup = {
     exportedAt: new Date().toISOString(),
-    version: "2.0",
+    version: "2.1",
     orders,
     petrolExpenses,
     manufacturerPayments,
+    miscExpenses,
   };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -1577,7 +1824,7 @@ async function handleImportJson(event) {
 
     if (
       !globalThis.confirm(
-        `Import ${data.orders.length} orders, ${data.petrolExpenses?.length || 0} petrol entries, and ${data.manufacturerPayments?.length || 0} payments?`
+        `Import ${data.orders.length} orders, ${data.petrolExpenses?.length || 0} petrol entries, ${data.manufacturerPayments?.length || 0} payments, and ${data.miscExpenses?.length || 0} misc expenses?`
       )
     ) {
       return;
@@ -1587,14 +1834,17 @@ async function handleImportJson(event) {
     await clearLocalStore(ORDER_STORE);
     await clearLocalStore(PETROL_STORE);
     await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
+    await clearLocalStore(MISC_STORE);
 
     await saveLocalBatch(ORDER_STORE, data.orders);
     await saveLocalBatch(PETROL_STORE, data.petrolExpenses || []);
     await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, data.manufacturerPayments || []);
+    await saveLocalBatch(MISC_STORE, data.miscExpenses || []);
 
     orders = data.orders;
     petrolExpenses = data.petrolExpenses || [];
     manufacturerPayments = data.manufacturerPayments || [];
+    miscExpenses = data.miscExpenses || [];
 
     updateCustomerDatalist();
     render();
@@ -1620,6 +1870,7 @@ async function handleReloadSeedData() {
   await clearLocalStore(ORDER_STORE);
   await clearLocalStore(PETROL_STORE);
   await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
+  await clearLocalStore(MISC_STORE);
 
   await saveLocalBatch(ORDER_STORE, SEED_ORDERS);
   await saveLocalBatch(PETROL_STORE, SEED_PETROL);
@@ -1628,6 +1879,7 @@ async function handleReloadSeedData() {
   orders = [...SEED_ORDERS];
   petrolExpenses = [...SEED_PETROL];
   manufacturerPayments = [...SEED_MANUFACTURER_PAYMENTS];
+  miscExpenses = [];
 
   updateCustomerDatalist();
   render();
@@ -1649,12 +1901,14 @@ async function initialize() {
   resetOrderForm();
   resetPetrolForm();
   resetManufacturerPaymentForm();
+  resetMiscForm();
 
   // Tab switching
   elements.tabBtnCustomers.addEventListener("click", () => switchTab("customers"));
   elements.tabBtnOrders.addEventListener("click", () => switchTab("orders"));
   elements.tabBtnManufacturer.addEventListener("click", () => switchTab("manufacturer"));
   elements.tabBtnPetrol.addEventListener("click", () => switchTab("petrol"));
+  elements.tabBtnMisc.addEventListener("click", () => switchTab("misc"));
 
   // Quick action buttons
   elements.openOrderFormBtn.addEventListener("click", () => {
@@ -1716,6 +1970,11 @@ async function initialize() {
   elements.manufacturerPaymentForm.addEventListener("submit", handleManufacturerPaymentSubmit);
   elements.cancelManufacturerPaymentEdit.addEventListener("click", resetManufacturerPaymentForm);
   elements.manufacturerPaymentsBody.addEventListener("click", handleManufacturerPaymentAction);
+
+  // Miscellaneous actions
+  elements.miscForm.addEventListener("submit", handleMiscSubmit);
+  elements.cancelMiscEdit.addEventListener("click", resetMiscForm);
+  elements.miscBody.addEventListener("click", handleMiscAction);
 
   // Export & Data tools
   elements.exportButton.addEventListener("click", exportExcel);
