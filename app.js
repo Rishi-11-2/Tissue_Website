@@ -1460,11 +1460,14 @@ async function syncPendingRecords(kind, ownerId, remoteExistingIds = new Set()) 
   const records = await getAllLocal(store);
   const pending = records.filter((r) => {
     if (r.syncState === "synced") return false;
-    if (remoteExistingIds.has(r.id)) return false;
+    // Allow explicit "pending" edits to overwrite an existing remote row;
+    // skip unowned seed/"local" rows that already exist in the cloud.
+    if (r.syncState !== "pending" && remoteExistingIds.has(r.id)) return false;
     return !r.userId || r.userId === ownerId;
   });
 
-  if (pending.length === 0) return;
+  const pushedIds = new Set();
+  if (pending.length === 0) return pushedIds;
 
   const BATCH_SIZE = 50;
   for (let i = 0; i < pending.length; i += BATCH_SIZE) {
@@ -1490,15 +1493,17 @@ async function syncPendingRecords(kind, ownerId, remoteExistingIds = new Set()) 
     try {
       await upsertRemoteBatch(kind, updatedChunk);
       await saveLocalBatch(store, updatedChunk);
+      for (const rec of updatedChunk) pushedIds.add(rec.id);
     } catch (err) {
       if (kind === "misc" && isMissingMiscTableError(err)) {
         miscCloudTableMissing = true;
         console.warn("Could not sync pending misc records to remote (table may not exist yet in Supabase):", err.message);
-        return;
+        return pushedIds;
       }
       throw err;
     }
   }
+  return pushedIds;
 }
 
 async function syncFromCloud({ showResult = false } = {}) {
@@ -1555,24 +1560,26 @@ async function syncFromCloud({ showResult = false } = {}) {
     const remoteMiscIds = new Set(normalizedMisc.map((rec) => rec.id));
 
     // 2. Sync local unsynced pending records in fast batches
-    const syncTasks = [
+    const [pushedOrders, pushedPetrol, pushedMfg, pushedMisc] = await Promise.all([
       syncPendingRecords("order", currentUser.id, remoteOrderIds),
       syncPendingRecords("petrol", currentUser.id, remotePetrolIds),
       syncPendingRecords("manufacturerPayment", currentUser.id, remoteManufacturerIds),
-    ];
-    if (!miscResult.isMissing) {
-      syncTasks.push(syncPendingRecords("misc", currentUser.id, remoteMiscIds));
-    }
-    await Promise.all(syncTasks);
+      !miscResult.isMissing ? syncPendingRecords("misc", currentUser.id, remoteMiscIds) : Promise.resolve(new Set()),
+    ]);
 
-    // 3. Save remote records locally in batch
+    // 3. Save remote records locally in batch (skip any just-pushed IDs so local edits aren't overwritten by pre-push snapshots)
+    const ordersToSave = normalizedOrders.filter((r) => !pushedOrders.has(r.id));
+    const petrolToSave = normalizedPetrol.filter((r) => !pushedPetrol.has(r.id));
+    const mfgToSave = normalizedManufacturerPayments.filter((r) => !pushedMfg.has(r.id));
+    const miscToSave = normalizedMisc.filter((r) => !pushedMisc.has(r.id));
+
     const saveTasks = [
-      saveLocalBatch(ORDER_STORE, normalizedOrders),
-      saveLocalBatch(PETROL_STORE, normalizedPetrol),
-      saveLocalBatch(MANUFACTURER_PAYMENT_STORE, normalizedManufacturerPayments),
+      saveLocalBatch(ORDER_STORE, ordersToSave),
+      saveLocalBatch(PETROL_STORE, petrolToSave),
+      saveLocalBatch(MANUFACTURER_PAYMENT_STORE, mfgToSave),
     ];
-    if (!miscResult.isMissing && normalizedMisc.length > 0) {
-      saveTasks.push(saveLocalBatch(MISC_STORE, normalizedMisc));
+    if (!miscResult.isMissing && miscToSave.length > 0) {
+      saveTasks.push(saveLocalBatch(MISC_STORE, miscToSave));
     }
     await Promise.all(saveTasks);
 
@@ -1728,7 +1735,9 @@ async function handleSignOut() {
 
 // Excel Export
 function excelDate(isoDate) {
+  if (!isoDate || typeof isoDate !== "string") return "";
   const [year, month, day] = isoDate.split("-").map(Number);
+  if (!year || !month || !day) return "";
   return new Date(year, month - 1, day);
 }
 
@@ -1896,21 +1905,34 @@ async function handleImportJson(event) {
       return;
     }
 
+    const prepareImported = (items) =>
+      (Array.isArray(items) ? items : []).map((item) => ({
+        ...item,
+        id: isValidUuid(item.id) ? item.id : crypto.randomUUID(),
+        userId: currentUser ? currentUser.id : null,
+        syncState: currentUser ? "pending" : "local",
+      }));
+
+    const importedOrders = prepareImported(data.orders);
+    const importedPetrol = prepareImported(data.petrolExpenses);
+    const importedMfg = prepareImported(data.manufacturerPayments);
+    const importedMisc = prepareImported(data.miscExpenses);
+
     // Save to local stores
     await clearLocalStore(ORDER_STORE);
     await clearLocalStore(PETROL_STORE);
     await clearLocalStore(MANUFACTURER_PAYMENT_STORE);
     await clearLocalStore(MISC_STORE);
 
-    await saveLocalBatch(ORDER_STORE, data.orders);
-    await saveLocalBatch(PETROL_STORE, data.petrolExpenses || []);
-    await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, data.manufacturerPayments || []);
-    await saveLocalBatch(MISC_STORE, data.miscExpenses || []);
+    await saveLocalBatch(ORDER_STORE, importedOrders);
+    await saveLocalBatch(PETROL_STORE, importedPetrol);
+    await saveLocalBatch(MANUFACTURER_PAYMENT_STORE, importedMfg);
+    await saveLocalBatch(MISC_STORE, importedMisc);
 
-    orders = data.orders;
-    petrolExpenses = data.petrolExpenses || [];
-    manufacturerPayments = data.manufacturerPayments || [];
-    miscExpenses = data.miscExpenses || [];
+    orders = importedOrders;
+    petrolExpenses = importedPetrol;
+    manufacturerPayments = importedMfg;
+    miscExpenses = importedMisc;
 
     updateCustomerDatalist();
     render();
