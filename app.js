@@ -180,6 +180,7 @@ let isSyncing = false;
 let pendingEmail = "";
 let toastTimer;
 let activeTab = "orders";
+let miscCloudTableMissing = false;
 const expandedCustomerCards = new Set();
 
 function todayISO() {
@@ -726,7 +727,7 @@ function renderOrders() {
 
 function renderPetrolExpenses() {
   const expenses = [...petrolExpenses].sort(
-    (a, b) => b.expenseDate.localeCompare(a.expenseDate) || (b.createdAt || "").localeCompare(a.createdAt || "")
+    (a, b) => (b.expenseDate || "").localeCompare(a.expenseDate || "") || (b.createdAt || "").localeCompare(a.createdAt || "")
   );
 
   elements.petrolBody.innerHTML = expenses
@@ -750,7 +751,7 @@ function renderPetrolExpenses() {
 
 function renderManufacturerPayments() {
   const payments = [...manufacturerPayments].sort(
-    (a, b) => b.paymentDate.localeCompare(a.paymentDate) || (b.createdAt || "").localeCompare(a.createdAt || "")
+    (a, b) => (b.paymentDate || "").localeCompare(a.paymentDate || "") || (b.createdAt || "").localeCompare(a.createdAt || "")
   );
 
   elements.manufacturerPaymentsBody.innerHTML = payments
@@ -774,7 +775,7 @@ function renderManufacturerPayments() {
 
 function renderMiscExpenses() {
   const expenses = [...miscExpenses].sort(
-    (a, b) => b.expenseDate.localeCompare(a.expenseDate) || (b.createdAt || "").localeCompare(a.createdAt || "")
+    (a, b) => (b.expenseDate || "").localeCompare(a.expenseDate || "") || (b.createdAt || "").localeCompare(a.createdAt || "")
   );
 
   elements.miscBody.innerHTML = expenses
@@ -1099,6 +1100,21 @@ async function upsertRemoteBatch(kind, records) {
   }
 }
 
+function isMissingMiscTableError(error) {
+  if (!error) return false;
+  const code = String(error.code || "");
+  const status = Number(error.status || error.statusCode || 0);
+  const msg = `${error.message || ""} ${error.details || ""} ${error.hint || ""}`.toLowerCase();
+  return (
+    code === "PGRST205" ||
+    code === "42P01" ||
+    status === 404 ||
+    msg.includes("does not exist") ||
+    msg.includes("schema cache") ||
+    msg.includes("could not find the table")
+  );
+}
+
 async function saveRecord(kind, record) {
   const store = storeForKind(kind);
   if (!isValidUuid(record.id)) {
@@ -1106,19 +1122,49 @@ async function saveRecord(kind, record) {
   }
   const localRecord = { ...record, userId: currentUser?.id || record.userId, syncState: currentUser ? "pending" : "local" };
   await saveLocal(store, localRecord);
-  if (!cloudConfigured || !currentUser) return localRecord;
+  if (!cloudConfigured || !currentUser) {
+    return { record: localRecord, cloudStatus: "local" };
+  }
   try {
     await upsertRemote(kind, localRecord);
     const syncedRecord = { ...localRecord, syncState: "synced" };
     await saveLocal(store, syncedRecord);
-    return syncedRecord;
+    if (kind === "misc") miscCloudTableMissing = false;
+    return { record: syncedRecord, cloudStatus: "synced" };
   } catch (error) {
     console.error("Cloud save failed", error);
-    if (kind === "misc" && (error?.code === "42P01" || error?.message?.includes("does not exist") || error?.details?.includes("does not exist"))) {
+    if (kind === "misc" && isMissingMiscTableError(error)) {
+      miscCloudTableMissing = true;
       console.warn("Miscellaneous expense saved locally. (Run add-miscellaneous-expenses.sql in Supabase to sync to cloud).");
-      return localRecord;
+      return { record: localRecord, cloudStatus: "missing_table" };
     }
-    throw new Error("Saved locally, but cloud sync could not finish. Use Sync now after reconnecting.");
+    return { record: localRecord, cloudStatus: "offline", error };
+  }
+}
+
+async function persistRecordWithUi({ kind, record, submitButton, messageElement, successToast, onSaved, resetForm }) {
+  if (submitButton) submitButton.disabled = true;
+  try {
+    const { record: saved, cloudStatus } = await saveRecord(kind, record);
+    onSaved(saved);
+    render();
+    resetForm();
+    if (cloudStatus === "missing_table") {
+      setFormMessage(
+        messageElement,
+        "Saved on this device. Run add-miscellaneous-expenses.sql in Supabase SQL Editor to sync across devices."
+      );
+      showToast(`${successToast} (Saved locally; cloud table pending setup).`);
+    } else if (cloudStatus === "offline") {
+      setFormMessage(messageElement, "Saved on this device. Cloud sync will retry automatically when online.");
+      showToast(`${successToast} (Saved locally; cloud sync pending).`);
+    } else {
+      showToast(successToast);
+    }
+  } catch (error) {
+    setFormMessage(messageElement, error.message || "The record could not be saved.", true);
+  } finally {
+    if (submitButton) submitButton.disabled = false;
   }
 }
 
@@ -1126,9 +1172,19 @@ async function deleteRecord(kind, record) {
   if (cloudConfigured && currentUser) {
     try {
       const { error } = await supabase.from(tableForKind(kind)).delete().eq("id", record.id);
-      if (error && kind !== "misc") throw error;
+      if (error) {
+        if (kind === "misc" && isMissingMiscTableError(error)) {
+          miscCloudTableMissing = true;
+        } else {
+          throw error;
+        }
+      }
     } catch (err) {
-      if (kind !== "misc") throw err;
+      if (kind === "misc" && isMissingMiscTableError(err)) {
+        miscCloudTableMissing = true;
+      } else {
+        throw err;
+      }
     }
   }
   await deleteLocal(storeForKind(kind), record.id);
@@ -1165,16 +1221,18 @@ async function handleOrderSubmit(event) {
     updatedAt: now,
   };
 
-  try {
-    const saved = await saveRecord("order", order);
-    orders = orders.filter((item) => item.id !== saved.id).concat(saved);
-    updateCustomerDatalist();
-    render();
-    resetOrderForm();
-    showToast(existing ? "Order updated." : "Order saved.");
-  } catch (error) {
-    setFormMessage(elements.formMessage, error.message || "The order could not be saved.", true);
-  }
+  await persistRecordWithUi({
+    kind: "order",
+    record: order,
+    submitButton: elements.saveButton,
+    messageElement: elements.formMessage,
+    successToast: existing ? "Order updated." : "Order saved.",
+    onSaved: (saved) => {
+      orders = orders.filter((item) => item.id !== saved.id).concat(saved);
+      updateCustomerDatalist();
+    },
+    resetForm: resetOrderForm,
+  });
 }
 
 async function handlePetrolSubmit(event) {
@@ -1198,15 +1256,17 @@ async function handlePetrolSubmit(event) {
     updatedAt: now,
   };
 
-  try {
-    const saved = await saveRecord("petrol", expense);
-    petrolExpenses = petrolExpenses.filter((item) => item.id !== saved.id).concat(saved);
-    render();
-    resetPetrolForm();
-    showToast(existing ? "Petrol cost updated." : "Petrol cost saved.");
-  } catch (error) {
-    setFormMessage(elements.petrolFormMessage, error.message || "The petrol cost could not be saved.", true);
-  }
+  await persistRecordWithUi({
+    kind: "petrol",
+    record: expense,
+    submitButton: elements.savePetrolButton,
+    messageElement: elements.petrolFormMessage,
+    successToast: existing ? "Petrol cost updated." : "Petrol cost saved.",
+    onSaved: (saved) => {
+      petrolExpenses = petrolExpenses.filter((item) => item.id !== saved.id).concat(saved);
+    },
+    resetForm: resetPetrolForm,
+  });
 }
 
 async function handleManufacturerPaymentSubmit(event) {
@@ -1230,15 +1290,17 @@ async function handleManufacturerPaymentSubmit(event) {
     updatedAt: now,
   };
 
-  try {
-    const saved = await saveRecord("manufacturerPayment", payment);
-    manufacturerPayments = manufacturerPayments.filter((item) => item.id !== saved.id).concat(saved);
-    render();
-    resetManufacturerPaymentForm();
-    showToast(existing ? "Manufacturer payment updated." : "Manufacturer payment saved.");
-  } catch (error) {
-    setFormMessage(elements.manufacturerPaymentFormMessage, error.message || "The payment could not be saved.", true);
-  }
+  await persistRecordWithUi({
+    kind: "manufacturerPayment",
+    record: payment,
+    submitButton: elements.saveManufacturerPaymentButton,
+    messageElement: elements.manufacturerPaymentFormMessage,
+    successToast: existing ? "Manufacturer payment updated." : "Manufacturer payment saved.",
+    onSaved: (saved) => {
+      manufacturerPayments = manufacturerPayments.filter((item) => item.id !== saved.id).concat(saved);
+    },
+    resetForm: resetManufacturerPaymentForm,
+  });
 }
 
 async function handleMiscSubmit(event) {
@@ -1262,15 +1324,17 @@ async function handleMiscSubmit(event) {
     updatedAt: now,
   };
 
-  try {
-    const saved = await saveRecord("misc", expense);
-    miscExpenses = miscExpenses.filter((item) => item.id !== saved.id).concat(saved);
-    render();
-    resetMiscForm();
-    showToast(existing ? "Expense updated." : "Expense saved.");
-  } catch (error) {
-    setFormMessage(elements.miscFormMessage, error.message || "The expense could not be saved.", true);
-  }
+  await persistRecordWithUi({
+    kind: "misc",
+    record: expense,
+    submitButton: elements.saveMiscButton,
+    messageElement: elements.miscFormMessage,
+    successToast: existing ? "Expense updated." : "Expense saved.",
+    onSaved: (saved) => {
+      miscExpenses = miscExpenses.filter((item) => item.id !== saved.id).concat(saved);
+    },
+    resetForm: resetMiscForm,
+  });
 }
 
 async function handleOrderAction(event) {
@@ -1427,7 +1491,8 @@ async function syncPendingRecords(kind, ownerId, remoteExistingIds = new Set()) 
       await upsertRemoteBatch(kind, updatedChunk);
       await saveLocalBatch(store, updatedChunk);
     } catch (err) {
-      if (kind === "misc") {
+      if (kind === "misc" && isMissingMiscTableError(err)) {
+        miscCloudTableMissing = true;
         console.warn("Could not sync pending misc records to remote (table may not exist yet in Supabase):", err.message);
         return;
       }
@@ -1445,19 +1510,20 @@ async function syncFromCloud({ showResult = false } = {}) {
   try {
     // 1. Fetch remote records from cloud first
     const fetchRemoteMisc = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("miscellaneous_expenses")
-          .select("*")
-          .order("expense_date", { ascending: false });
-        if (error) {
+      const { data, error } = await supabase
+        .from("miscellaneous_expenses")
+        .select("*")
+        .order("expense_date", { ascending: false });
+      if (error) {
+        if (isMissingMiscTableError(error)) {
+          miscCloudTableMissing = true;
           console.warn("Supabase miscellaneous_expenses table notice:", error.message);
           return { data: [], isMissing: true };
         }
-        return { data: data || [], isMissing: false };
-      } catch {
-        return { data: [], isMissing: true };
+        throw error;
       }
+      miscCloudTableMissing = false;
+      return { data: data || [], isMissing: false };
     };
 
     const [
@@ -1536,7 +1602,7 @@ async function syncFromCloud({ showResult = false } = {}) {
         .map((r) => r.id);
       if (toDelete.length > 0) await deleteLocalBatch(MANUFACTURER_PAYMENT_STORE, toDelete);
     }
-    if (!miscResult.isMissing && normalizedMisc.length > 0) {
+    if (!miscResult.isMissing) {
       const toDelete = (storedMisc || [])
         .filter((r) => r.userId === currentUser.id && r.syncState === "synced" && !remoteMiscIds.has(r.id))
         .map((r) => r.id);
@@ -1676,8 +1742,8 @@ function formatSheetCurrency(sheet, columns, firstRow, lastRow) {
 }
 
 function exportExcel() {
-  if (!orders.length && !petrolExpenses.length && !manufacturerPayments.length) {
-    showToast("Add an order before exporting an Excel file.");
+  if (!orders.length && !petrolExpenses.length && !manufacturerPayments.length && !miscExpenses.length) {
+    showToast("Add an entry before exporting an Excel file.");
     return;
   }
 
@@ -1764,7 +1830,7 @@ function exportExcel() {
   const miscSheet = XLSX.utils.json_to_sheet(miscRows);
 
   summarySheet["!cols"] = [{ wch: 33 }, { wch: 58 }];
-  ordersSheet["!cols"] = [{ wch: 14 }, { wch: 26 }, { wch: 14 }, { wch: 20 }, { wch: 20 }, { wch: 16 }, { wch: 16 }, { wch: 23 }, { wch: 32 }];
+  ordersSheet["!cols"] = [{ wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 18 }, { wch: 16 }, { wch: 16 }, { wch: 24 }, { wch: 32 }];
   petrolSheet["!cols"] = [{ wch: 14 }, { wch: 16 }, { wch: 42 }];
   manufacturerSheet["!cols"] = [{ wch: 14 }, { wch: 18 }, { wch: 42 }];
   miscSheet["!cols"] = [{ wch: 14 }, { wch: 18 }, { wch: 42 }];
@@ -1774,7 +1840,7 @@ function exportExcel() {
   for (let row = 2; row <= manufacturerRows.length + 1; row += 1) if (manufacturerSheet[`A${row}`]) manufacturerSheet[`A${row}`].z = "dd-mmm-yyyy";
   for (let row = 2; row <= miscRows.length + 1; row += 1) if (miscSheet[`A${row}`]) miscSheet[`A${row}`].z = "dd-mmm-yyyy";
 
-  formatSheetCurrency(ordersSheet, ["D", "E", "F", "G", "H"], 2, orderRows.length + 1);
+  formatSheetCurrency(ordersSheet, ["C", "D", "E", "F", "G"], 2, orderRows.length + 1);
   formatSheetCurrency(petrolSheet, ["B"], 2, petrolRows.length + 1);
   formatSheetCurrency(manufacturerSheet, ["B"], 2, manufacturerRows.length + 1);
   formatSheetCurrency(miscSheet, ["B"], 2, miscRows.length + 1);

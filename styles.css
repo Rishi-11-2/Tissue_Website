@@ -1670,6 +1670,19 @@ footer {
    Responsive Adaptations
    ========================================================================== */
 
+@media (max-width: 1160px) {
+  .view-navigation {
+    flex-wrap: wrap;
+  }
+  .nav-tabs {
+    flex: 1 1 auto;
+  }
+  .tab-button {
+    padding: 0 12px;
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 1080px) {
   .summary-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1681,7 +1694,7 @@ footer {
     grid-template-columns: 1fr;
   }
   .entry-panel {
-    max-width: 600px;
+    max-width: 100%;
   }
 }
 
